@@ -6,7 +6,7 @@ The PGXN distribution metadata specification
 Version
 -------
 
-1.0.0
+1.0.1
 
 Synopsis
 --------
