@@ -1,15 +1,15 @@
-PGXN Meta Spec
-==============
+Name
+====
 
-The PGXN distribution metadata specification
+PGXN Meta Spec - The PGXN distribution metadata specification
 
 Version
--------
+=======
 
 1.0.1
 
 Synopsis
---------
+========
 
 ``` json
 {
@@ -76,7 +76,7 @@ Synopsis
 ```
 
 Description
------------
+===========
 
 This document describes version 1.0.0 of the PGXN distribution metadata
 specification, also known as the "PGXN Meta Spec." It is formatted using the
@@ -95,40 +95,36 @@ with this specification and include it with the distribution for use by
 automated tools that index, examine, package, or install PGXN distributions.
 
 Terminology
------------
+===========
 
-### distribution
+distribution
+:   The primary object described by the metadata. In the context of this
+    document it usually refers to a collection of extensions, source code,
+    utilities, tests, and/or documents that are distributed together for other
+    developers to use. Examples of distributions are [`semver`], [`pair`], and
+    [`pgTAP`].
 
-The primary object described by the metadata. In the context of this document
-it usually refers to a collection of extensions, source code, utilities,
-tests, and/or documents that are distributed together for other developers to
-use. Examples of distributions are [`semver`], [`pair`], and [`pgTAP`].
+extension
+:   A reusable library of code contained in a single file or within files
+    referenced by the [`CREATE EXTENSION` statement]. Extensions usually
+    contain one or more PostgreSQL objects --- such as data types, functions,
+    and operators --- and are often referred to by the name of a primary
+    object that can be mapped to the file name. For example, one might refer
+    to `pgTAP` instead of `sql/pgtap.sql`.
 
-### extension
+consumer
+:   Code that reads a metadata file, deserializes it into a data structure in
+    memory, or interprets a data structure of metadata elements.
 
-A reusable library of code contained in a single file or within files
-referenced by the [`CREATE EXTENSION` statement]. Extensions usually contain
-one or more PostgreSQL objects --- such as data types, functions, and
-operators --- and are often referred to by the name of a primary object that
-can be mapped to the file name. For example, one might refer to `pgTAP`
-instead of `sql/pgtap.sql`.
+producer
+:   Code that constructs a metadata data structure, serializes into a byte
+    stream and/or writes it to disk.
 
-### consumer
-
-Code that reads a metadata file, deserializes it into a data structure in
-memory, or interprets a data structure of metadata elements.
-
-### producer
-
-Code that constructs a metadata data structure, serializes into a byte stream
-and/or writes it to disk.
-
-### must, should, may, etc.
-
-These terms are interpreted as described in [IETF RFC 2119].
+must, should, may, etc.
+:   These terms are interpreted as described in [IETF RFC 2119].
 
 Data Types
-----------
+==========
 
 Fields in the [Structure](#Structure) section describe data elements, each of
 which has an associated data type as described herein. There are four
@@ -136,17 +132,20 @@ primitive types: *Boolean*, *String*, *List*, and *Map*. Other types are
 subtypes of primitives and define compound data structures or define
 constraints on the values of a data element.
 
-### Boolean
+Boolean
+-------
 
 A *Boolean* is used to provide a true or false value. It **must** be
 represented as a defined (not `null`) value.
 
-### String
+String
+------
 
 A *String* is data element containing a non-zero length sequence of Unicode
 characters.
 
-### List
+List
+----
 
 A *List* is an ordered collection of zero or more data elements. Elements of a
 List may be of mixed types.
@@ -158,49 +157,57 @@ JavaScript array.
 Consumers expecting a List **must** consider a [String](#String) as equivalent
 to a List of length 1.
 
-### Map
+Map
+---
 
 A *Map* is an unordered collection of zero or more data elements ("values"),
 indexed by associated [String](#String) elements ("keys"). The Map’s value
 elements may be of mixed types.
 
-### License String
+License String
+--------------
 
 A *License String* is a subtype of [String](#String) with a restricted set of
 values. Valid values are described in detail in the description of the
 [license field](#license).
 
-### Term
+Term
+----
 
 A *Term* is a subtype of [String](#String) that **must** be at least two
 characters long contain no slash (`/`), backslash (`\`), control, or space
 characters.
 
-### Tag
+Tag
+---
 
 A *Tag* is a subtype of [String](#String) that **must** be fewer than 256
 characters long contain no slash (`/`), backslash (`\`), control, or space
 characters.
 
-### URI
+URI
+---
 
 *URI* is a subtype of [String](#String) containing a Uniform Resource
 Identifier or Locator.
 
-### Version
+Version
+-------
 
 A *Version* is a subtype of [String](#String) containing a value that
 describes the version number of extensions or distributions. Restrictions on
 format are described in detail in the [Version Format](#Version.Format)
 section.
 
-### Version Range
+Version Range
+-------------
 
 The *Version Range* type is a subtype of [String](#String). It describes a
 range of Versions that may be present or installed to fulfill prerequisites.
 It is specified in detail in the [Version Ranges](#Version.Ranges) section.
 
-### Structure
+Structure
+=========
 
 The metadata structure is a data element of type [Map](#Map). This section
 describes valid keys within the [Map](#Map).
@@ -654,9 +661,10 @@ Valid subkeys include:
     with the repository, e.g. git, svn, cvs, darcs, bzr or hg.
 
 Version Numbers
----------------
+===============
 
-### Version Format
+Version Format
+--------------
 
 This section defines the [Version](#Version) type, used by several
 fields in the PGXN Meta Spec.
@@ -669,7 +677,8 @@ version" *may* be denoted by appending a dash followed by an arbitrary ASCII
 string immediately following the patch version. Please see [the
 specification][semver] for all details on the format.
 
-### Version Ranges
+Version Ranges
+--------------
 
 Some fields (`prereqs`) indicate the particular version(s) of some other
 extension that may be required as a prerequisite. This section details the
@@ -691,9 +700,10 @@ indicates a version that must be **at least** 1.2.0, **less than** 2.0.0, and
 **not equal to** 1.5.0.
 
 Prerequisites
--------------
+=============
 
-### Prereq Spec
+Prereq Spec
+-----------
 
 The `prereqs` key defines the relationship between a distribution and other
 extensions. The prereq spec structure is a hierarchical data structure which
@@ -716,7 +726,7 @@ entry would appear in the distribution metadata:
 Note that the `prereqs` key may not be used to specify prerequisites
 distributed outside PGXN or the PostgreSQL core and its contrib extensions.
 
-#### Phases ####
+### Phases ###
 
 Requirements for regular use must be listed in the `runtime` phase. Other
 requirements should be listed in the earliest stage in which they are required
@@ -760,22 +770,27 @@ phases.
     perform other tasks related to developing new versions of the
     distribution.
 
-#### Relationships ####
+### Relationships ###
 
-*   **requires**: These dependencies **must** be installed for proper
-    completion of the phase.
+requires
+:   These dependencies **must** be installed for proper completion of the
+    phase.
 
-*   **recommends**: Recommended dependencies are *strongly* encouraged and
-    should be satisfied except in resource constrained environments.
+recommends
+:   Recommended dependencies are *strongly* encouraged and should be satisfied
+    except in resource constrained environments.
 
-*   **suggests**: These dependencies are optional, but are suggested for
-    enhanced operation of the described distribution.
+suggests
+:   These dependencies are optional, but are suggested for enhanced operation
+    of the described distribution.
 
-*   **conflicts**: These dependencies cannot be installed when the phase is in
-    operation. This is a very rare situation, and the conflicts relationship
-    should be used with great caution, or not at all.
+conflicts
+:   These dependencies cannot be installed when the phase is in operation.
+    This is a very rare situation, and the conflicts relationship should be
+    used with great caution, or not at all.
 
-### Merging and Resolving Prerequisites ###
+Merging and Resolving Prerequisites
+-----------------------------------
 
 Whenever metadata consumers merge prerequisites, they should be merged in a
 way that preserves the intended semantics of the prerequisite structure.
@@ -808,15 +823,16 @@ installed module files being "downgraded" to an older version and **may** warn
 users or ignore the prerequisite that would cause such a result.
 
 Serialization
--------------
+=============
 
 Distribution metadata should be serialized as JSON-encoded data and packaged
 with distributions as the file `META.json`.
 
 Notes For Implementors
-----------------------
+======================
 
-### Comparing Version Numbers ###
+Comparing Version Numbers
+-------------------------
 
 Following the [Semantic Versioning 2.0.0 Spec][semver], version numbers
 **must** be strictly compared by splitting the [Version](#Version) string on
@@ -835,7 +851,7 @@ less than an un-encumbered third integer of the same value. Some examples:
 ```
 
 See Also
---------
+========
 
 * [CPAN Meta Spec]
 * [PGXN]
