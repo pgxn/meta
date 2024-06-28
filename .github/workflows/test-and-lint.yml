@@ -1,0 +1,35 @@
+name: 🧪 Test and Lint
+on:
+  push:
+    branches-ignore: [wip/**]
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [[🐧, Ubuntu], [🍎, macOS], [🪟, Windows]]
+        toolchain: ["stable", "beta", "nightly"]
+    name: 🦀 ${{ matrix.toolchain }} on ${{ matrix.os[0] }} ${{ matrix.os[1] }}
+    runs-on: ${{ matrix.os[1] }}-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with: { toolchain: "${{ matrix.toolchain }}" }
+      - name: Test
+        run: make test
+
+  lint:
+    name: 🔎 Lint and Cover
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.1

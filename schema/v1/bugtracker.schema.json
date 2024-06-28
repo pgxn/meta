@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/bugtracker.schema.json",
+  "title": "Bug Tracker",
+  "type": "object",
+  "description": "This field describes the bug tracking system for this distribution.",
+  "properties": {
+    "web": {
+      "type": "string",
+      "format": "uri",
+      "description": "A URI pointing to a web front-end for the bug tracker"
+    },
+    "mailto": {
+      "type": "string",
+      "format": "email",
+      "description": "An email address to which bug reports can be sent"
+    }
+  },
+  "anyOf": [
+    { "required": ["web"] },
+    { "required": ["mailto"] },
+    { "required": ["web", "mailto"] }
+  ],
+  "patternProperties": {
+    "^[xX]_": {
+      "description": "Custom key"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "web": "https://github.com/theory/pgtap/issues"
+    },
+    {
+      "web": "https://github.com/theory/pgtap/issues",
+      "mailto": "pgxn-bugs@example.com"
+    }
+  ]
+}

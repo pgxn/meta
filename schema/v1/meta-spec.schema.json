@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/meta-spec.schema.json",
+  "title": "Meta Spec",
+  "description": "This field indicates the Version of the PGXN Meta Spec that should be used to interpret the metadata. Consumers must check this key as soon as possible and abort further metadata processing if the meta-spec Version is not supported by the consumer.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^1[.]0[.][[:digit:]]+$",
+      "description": "The version of the PGXN Meta Spec against which the document was generated."
+    },
+    "url": {
+      "type": "string",
+      "const": "https://pgxn.org/meta/spec.txt",
+      "description": "The URI of the metadata specification document corresponding to the given version. This is strictly for human-consumption and should not impact the interpretation of the document."
+    }
+  },
+  "required": ["version"],
+  "patternProperties": {
+    "^[xX]_": {
+      "description": "Custom key"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    { "version": "1.0.0" },
+    {
+      "version": "1.0.2",
+      "url": "https://pgxn.org/meta/spec.txt"
+    }
+  ]
+}

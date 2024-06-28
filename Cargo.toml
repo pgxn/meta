@@ -1,0 +1,17 @@
+[package]
+name = "pgxn-meta-spec"
+version = "0.1.0"
+description = "The PGXN distribution metadata specification"
+repository = "https://github.com/pgxn/pgxn-meta-spec"
+authors = ["David E. Wheeler <david@justatheory.com>"]
+keywords = ["pgxn", "postgres", "postgresql", "extension", "validation", "distribution"]
+license = "PostgreSQL"
+categories = ["web-programming", "database"]
+edition = "2021"
+exclude = [ ".github", ".gitattributes", "target", ".vscode", ".gitignore" ]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dev-dependencies]
+boon = "0.6"
+serde_json = "1.0"

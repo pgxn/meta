@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/no_index.schema.json",
+  "title": "No Index",
+  "description": "This field describes any files or directories that are private to the packaging or implementation of the distribution and should be ignored by indexing or search tools.",
+  "type": "object",
+  "properties": {
+    "file": {
+      "description": "A list of relative paths to files. Paths **must be** specified with unix conventions.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "description": "Relative path in unix convention to a file to ignore.",
+        "minLength": 1
+      }
+    },
+    "directory": {
+      "description": "A list of relative paths to directories. Paths **must be** specified with unix conventions.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "description": "Relative path in unix convention to a directory to ignore.",
+        "minLength": 1
+      }
+    }
+  },
+  "anyOf": [
+    { "required": ["file"] },
+    { "required": ["directory"] },
+    { "required": ["file", "directory"] }
+  ],
+  "patternProperties": {
+    "^[xX]_": {
+      "description": "Custom key"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "file": ["src/file.sql"],
+      "directory": ["src/private"]
+    }
+  ]
+}

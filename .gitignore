@@ -1,1 +1,5 @@
-/.vscode
+.DS_Store
+.idea/
+/target
+.vscode/
+vendor/

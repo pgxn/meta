@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/maintainer.schema.json",
+  "title": "Maintainer",
+  "description": "This string or array of strings lists the person(s) to contact concerning the distribution. The preferred form of the contact string is: `contact-name <email-address>`.\n\nThis field provides a general contact list independent of other structured fields provided within the resources object, such as bugtracker. The addressee(s) can be contacted for any purpose including but not limited to: (security) problems with the distribution, questions about the distribution, or bugs in the distribution.\n\nA distribution’s original author is usually the contact listed within this field. Co-maintainers, successor maintainers, or mailing lists devoted to the distribution may also be listed in addition to or instead of the original author.",
+  "oneOf": [
+    {
+      "type": "string",
+      "minLength": 1
+    },
+    {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    }
+  ],
+  "examples": [
+    "David E. Wheeler <theory@pgxn.org>",
+    ["David E. Wheeler <theory@pgxn.org>", "Josh Berkus <jberkus@pgxn.org>"]
+  ]
+}

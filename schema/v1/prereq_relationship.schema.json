@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/prereq_relationship.schema.json",
+  "title": "Prerequisite Relationship",
+  "description": "A Prerequisite Relationship lists prerequisites and their version ranges.",
+  "type": "object",
+  "minProperties": 1,
+  "propertyNames": { "$ref": "term.schema.json" },
+  "additionalProperties": { "$ref": "version_range.schema.json" },
+  "examples": [
+    {
+      "PostgreSQL": "8.0.0",
+      "PostGIS": "1.5.0"
+    },
+    {
+      "PostgreSQL": "8.4.0"
+    },
+    {
+      "sha1": 0
+    }
+  ]
+}

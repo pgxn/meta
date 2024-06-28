@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/version.schema.json",
+  "title": "Version",
+  "description": "A Version is a subtype of string containing a value that describes the version number of extensions or distributions.\n\nVersion numbers must be treated as strings, and adhere to the [Semantic Versioning 2.0.0 Specification](https://semver.org). Semantic versions take a dotted-integer format consisting of three positive integers separated by full stop characters (i.e. “dots”, “periods” or “decimal points”). A “pre-release version” by appending a dash followed by an arbitrary ASCII string immediately following the patch version. Please see [the specification](https://semver.org) for all details on the format.",
+  "type": "string",
+  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+  "$comment": "https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string",
+  "examples": [
+    "1.3.6",
+    "10.20.30",
+    "1.0.0-alpha",
+    "1.1.2+meta",
+    "1.0.0-alpha-a.b-c-something-long+build.1-aef.1-its-okay"
+  ]
+}

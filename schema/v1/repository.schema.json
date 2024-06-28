@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/repository.schema.json",
+  "title": "Bug Tracker",
+  "type": "object",
+  "description": "This fields describes the source control repository for this distribution.\n\nBecause a URI like `https://myrepo.example.com/` is ambiguous as to type, producers should provide a `type` whenever a `url` key is given. The `type` field should be the name of the most common program used to work with the repository, e.g. git, svn, cvs, darcs, bzr or hg.",
+  "properties": {
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "A URI pointing to the repository itself."
+    },
+    "web": {
+      "type": "string",
+      "format": "uri",
+      "description": "A URI pointing to a web front-end for the repository."
+    },
+    "type": {
+      "type": "string",
+      "format": "email",
+      "description": "a lowercase string indicating the VCS used."
+    }
+  },
+  "anyOf": [
+    { "required": ["url", "type"] },
+    { "required": ["web"] },
+    { "required": ["web", "url", "type"] }
+  ],
+  "patternProperties": {
+    "^[xX]_": {
+      "description": "Custom key"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "url": "https://github.com/theory/pgtap.git",
+      "web": "https://github.com/theory/pgtap",
+      "type": "git"
+    },
+    {
+      "url": "https://github.com/theory/pgtap.git",
+      "type": "git"
+    },
+    {
+      "web": "https://github.com/theory/pgtap"
+    }
+  ]
+}

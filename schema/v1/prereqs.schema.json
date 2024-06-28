@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/prereqs.schema.json",
+  "title": "Prerequisites",
+  "description": "This field describes all the prerequisites of the distribution. The keys are phases of activity, such as `configure`, `build`, `test`, and `runtime`. Values are objects in which the keys name the type of prerequisite relationship such as `requires`, `recommends`, `suggests`, or `conflicts`, and the values provide sets of prerequisite relations. The sets of relations **must** be specified as objects mapping extension names to version ranges.\n\nThe prereq spec structure divides prerequisites into *Phases* of activity in the installation process and *Relationships* that indicate how prerequisites should be resolved.\n\nNote that the `prereqs` key may not be used to specify prerequisites distributed outside PGXN or the PostgreSQL core and its contrib extensions.\n\nRequirements for regular use must be listed in the `runtime` phase. Other requirements should be listed in the earliest stage in which they are required and consumers must accumulate and satisfy requirements across phases before executing the activity. For example, `build` requirements must also be available during the `test` phase.",
+  "type": "object",
+  "properties": {
+    "configure": {
+      "$ref": "prereq_phase.schema.json",
+      "description": "The configure phase occurs before any dynamic configuration has been attempted. Extensions required by the configure phase **must** be available for use before the distribution building tool has been executed."
+    },
+    "build": {
+      "$ref": "prereq_phase.schema.json",
+      "description": "The build phase is when the distribution’s source code is compiled (if necessary) and otherwise made ready for installation."
+    },
+    "test": {
+      "$ref": "prereq_phase.schema.json",
+      "description": "The test phase is when the distribution’s automated test suite is run. Any extension needed only for testing and not for subsequent use should be listed here."
+    },
+    "runtime": {
+      "$ref": "prereq_phase.schema.json",
+      "description": "The runtime phase refers not only to when the distribution’s contents are installed, but also to its continued use. Any extension that is a prerequisite for regular use of this distribution should be indicated here."
+    },
+    "develop": {
+      "$ref": "prereq_phase.schema.json",
+      "description": "The develop phase’s prereqs are extensions needed to work on the distribution’s source code as its maintainer does. These tools might be needed to build a release tarball, to run maintainer-only tests, or to perform other tasks related to developing new versions of the distribution."
+    }
+  },
+  "minProperties": 1,
+  "$comment": "Really should require at least one of the named properties; this allows for a single _x property. Good enough for now.",
+  "patternProperties": {
+    "^[xX]_": {
+      "description": "Custom key"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "runtime": {
+        "requires": {
+          "PostgreSQL": "8.0.0",
+          "PostGIS": "1.5.0"
+        },
+        "recommends": {
+          "PostgreSQL": "8.4.0"
+        },
+        "suggests": {
+          "sha1": 0
+        }
+      },
+      "build": {
+        "requires": {
+          "prefix": 0
+        }
+      },
+      "test": {
+        "recommends": {
+          "pgTAP": 0
+        }
+      }
+    }
+  ]
+}

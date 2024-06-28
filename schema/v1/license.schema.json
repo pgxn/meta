@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/license.schema.json",
+  "title": "License",
+  "description": "One or more licenses that apply to some or all of the files in the distribution. If multiple licenses are listed, the distribution documentation should be consulted to clarify the interpretation of multiple licenses.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/validLicense",
+      "description": "A shortcut to identify a well-known license for the distribution.",
+      "examples": ["apache_2_0", "postgresql"]
+    },
+    {
+      "type": "array",
+      "items": { "$ref": "#/$defs/validLicense" },
+      "description": "A list of shortcuts to identify well-known licenses for the distribution.",
+      "minItems": 1,
+      "examples": [["apache_2_0", "postgresql"], ["mit"]]
+    },
+    {
+      "type": "object",
+      "description": "Describes the distribution license or licenses. Each subkey may be any string naming a license. All values must be URIs that link to the appropriate license.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "format": "uri",
+        "examples": [
+          {
+            "PostgreSQL": "https://www.postgresql.org/about/licence"
+          },
+          {
+            "Perl 5": "https://dev.perl.org/licenses/",
+            "BSD": "https://www.opensource.org/licenses/bsd-license.html"
+          }
+        ]
+      }
+    }
+  ],
+  "examples": [
+    "perl_5",
+    ["apache_2_0", "mozilla_1_0"],
+    {
+      "PostgreSQL": "https://www.postgresql.org/about/licence"
+    },
+    {
+      "Perl 5": "https://dev.perl.org/licenses/",
+      "BSD": "https://www.opensource.org/licenses/bsd-license.html"
+    }
+  ],
+  "$defs": {
+    "validLicense": {
+      "enum": [
+        "agpl_3",
+        "apache_1_1",
+        "apache_2_0",
+        "artistic_1",
+        "artistic_2",
+        "bsd",
+        "freebsd",
+        "gfdl_1_2",
+        "gfdl_1_3",
+        "gpl_1",
+        "gpl_2",
+        "gpl_3",
+        "lgpl_2_1",
+        "lgpl_3_0",
+        "mit",
+        "mozilla_1_0",
+        "mozilla_1_1",
+        "openssl",
+        "perl_5",
+        "postgresql",
+        "qpl_1_0",
+        "ssleay",
+        "sun",
+        "zlib",
+        "open_source",
+        "restricted",
+        "unrestricted",
+        "unknown"
+      ]
+    }
+  }
+}

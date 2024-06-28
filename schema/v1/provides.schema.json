@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/provides.schema.json",
+  "title": "Provides",
+  "description": "This describes all extensions provided by this distribution. This information is used by PGXN to build indexes identifying in which distributions various extensions can be found.\n\nThe keys of provides are Terms that name the extensions found within the distribution.",
+  "type": "object",
+  "minProperties": 1,
+  "additionalProperties": { "$ref": "extension.schema.json" },
+  "propertyNames": { "$ref": "term.schema.json" },
+  "examples": [
+    {
+      "pgtap": {
+        "file": "sql/pgtap.sql",
+        "docfile": "doc/pgtap.md",
+        "version": "0.2.4",
+        "abstract": "Unit testing assertions for PostgreSQL"
+      },
+      "schematap": {
+        "file": "sql/schematap.sql",
+        "docfile": "doc/schematap.md",
+        "version": "0.2.4",
+        "abstract": "Schema testing assertions for PostgreSQL"
+      }
+    }
+  ]
+}

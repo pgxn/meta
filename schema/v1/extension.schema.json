@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/extension.schema.json",
+  "title": "Extension",
+  "description": "An Extension is provided by a distribution.",
+  "type": "object",
+  "properties": {
+    "file": {
+      "type": "string",
+      "description": "The value must contain a relative file path from the root of the distribution to the file containing the extension. The path must be specified with unix conventions.",
+      "minLength": 1
+    },
+    "version": {
+      "$ref": "version.schema.json",
+      "description": "This field contains a version for the extension. All extensions must have versions."
+    },
+    "abstract": {
+      "type": "string",
+      "description": "A short String value describing the extension.",
+      "minLength": 1
+    },
+    "docfile": {
+      "type": "string",
+      "description": "The value must contain a relative file path from the root of the distribution to the file containing documentation for the extension. The path must be specified with unix conventions.",
+      "minLength": 1
+    }
+  },
+  "required": ["file", "version"],
+  "patternProperties": {
+    "^[xX]_": {
+      "description": "Custom key"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "file": "sql/pgtap.sql",
+      "docfile": "doc/pgtap.md",
+      "version": "0.2.4",
+      "abstract": "Unit testing assertions for PostgreSQL"
+    },
+    {
+      "file": "sql/schematap.sql",
+      "docfile": "doc/schematap.md",
+      "version": "0.2.4",
+      "abstract": "Schema testing assertions for PostgreSQL"
+    }
+  ]
+}

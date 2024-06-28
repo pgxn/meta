@@ -6,7 +6,7 @@ PGXN Meta Spec - The PGXN distribution metadata specification
 Version
 =======
 
-1.0.1
+1.0.2
 
 Synopsis
 ========
@@ -16,10 +16,10 @@ Synopsis
   "name": "pgTAP",
   "abstract": "Unit testing for PostgreSQL",
   "description": "pgTAP is a suite of database functions that make it easy to write TAP-emitting unit tests in psql scripts or xUnit-style test functions.",
-  "version": "0.2.5",
+  "version": "0.26.0",
   "maintainer": [
     "David E. Wheeler <theory@pgxn.org>",
-    "pgTAP List <pgtap-users@pgfoundry.org>"
+    "pgTAP List <pgtap-users@googlegroups.com>"
   ],
   "license": {
     "PostgreSQL": "https://www.postgresql.org/about/licence"
@@ -80,9 +80,9 @@ Description
 
 This document describes version 1.0.0 of the PGXN distribution metadata
 specification, also known as the "PGXN Meta Spec." It is formatted using the
-[Github Flavored Markdown] variant of [Markdown], and the canonical copy may
-always be found at [master.pgxn.org/meta/spec.txt]. A generated HTML-formatted
-copy found at [pgxn.org/spec/] may also be considered canonical.
+[MultiMarkdown] variant of [Markdown], and the canonical copy may always be
+found at [master.pgxn.org/meta/spec.txt]. A generated HTML-formatted copy
+found at [pgxn.org/spec/] may also be considered canonical.
 
 This document is stable. Any revisions to this specification for typo
 corrections and prose clarifications may be issued as "PGXN Meta Spec
@@ -182,7 +182,7 @@ Tag
 ---
 
 A *Tag* is a subtype of [String](#String) that **must** be fewer than 256
-characters long contain no slash (`/`), backslash (`\`), control, or space
+characters long contain no slash (`/`), backslash (`\`), or control
 characters.
 
 URI
@@ -214,7 +214,7 @@ describes valid keys within the [Map](#Map).
 
 Any keys not described in this specification document (whether top-level or
 within compound data structures described herein) are considered *custom keys*
-and **must** begin with an "x" or "X" and be followed by an underscore; i.e.l,
+and **must** begin with an "x" or "X" and be followed by an underscore; i.e.,
 they must match the pattern: `/\Ax_/i`. If a custom key refers to a compound
 data structure, subkeys within it do not need an "x_" or "X_" prefix.
 
@@ -329,7 +329,7 @@ The [List](#List) type may be used as a shortcut to identify one or more
 well-known licenses. The following list of [License Strings](#License.String)
 are valid in the [List](#List) representation:
 
-   string     |                     description                      
+   string     |                     description
 --------------|------------------------------------------------------
  agpl_3       | GNU Affero General Public License, Version 3
  apache_1_1   | Apache Software License, Version 1.1
@@ -359,7 +359,7 @@ are valid in the [List](#List) representation:
 The following [License Strings](#License.String) are also valid and indicate
 other licensing not described above:
 
-   string     |                     description                      
+   string     |                     description
 --------------|------------------------------------------------------
  open_source  | Other Open Source Initiative (OSI) approved license
  restricted   | Requires special permission from copyright holder
@@ -518,7 +518,7 @@ Example:
 ``` json
 "no_index": {
   "file":      [ "src/file.sql" ],
-  "directory": [ "src/private" ],
+  "directory": [ "src/private" ]
 }
 ```
 
@@ -574,7 +574,7 @@ distribution. The keys are phases of activity, such as `configure`, `build`,
 `test`, or `runtime`. Values are [Maps](#Map) in which the keys name the type
 of prerequisite relationship such as `requires`, `recommends`, `suggests`, or
 `conflicts`, and the values provide sets of prerequisite relations. The sets
-of relations **must** be specified as a [Map](#Map) of extension names to
+of relations **must** be specified as [Maps](#Map) of extension names to
 [Version Ranges](#Version.Ranges).
 
 The full definition for this field is given in the [Prereq Spec](#Prereq.Spec)
@@ -865,7 +865,7 @@ The PGXN Meta Spec borrows heavily from the [CPAN Meta Spec], which was
 originally written by Ken Williams in 2003 and has since been updated by Randy
 Sims, David Golden, and Ricardo Signes. Ported to PGXN by David E. Wheeler.
 
-  [Github Flavored Markdown]: https://github.github.com/gfm/
+  [MultiMarkdown]: https://fletcherpenney.net/multimarkdown/
   [Markdown]: https://daringfireball.net/projects/markdown/
   [master.pgxn.org/meta/spec.txt]: https://master.pgxn.org/meta/spec.txt
   [pgxn.org/spec/]: https://pgxn.org/spec/

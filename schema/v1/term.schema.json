@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/term.schema.json",
+  "title": "Term",
+  "description": "A Term is a subtype of string that must be at least two characters long contain no slash (/), backslash (\\), space, or control characters.",
+  "type": "string",
+  "minLength": 2,
+  "pattern": "^[^/\\\\\\p{Space}\\p{Cntrl}]{2,}$",
+  "examples": ["hi", "go-on", "pg_vectorize"]
+}

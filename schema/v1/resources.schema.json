@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/resources.schema.json",
+  "title": "Source Control Repository",
+  "description": "An Extension is provided by a distribution.",
+  "type": "object",
+  "properties": {
+    "homepage": {
+      "type": "string",
+      "format": "uri",
+      "description": "A URI for the official home of this project on the web."
+    },
+    "bugtracker": { "$ref": "bugtracker.schema.json" },
+    "repository": { "$ref": "repository.schema.json" }
+  },
+  "patternProperties": {
+    "^[xX]_": {
+      "description": "Custom key"
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1,
+  "$comment": "Really should require at least one of the named properties; this allows for a single _x property. Good enough for now.",
+  "examples": [
+    {
+      "homepage": "https://pgxn.org/",
+      "bugtracker": {
+        "web": "https://github.com/theory/pgtap/issues",
+        "mailto": "pgxn-bugs@example.com"
+      },
+      "repository": {
+        "url": "git://github.com/theory/pgtap.git",
+        "web": "https://github.com/theory/pgtap/",
+        "type": "git"
+      },
+      "x_twitter": "https://twitter.com/pgtap/"
+    }
+  ]
+}

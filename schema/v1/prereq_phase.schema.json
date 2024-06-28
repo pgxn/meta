@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/prereq_phase.schema.json",
+  "title": "Prerequisite Phase",
+  "description": "A Prerequisite Phase maps prerequisite relationships, such as `requires`, `recommends`, `suggests`, and `conflicts`, to their prerequisites.",
+  "type": "object",
+  "properties": {
+    "requires": {
+      "$ref": "prereq_relationship.schema.json",
+      "description": "These dependencies **must** be installed for proper completion of the phase."
+    },
+    "recommends": {
+      "$ref": "prereq_relationship.schema.json",
+      "description": "Recommended dependencies are *strongly* encouraged and should be satisfied except in resource constrained environments."
+    },
+    "suggests": {
+      "$ref": "prereq_relationship.schema.json",
+      "description": "These dependencies are optional, but are suggested for enhanced operation of the described distribution."
+    },
+    "conflicts": {
+      "$ref": "prereq_relationship.schema.json",
+      "description": "These dependencies cannot be installed when the phase is in operation. This is a very rare situation, and the conflicts relationship should be used with great caution, or not at all."
+    }
+  },
+  "patternProperties": {
+    "^[xX]_": {
+      "description": "Custom key"
+    }
+  },
+  "additionalProperties": false,
+  "minProperties": 1,
+  "$comment": "Really should require at least one of the named properties; this allows for a single _x property. Good enough for now.",
+  "examples": [
+    {
+      "requires": {
+        "PostgreSQL": "8.0.0",
+        "PostGIS": "1.5.0"
+      },
+      "recommends": {
+        "PostgreSQL": "8.4.0"
+      },
+      "suggests": {
+        "sha1": 0
+      }
+    }
+  ]
+}

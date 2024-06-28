@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/version_range.schema.json",
+  "title": "Version Range",
+  "description": "A Version Range describes a range of Versions that may be present or installed to fulfill prerequisites.\n\nThe simplest format for a Version Range is just the version number itself, e.g. `2.4.0`. This means that **at least** version 2.4.0 must be present. To indicate that **any** version of a prerequisite is okay, even if the prerequisite doesn’t define a version at all, use the version `0`.\n\nAlternatively, a version range **may** use the operators `<` (less than), `<=` (less than or equal), `>` (greater than), `>=` (greater than or equal), `==` (equal), and `!=` (not equal). For example, the specification `< 2.0.0` means that any version of the prerequisite less than 2.0.0 is suitable.\n\nFor more complicated situations, version specifications **may** be AND-ed together using commas. The specification `>= 1.2.0, != 1.5.0, < 2.0.0` indicates a version that must be **at least** 1.2.0, **less than** 2.0.0, and **not equal to** 1.5.0.",
+  "oneOf": [
+    {
+      "type": "string",
+      "pattern": "^(([=!]=|[<>]=?)\\s*)?((0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?|0)(,\\s*((([=!]=|[<>]=?)\\s*)?)(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?)*$",
+      "$comment": "https://regex101.com/r/Uy7XWK/1"
+    },
+    {
+      "const": 0
+    }
+  ],
+  "examples": [
+    0,
+    "0",
+    "1.3.6",
+    "==0.0.4",
+    "<= 1.1.2+meta",
+    ">= 2.0.0, 1.5.6",
+    ">= 1.2.0, != 1.5.0, < 2.0.0"
+  ]
+}
