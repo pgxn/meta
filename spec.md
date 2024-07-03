@@ -1,216 +1,130 @@
-Name
-====
+*   **Source:** PostgreSQL Extension Network
+*   **RFC**: TBD
+*   **Version**: 2.0.0-draft1
+*   **Status**: Draft
+*   **Category**: Standards Track
+*   **Published**: TBD
+*   **Authors**:
+    *   David E. Wheeler, PGXN, Tembo
 
-PGXN Meta Spec - The PGXN distribution metadata specification
+# RFC TBD
+# PostgreSQL Extension Network Distribution Metadata Specification
 
-Version
-=======
+## Abstract
 
-1.0.2
+This document describes version 2.0.0 of the PGXN distribution metadata
+specification, also known as the "PGXN Meta Spec." PGXN Metadata ships with
+PostgreSQL extension source distribution packages, and serves to describe the
+extension for the benefit of automated indexing, distribution, full-text
+search, binary packaging, and more.
 
-Synopsis
-========
+## Status of This Memo
 
-``` json
-{
-  "name": "pgTAP",
-  "abstract": "Unit testing for PostgreSQL",
-  "description": "pgTAP is a suite of database functions that make it easy to write TAP-emitting unit tests in psql scripts or xUnit-style test functions.",
-  "version": "0.26.0",
-  "maintainer": [
-    "David E. Wheeler <theory@pgxn.org>",
-    "pgTAP List <pgtap-users@googlegroups.com>"
-  ],
-  "license": {
-    "PostgreSQL": "https://www.postgresql.org/about/licence"
-  },
-  "prereqs": {
-    "runtime": {
-      "requires": {
-        "plpgsql": 0,
-        "PostgreSQL": "8.0.0"
-      },
-      "recommends": {
-        "PostgreSQL": "8.4.0"
-      }
-    }
-  },
-  "provides": {
-    "pgtap": {
-      "file": "sql/pgtap.sql",
-      "docfile": "doc/pgtap.mmd",
-      "version": "0.2.4",
-      "abstract": "Unit testing assertions for PostgreSQL"
-    },
-    "schematap": {
-      "file": "sql/schematap.sql",
-      "docfile": "doc/schematap.mmd",
-      "version": "0.2.4",
-      "abstract": "Schema testing assertions for PostgreSQL"
-    }
-  },
-  "resources": {
-    "homepage": "https://pgtap.org/",
-    "bugtracker": {
-      "web": "https://github.com/theory/pgtap/issues"
-    },
-    "repository": {
-      "url": "https://github.com/theory/pgtap.git",
-      "web": "https://github.com/theory/pgtap",
-      "type": "git"
-    }
-  },
-  "generated_by": "David E. Wheeler",
-  "meta-spec": {
-    "version": "1.0.0",
-    "url": "https://pgxn.org/meta/spec.txt"
-  },
-  "tags": [
-    "testing",
-    "unit testing",
-    "tap",
-    "tddd",
-    "test driven database development"
-  ]
-}
-```
+This is an Internet Standards Track document.
 
-Description
-===========
+This RFC represents the consensus of the distributed community of PostgreSQL
+extension developes, distributors, and packagers, generally referred to as the
+"PostgreSQL Extension Ecosystem". It is formatted using the [MultiMarkdown]
+variant of [Markdown], and the canonical copy may always be found at
+[master.pgxn.org/meta/spec.txt]. A generated HTML-formatted copy found at
+[pgxn.org/spec/] may also be considered canonical.
 
-This document describes version 1.0.0 of the PGXN distribution metadata
-specification, also known as the "PGXN Meta Spec." It is formatted using the
-[MultiMarkdown] variant of [Markdown], and the canonical copy may always be
-found at [master.pgxn.org/meta/spec.txt]. A generated HTML-formatted copy
-found at [pgxn.org/spec/] may also be considered canonical.
+Information about the current status of this document, any errata, and how to
+provide feedback on it may be obtained from its [source code repository].
 
-This document is stable. Any revisions to this specification for typo
-corrections and prose clarifications may be issued as "PGXN Meta Spec
-1.0.*x*". These revisions will never change semantics or add or remove
-specified behavior.
 
-Distribution metadata describe important properties of PGXN distributions.
-Distribution building tools should create a metadata file in accordance
-with this specification and include it with the distribution for use by
-automated tools that index, examine, package, or install PGXN distributions.
+## Copyright Notice
 
-Terminology
-===========
+Copyright (c) 2010-2024 PGXN and the persons identified as the document
+authors. All rights reserved.
 
-distribution
-:   The primary object described by the metadata. In the context of this
-    document it usually refers to a collection of extensions, source code,
-    utilities, tests, and/or documents that are distributed together for other
-    developers to use. Examples of distributions are [`semver`], [`pair`], and
-    [`pgTAP`].
+This RFC is distributed under the [CC BY-SA 4.0] license.
 
-extension
-:   A reusable library of code contained in a single file or within files
-    referenced by the [`CREATE EXTENSION` statement]. Extensions usually
-    contain one or more PostgreSQL objects --- such as data types, functions,
-    and operators --- and are often referred to by the name of a primary
-    object that can be mapped to the file name. For example, one might refer
-    to `pgTAP` instead of `sql/pgtap.sql`.
+Code Components extracted from this document MUST include the [PostgreSQL
+License].
 
-consumer
+## Introduction
+
+Distribution metadata describe important properties of PGXN source code
+distributions. Tools that build PGXN source distribution archives should
+create a metadata file in accordance with this specification and include it
+with the distribution for use by automated tools that index, examine, package,
+or install PGXN source distributions.
+
+### Terminology
+
+Source Code Package
+:   The primary object described by the metadata, also referred to as "source
+    package" and sometimes just "package". In the context of this document the
+    term refers to a collection of extensions, source code, utilities, tests,
+    and/or documents that are distributed together for other developers to
+    build, install, and use. Examples of source packages include [`semver`],
+    [`vector`], and [`citus`].
+
+Extension
+:   A software component that extends the capabilities of a PostgreSQL
+    database or cluster. Extensions may be `CREATE EXTENSION` [extensions],
+    [background workers], command-line apps, [loadable modules], shared
+    libraries, and more.
+
+Consumer
 :   Code that reads a metadata file, deserializes it into a data structure in
     memory, or interprets a data structure of metadata elements.
 
-producer
-:   Code that constructs a metadata data structure, serializes into a byte
-    stream and/or writes it to disk.
+Producer
+:   Code that constructs a metadata data structure, serializes it into a byte
+    stream, and/or writes it to disk.
 
-must, should, may, etc.
-:   These terms are interpreted as described in [IETF RFC 2119].
+MUST, SHOULD, MAY, etc.
 
-Data Types
-==========
+:   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+    document are to be interpreted as described in [IETF RFC 2119].
+
+## Data Types
 
 Fields in the [Structure](#Structure) section describe data elements, each of
-which has an associated data type as described herein. There are four
-primitive types: *Boolean*, *String*, *List*, and *Map*. Other types are
-subtypes of primitives and define compound data structures or define
-constraints on the values of a data element.
-
-Boolean
--------
-
-A *Boolean* is used to provide a true or false value. It **must** be
-represented as a defined (not `null`) value.
-
-String
-------
-
-A *String* is data element containing a non-zero length sequence of Unicode
-characters.
-
-List
-----
-
-A *List* is an ordered collection of zero or more data elements. Elements of a
-List may be of mixed types.
-
-Producers **must** represent List elements using a data structure which
-unambiguously indicates that multiple values are possible, such as a
-JavaScript array.
-
-Consumers expecting a List **must** consider a [String](#String) as equivalent
-to a List of length 1.
-
-Map
----
-
-A *Map* is an unordered collection of zero or more data elements ("values"),
-indexed by associated [String](#String) elements ("keys"). The Map’s value
-elements may be of mixed types.
-
-License String
---------------
-
-A *License String* is a subtype of [String](#String) with a restricted set of
-values. Valid values are described in detail in the description of the
-[license field](#license).
+which has an associated data type as described herein. Each is based on
+the primitive types defined by [JSON]: *object*, *array*, *string*, *number*,
+and *boolean*.
 
 Term
-----
-
-A *Term* is a subtype of [String](#String) that **must** be at least two
-characters long contain no slash (`/`), backslash (`\`), control, or space
-characters.
+:   A *Term* is a *string* that **MUST** be at least two characters long, and
+    contain no slash (`/`), backslash (`\`), control, or space characters.
 
 Tag
----
-
-A *Tag* is a subtype of [String](#String) that **must** be fewer than 256
-characters long contain no slash (`/`), backslash (`\`), or control
-characters.
+:   A *Tag* is a *string* that **MUST** be at least two and no more than 255
+    characters long, and contain no slash (`/`), backslash (`\`), or control
+    characters.
 
 URI
----
-
-*URI* is a subtype of [String](#String) containing a Uniform Resource
-Identifier or Locator.
+:   *URI* is a *string* containing a valid Uniform Resource Identifier or
+    Locator as defined by [IETF RFC 3986].
 
 Version
--------
-
-A *Version* is a subtype of [String](#String) containing a value that
-describes the version number of extensions or distributions. Restrictions on
-format are described in detail in the [Version Format](#Version.Format)
-section.
+:   A *Version* is a *string* containing a value that describes the version
+    number of extensions or distributions, and adhere to the format of the
+    [Semantic Versioning 2.0.0 Specification][semver].
 
 Version Range
--------------
+:   A *Version Range* is a *string* that describes a range of Versions that
+    may be present or installed to fulfill prerequisites. It is specified in
+    detail in the [Version Ranges](#version-ranges) section.
 
-The *Version Range* type is a subtype of [String](#String). It describes a
-range of Versions that may be present or installed to fulfill prerequisites.
-It is specified in detail in the [Version Ranges](#Version.Ranges) section.
+License String
+:   A *License String* is a *string* with a restricted set of values. Valid
+    values are defined by the [SPDX License List v3.24.0].
 
-Structure
-=========
+License Expression
+:   A *License Expression* is a *string* that represents one or more licenses
+    under which the contents of the package are distributed by combining
+    License Strings into a single value. The format is defined by the [SPDX
+    Standard License Expression].
 
-The metadata structure is a data element of type [Map](#Map). This section
-describes valid keys within the [Map](#Map).
+## Structure
+
+The metadata structure is an object. This section describes valid keys within
+the [Map](#Map).
 
 Any keys not described in this specification document (whether top-level or
 within compound data structures described herein) are considered *custom keys*
@@ -865,16 +779,23 @@ The PGXN Meta Spec borrows heavily from the [CPAN Meta Spec], which was
 originally written by Ken Williams in 2003 and has since been updated by Randy
 Sims, David Golden, and Ricardo Signes. Ported to PGXN by David E. Wheeler.
 
+  [source code repository]: https://www.rfc-editor.org/info/rfc9591
+  [PostgreSQL License]: https://www.postgresql.org/about/licence/
+  [CC BY-SA 4.0]: https://creativecommons.org/licenses/by-sa/4.0/ "Attribution-Sharealike 4.0 International"
   [MultiMarkdown]: https://fletcherpenney.net/multimarkdown/
   [Markdown]: https://daringfireball.net/projects/markdown/
   [master.pgxn.org/meta/spec.txt]: https://master.pgxn.org/meta/spec.txt
   [pgxn.org/spec/]: https://pgxn.org/spec/
   [`semver`]: https://pgxn.org/dist/semver/
-  [`pair`]: https://pgxn.org/dist/pair/
-  [`pgTAP`]: https://pgxn.org/dist/pgtap/
+  [`vector`]: https://pgxn.org/dist/vector/
+  [`citus`]: https://pgxn.org/dist/citus/
   [`CREATE EXTENSION` statement]: https://www.postgresql.org/docs/current/static/sql-createextension.html
   [IETF RFC 2119]: https://www.ietf.org/rfc/rfc2119.txt
   [JSON]: https://json.org/
+  [IETF RFC 3986]: https://www.rfc-editor.org/info/rfc3986
+    "RFC 3986: Uniform Resource Identifier (URI): Generic Syntax"
   [semver]: https://semver.org/
+  [SPDX License List v3.24.0]: https://github.com/spdx/license-list-data/tree/v3.24.0
+  [SPDX Standard License Expression]: https://spdx.github.io/spdx-spec/v3.0/annexes/SPDX-license-expressions/
   [CPAN Meta Spec]: https://metacpan.org/pod/CPAN::Meta::Spec
   [PGXN]: https://pgxn.org/
