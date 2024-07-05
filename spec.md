@@ -132,6 +132,11 @@ characters.
 *URI* is a [String](#string) containing a valid Uniform Resource Identifier or
 Locator as defined by [IETF RFC 3986].
 
+#### Path ####
+
+*Path* is a [String](#string) with a relative file path that identifies a file
+in the distribution. The path **MUST** be specified with unix conventions.
+
 #### Version ####
 
 A *Version* is a [String](#string) containing a value that describes the
@@ -147,7 +152,7 @@ detail in the [Version Ranges](#version-ranges) section.
 #### License String ####
 
 A *License String* is a [String](#string) with a restricted set of values.
-Valid values are defined by the [SPDX License List v3.24.0].
+Valid values are defined by the [SPDX License].
 
 #### License Expression ####
 
@@ -173,24 +178,26 @@ All other properties not described herein are invalid and should be ignored by
 [Consumers](#consumer). [Producers](#producer) must not generate or output
 invalid properties.
 
-For each property, an example is provided followed by a description. The
-description begins with the version of spec in which the property was added or
-in which the definition was modified, whether the property is *required* or
-*optional*, and the data type of the corresponding value. These items are in
-parentheses, brackets, and braces, respectively.
+For each property, one or more examples are provided followed by a
+description. The description begins with the version of spec in which the
+property was added or in which the definition was modified, whether the
+property is *required* or *optional*, and the data type of the corresponding
+value. These items are in parentheses, brackets, and braces, respectively.
 
 If a data type is an [Object](#object), valid sub-properties will be described
-as well. All examples are represented as [JSON].
+as well.
 
+All examples are represented as [JSON].
+
+<!-- Nothing deprecated yet.
 Some properties are marked *Deprecated*. These are shown for historical
 context and must not be produced in or consumed from any metadata structure of
 version 2 or higher.
+-->
 
 ### Required Properties
 
 #### abstract ####
-
-Example:
 
 ``` json
 "abstract": "Unit testing for PostgreSQL"
@@ -200,34 +207,46 @@ Example:
 
 This is a short description of the purpose of the distribution.
 
-### maintainer ###
-
-Examples:
+#### maintainers ####
 
 ```json
-"maintainer": "David E. Wheeler <theory@pgxn.org>"
-```
-
-```json
-"maintainer": [
-  "David E. Wheeler <theory@pgxn.org>",
-  "Josh Berkus <jberkus@pgxn.org>"
+"maintainers": [
+  {
+    "name": "David E. Wheeler",
+    "url": "https://pgxn.org/user/theory"
+  }
 ]
 ```
 
-(Spec 1) [required] {[List](#List) of one or more [Strings](#String)}
-
-This [List](#List) indicates the person(s) to contact concerning the
-distribution. The preferred form of the contact string is:
-
+```json
+"maintainers": [
+  {
+    "name": "David E. Wheeler",
+    "url": "https://pgxn.org/user/theory"
+  },
+  {
+    "name": "Josh Berkus",
+    "email": "jberkus@pgxn.org"
+  }
+]
 ```
-contact-name <email-address>
-```
 
-This field provides a general contact list independent of other structured
-fields provided within the [resources](#resources) field, such as
-`bugtracker`. The addressee(s) can be contacted for any purpose including but
-not limited to: (security) problems with the distribution, questions about the
+(Spec 2) [required] {[Array](#array) of [Objects]{#object}}
+
+This property indicates the person(s) to contact concerning the distribution.
+Each [Object](#object) in the [Array](#array) consists of the following
+properties:
+
+*   **name**: The name of the maintainer. **Required**.
+*   **email**: The email address of the maintainer.
+*   **url**: The URL for the maintainer.
+
+Either `email` or `url` or both must be present.
+
+This property provides a general contact list independent of other structured
+fields provided within the [resources](#resources) field, such as `issues`.
+The addressee(s) can be contacted for any purpose including but not limited
+to: (security) problems with the distribution, questions about the
 distribution, or bugs in the distribution.
 
 A distribution’s original author is usually the contact listed within this
@@ -235,138 +254,153 @@ field. Co-maintainers, successor maintainers, or mailing lists devoted to the
 distribution may also be listed in addition to or instead of the original
 author.
 
-### license ###
+#### license ####
 
-Examples:
-
-```json
-"license": {
-  "PostgreSQL": "https://www.postgresql.org/about/licence"
-}
-```
-
-```json
-"license": {
-  "Perl 5": "https://dev.perl.org/licenses/",
-  "BSD": "https://www.opensource.org/licenses/bsd-license.html"
-}
+``` json
+"license": "MIT"
 ```
 
 ``` json
-"license": "perl_5"
+"license": "MIT AND BSD-2-Clause"
 ```
 
-``` json
-"license": [ "apache_2_0", "mozilla_1_0" ]
-```
-
-(Spec 1) [required] {[Map](#Map) or [List](#List) of one or more
-[License Strings](#License.String)}
+(Spec 1) [required] {[License String](#license-string) or [License Expression](#license-expression)}
 
 One or more licenses that apply to some or all of the files in the
-distribution. If multiple licenses are listed, the distribution documentation
-should be consulted to clarify the interpretation of multiple licenses.
+distribution. For [License Expressions](#license-expression), the distribution
+documentation should be consulted to clarify the interpretation of multiple
+licenses.
 
-The [Map](#Map) type describes the license or licenses. Each subkey may be any
-string naming a license. All values must be [URIs](#URI) that link to the
-appropriate license.
-
-The [List](#List) type may be used as a shortcut to identify one or more
-well-known licenses. The following list of [License Strings](#License.String)
-are valid in the [List](#List) representation:
-
-   string     |                     description
---------------|------------------------------------------------------
- agpl_3       | GNU Affero General Public License, Version 3
- apache_1_1   | Apache Software License, Version 1.1
- apache_2_0   | Apache License, Version 2.0
- artistic_1   | Artistic License, (Version 1)
- artistic_2   | Artistic License, Version 2.0
- bsd          | BSD License (three-clause)
- freebsd      | FreeBSD License (two-clause)
- gfdl_1_2     | GNU Free Documentation License, Version 1.2
- gfdl_1_3     | GNU Free Documentation License, Version 1.3
- gpl_1        | GNU General Public License, Version 1
- gpl_2        | GNU General Public License, Version 2
- gpl_3        | GNU General Public License, Version 3
- lgpl_2_1     | GNU Lesser General Public License, Version 2.1
- lgpl_3_0     | GNU Lesser General Public License, Version 3.0
- mit          | MIT (aka X11) License
- mozilla_1_0  | Mozilla Public License, Version 1.0
- mozilla_1_1  | Mozilla Public License, Version 1.1
- openssl      | OpenSSL License
- perl_5       | The Perl 5 License (Artistic 1 & GPL 1 or later)
- postgresql   | The PostgreSQL License
- qpl_1_0      | Q Public License, Version 1.0
- ssleay       | Original SSLeay License
- sun          | Sun Internet Standards Source License (SISSL)
- zlib         | zlib License
-
-The following [License Strings](#License.String) are also valid and indicate
-other licensing not described above:
-
-   string     |                     description
---------------|------------------------------------------------------
- open_source  | Other Open Source Initiative (OSI) approved license
- restricted   | Requires special permission from copyright holder
- unrestricted | Not an OSI approved license, but not restricted
- unknown      | License not provided in metadata
-
-All other strings are invalid in the license [List](#List).
-
-### provides ###
-
-Example:
+#### contents ####
 
 ``` json
-"provides": {
-  "pgtap": {
-    "file": "sql/pgtap.sql",
-    "docfile": "doc/pgtap.mmd",
-    "version": "0.2.4",
-    "abstract": "Unit testing assertions for PostgreSQL"
+"contents": {
+  "extensions": {
+    "pair": {
+      "sql": "sql/pair.sql",
+      "doc": "doc/pair.md",
+      "abstract": "A key/value pair data type",
+      "preload": "session",
+      "tle": true,
+      "control": "pair.control"
+    }
+  }
+```
+
+``` json
+"contents": {
+  "workers": {
+    "pair_pruner": {
+      "bin": "bin/pair_pruner",
+      "doc": "doc/pair_pruner.md",
+      "abstract": "A worker to periodically prune pairs"
+    }
   },
-  "schematap": {
-    "file": "sql/schematap.sql",
-    "docfile": "doc/schematap.mmd",
-    "version": "0.2.4",
-    "abstract": "Schema testing assertions for PostgreSQL"
+  "modules": {
+    "lib_pair": {
+      "lib": "lib/lib_pair",
+      "doc": "doc/lib_pair.md",
+      "abstract": "A library hooking function calls to convert pairs to named parameters",
+      "load": "shared_preload_libraries"
+    }
   }
 }
 ```
 
-(Spec 1) [required] {[Map](#Map) of [Terms](#Term)}
+``` json
+"contents": {
+  "apps": {
+    "pair_rand": {
+      "bin": "bin/pair_rand",
+      "doc": "doc/pair_rand.md",
+      "abstract": "Command to generate random pairs of strings"
+    }
+  },
+  "libraries": {
+    "ruby_pair": {
+      "dir": "lib/gems",
+      "abstract": "Ruby libraries required to run the extension"
+    }
+  }
+}
+```
 
-This describes all extensions provided by this distribution. This information
-is used by PGXN to build indexes identifying in which distributions various
-extensions can be found.
+(Spec 1) [required] {[Object](#object) of [Objects](#object) of [Terms](#term)}
 
-The keys of `provides` are [Terms](#Term) that name the extensions found
-within the distribution. The values are [Maps](#Map) with the following
-subkeys:
+A description of what's included in the package. This information is used by
+PGXN to build indexes identifying in which package various extensions
+can be found.
 
-*   **file**: The value must contain a relative file path from the root of the
-    distribution to the file containing the extension. The path **must be**
-    specified with unix conventions. Required.
+The properties of `contents` identify the types of extensions in the package.
+At least one property must be present in the `contents` object. The properties
+are as follows:
 
-*   **version**: This field contains a [Version](#Version) for the extension.
-    All extensions must have versions. Required.
+*   **extensions**: [Objects](#object) describing `CREATE EXTENSION`
+    [extensions]. Properties are extension name [Terms](#term), and values are
+    objects with the following fields:
+    *   **sql**: A [Path](#path) pointing to the SQL file used by `CREATE
+        EXTENSION`. Required.
+    *   **control**: A [Path](#path) pointing to the [control file] used by
+        `CREATE EXTENSION`. Required.
+    *   **doc**: A [Path](#path) pointing to the main documentation file for
+        the extension (ideally not just a README).
+    *   **abstract**: A [String](#string) containing a short description of
+        the extension.
+    *   **tle**: A [Boolean](#boolean) that, when `true`, indicates that the
+        extension can be used as a [trusted language extension].
+    *   **preload**: A[Boolean](#boolean) that, when `true`, indicates that
+        the extension's libraries need to be loaded in advance via
+        `shared_preload_libraries`, `session_preload_libraries`, or
+        `local_preload_libraries`.
+*   **workers**: [Objects](#object) describing [background workers].
+    Properties are worker name [Terms](#term), and values [Objects](#object)
+    with the following properties:
+    *   **src**: A [Path](#path) pointing to the main source file for the
+        background worker.
+    *   **doc**: A [Path](#path) pointing to the main documentation file for
+        the background worker (ideally not just a README).
+    *   **abstract**: A [String](#string) containing a short description of
+        the background worker.
+*   **apps**: [Objects](#object) describing applications, command-line or
+    otherwise. Properties are are app name [Terms](#term), and values
+    [Objects](#object) with the following properties:
+    *   **src**: A [Path](#path) pointing to the main source file for the app.
+    *   **doc**: A [Path](#path) pointing to the main documentation file for
+        the app (ideally not just a README).
+    *   **abstract**: A [String](#string) containing a short description of
+        the app.
+*   **modules**: [Objects](#object) describing [loadable modules] that can be
+    loaded into Postgres. Extensions that include libraries do not need to
+    include those libraries here. Properties are module name [Terms](#term),
+    and values [Objects](#object) with the following properties:
+    *   **src**: A [Path](#path) pointing to the main source file for the
+        module.
+    *   **doc**: A [Path](#path) pointing to the main documentation file for
+        the module (ideally not just a README).
+    *   **abstract**: A [String](#string) containing a short description of
+        the module.
+    *   **preload**: A[Boolean](#boolean) that, when `true`, indicates that
+        the module's libraries need to be loaded in advance via
+        `shared_preload_libraries`, `session_preload_libraries`, or
+        `local_preload_libraries`.
+*   **libraries**: [Objects](#object) listing other libraries that may ship in
+    the package and need to be installed but are not [loadable modules], such
+    as a dynamic library used by an app. Properties are library name
+    [Terms](#term), and values [Objects](#object) with the following
+    properties:
+    *   **src**: A [Path](#path) pointing to the main source file or directory
+       of files for the library.
+    *   **doc**: A [Path](#path) pointing to the main documentation file for
+        the library (ideally not just a README).
+    *   **abstract**: A [String](#string) containing a short description of
+        the app.
 
-*   **abstract**: A short [String](#string) value describing the extension.
-    Optional.
-
-*   **docfile**: The value must contain a relative file path from the root of
-    the distribution to the file containing documentation for the extension.
-    The path **must be** specified with unix conventions. Optional.
-
-### meta-spec ###
-
-Example:
+#### meta-spec ####
 
 ``` json
 "meta-spec": {
-  "version": "1.0.0",
-  "url": "https://pgxn.org/meta/spec.txt"
+  "version": "2.0.0",
+  "url": "https://pgxn.org/meta/v2/spec.txt"
 }
 ```
 
@@ -375,18 +409,18 @@ Example:
 This field indicates the [Version](#Version) of the PGXN Meta Spec that should
 be used to interpret the metadata. Consumers must check this key as soon as
 possible and abort further metadata processing if the meta-spec
-[Version](#Version) is not supported by the consumer.
+[Version](#version) is not supported by the consumer.
 
-The following keys are valid, but only `version` is required.
+The following properties are valid, but only `version` is required.
 
-*   **version**: This subkey gives the integer [Version](#Version) of the PGXN
-    Meta Spec against which the document was generated.
+*   **version**: The [Version](#version) of the PGXN Meta Spec against which
+    the metadata object was generated.
 
-*   **url**: This is a [URI](#URI) of the metadata specification document
-    corresponding to the given version. This is strictly for human-consumption
-    and should not impact the interpretation of the document.
+*   **url**: The [URI](#uri) of the metadata specification corresponding to
+    the given version. This is strictly for human-consumption and should not
+    impact the interpretation of the metadata structure.
 
-### name ###
+#### name ####
 
 Example:
 
@@ -396,30 +430,29 @@ Example:
 
 (Spec 1) [required] {[Term](#Term)}
 
-This field is the name of the distribution. This is usually the same as the
-name of the "main extension" in the distribution, but may be completely
-unrelated to the extensions within the distribution. This value will be used
-in the distribution file name on PGXN.
+This property is the name of the package. This is usually the same as the name
+of the "main extension" in the distribution, but may be completely unrelated
+to the extensions within the distribution. This value will be used in the
+distribution file name on PGXN.
 
-### version ###
-
-Example:
+#### version ####
 
 ``` json
 "version": "1.3.6"
 ```
 
-(Spec 1) [required] {[Version](#Version)}
+(Spec 1) [required] {[Version](#version)}
 
-This field gives the version of the distribution to which the metadata
-structure refers. Its value must be a [Version](#Version).
+This property gives the version of the distribution to which the metadata
+structure refers. Its value **MUST** be a [Version](#version).
 
-Optional Fields
----------------
+All of the items listed in [contents](#contents) will be considered to have
+this version; any references they make to a version, such as the [control
+file], should be compatible with this version.
 
-### description ###
+### Optional Fields ###
 
-Example:
+#### description ####
 
 ``` json
 "description": "pgTAP is a suite of database functions that make it easy to write TAP-emitting unit tests in psql scripts or xUnit-style test functions."
@@ -428,9 +461,10 @@ Example:
 (Spec 1) [optional] {[String](#string)}
 
 A longer, more complete description of the purpose or intended use of the
-distribution than the one provided by the `abstract` key.
+distribution, answering the question "what is this thing and what value is
+it?"
 
-### generated_by ###
+#### generated_by ####
 
 Example:
 
@@ -440,91 +474,327 @@ Example:
 
 (Spec 1) [optional] {[String](#string)}
 
-This field indicates the tool that was used to create this metadata. There are
-no defined semantics for this field, but it is traditional to use a string in
-the form "Software package version 1.23" or the maintainer’s name, if the file
-was generated by hand.
+This property indicates the tool that was used to create this metadata. There
+are no defined semantics for this property, but it is traditional to use a
+string in the form "Software package version 1.23", or the maintainer's name
+if the metadata was generated by hand.
 
-### tags ###
-
-Example:
+#### classification ####
 
 ``` json
-"tags": [ "testing", "unit testing", "tap" ]
-```
-
-(Spec 1) [optional] {[List](#List) of [Tags](#Tag)}
-
-A [List](#List) of keywords that describe this distribution.
-
-### no_index ###
-
-Example:
-
-``` json
-"no_index": {
-  "file":      [ "src/file.sql" ],
-  "directory": [ "src/private" ]
+{
+  "tags": [
+    "testing",
+    "pair",
+    "parameter"
+  ],
+  "categories": [
+    "Machine Learning"
+  ]
 }
 ```
 
-(Spec 1) [optional] {[Map](#Map)}
+(Spec 2) [optional] {[Object](#object) of [Arrays](#array) of [Tags](#tag)}
 
-This [Map](#Map) describes any files or directories that are private to the
-packaging or implementation of the distribution and should be ignored by
-indexing or search tools.
+Classification metadata  associates additional information to improve
+discovery. This object **MUST** contain at least one of the following
+properties:
 
-Valid subkeys are as follows:
+*   **tags**: An [Array](#array) of one or more keyword [Tags](#tag)s that
+    describe the distribution.
+*   **categories**: An [Array](#array) of at least one and no more than three
+    of the following [Strings](#string) that categorize the distribution:
+    *   Analytics
+    *   Auditing and Logging
+    *   Change Data Capture
+    *   Connectors
+    *   Data and Transformations
+    *   Debugging
+    *   Index and Table Optimizations
+    *   Machine Learning
+    *   Metrics
+    *   Orchestration
+    *   Procedural Languages
+    *   Query Optimizations
+    *   Search
+    *   Security
+    *   Tooling/Admin
 
-*   **file**: A [List](#List) of relative paths to files. Paths **must be**
-    specified with unix conventions.
-
-*   **directory**: A [List](#List) of relative paths to directories. Paths
-    **must be** specified with unix conventions.
-
-### prereqs ###
-
-Example:
+#### ignore ####
 
 ``` json
-"prereqs": {
-  "runtime": {
-    "requires": {
-      "PostgreSQL": "8.0.0",
-      "PostGIS": "1.5.0"
-    },
-    "recommends": {
-      "PostgreSQL": "8.4.0"
-    },
-    "suggests": {
-      "sha1": 0
-    }
+"ignore": [
+  "/src/private",
+  "/src/file.sql",
+  "*.html"
+]
+```
+
+(Spec 2) [optional] {[Array](#Array) of [Strings](#string)}
+
+This [Array](#array) describes any files or directories that are private to
+the packaging or implementation of the distribution and should be ignored by
+indexing or search tools. Values are [Strings](#string) based on a subset of
+the [gitignore format].
+
+#### dependencies ####
+
+``` json
+"dependencies": {
+  "postgres": {
+    "version": "14"
   },
-  "build": {
-    "requires": {
-      "prefix": 0
-    }
+```
+
+``` json
+"dependencies": {
+  "postgres": {
+    "version": ">= 12, < 17",
+    "with": [ "xml", "uuid", "perl" ]
   },
-  "test": {
-    "recommends": {
-      "pgTAP": 0
+  "pipeline": "pgxs",
+  "prereqs": {
+    "build": {
+      "requires": {
+        "external": {
+          "awk": "",
+          "perl": "5.20"
+        }
+      },
+      "recommends": {
+        "external": {
+          "jq": "",
+          "perl": "5.38"
+        }
+      }
     }
   }
 }
 ```
 
-(Spec 1) [optional] {[Map](#Map)}
+``` json
+"dependencies": {
+  "pipeline": "pgrx",
+  "platforms": [
+    "gnulinux-amd64",
+    "gnulinux-amd64v3",
+    "gnulinux-arm64",
+    "musllinux-amd64",
+    "musllinux-arm64",
+    "darwin-arm64"
+  ],
+  "prereqs": {
+    "configure": {
+      "requires": {
+        "external": { "cargo-pgrx": "" }
+      }
+    },
+    "test": {
+      "requires": {
+        "contrib": [ "pg_regress", "plpgsql" ],
+        "packages": {
+          "theory/pgtap": "1.1.0"
+        }
+      }
+    },
+    "run": {
+      "requires": {
+        "contrib": [ "plperl" ],
+        "packages": {
+          "theory/hostname": ""
+        }
+      }
+    }
+  }
+}
+```
 
-This is a [Map](#Map) that describes all the prerequisites of the
-distribution. The keys are phases of activity, such as `configure`, `build`,
-`test`, or `runtime`. Values are [Maps](#Map) in which the keys name the type
-of prerequisite relationship such as `requires`, `recommends`, `suggests`, or
-`conflicts`, and the values provide sets of prerequisite relations. The sets
-of relations **must** be specified as [Maps](#Map) of extension names to
-[Version Ranges](#Version.Ranges).
+``` json
+"dependencies": {
+  "postgres": {
+    "version": ">= 15, < 16"
+  },
+  "pipeline": "pgxs",
+  "platforms": [
+    "gnulinux-amd64", "gnulinux-arm64",
+    "darwin-amd64", "darwin-arm64"
+  ],
+  "dependencies": {
+    "configure": {
+      "requires": {
+        "external": {
+          "cargo-pgrx": "",
+          "bison": "",
+          "cmake": "",
+          "flex": "",
+          "libclang-dev": "",
+          "libopenblas-dev": "",
+          "libpython3-dev": "",
+          "libreadline-dev": "",
+          "libssl-dev": "",
+          "pkg-config": ""
+        }
+      }
+    },
+    "run": {
+      "requires": {
+        "external": {
+          "libopenblas": "",
+          "libpython3": "",
+          "libreadline": "",
+          "libssl": "",
+          "python3": ""
+        }
+      },
+      "recommends": {
+        "external": {
+          "python(pyarrow)": "=11.0.0",
+          "python(catboost)": "",
+          "python(lightgbm)": "",
+          "python(torch)": "",
+          "python(torchaudio)": "",
+          "python(torchvision)": "",
+          "python(xgboost)": "",
+          "python(accelerate)": "",
+          "python(bitsandbytes)": "",
+          "python(ctransformers)": "",
+          "python(huggingface-hub)": "",
+          "python(deepspeed)": "",
+          "python(einops)": "",
+          "python(optimum)": "",
+          "python(peft)": "",
+          "python(tokenizers)": "",
+          "python(transformers)": "",
+          "python(transformers-stream-generator)": "",
+          "python(InstructorEmbedding)": "",
+          "python(sentence-transformers)": "",
+          "python(rouge)": "",
+          "python(sacrebleu)": "",
+          "python(sacremoses)": "",
+          "python(datasets)": "",
+          "python(orjson)": "",
+          "python(langchain)": ""
+        }
+      }
+    }
+  },
+  "variations": [
+    {
+      "where": {
+        "platforms": {
+          "linux": []
+        }
+      },
+      "dependencies": {
+        "prereqs": {
+          "run": {
+            "recommends": {
+              "external": {
+                "python(auto-gptq)": "",
+                "python(xformers)": ""
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+},
+```
 
-The full definition for this field is given in the [Prereq Spec](#Prereq.Spec)
-section.
+(Spec 2) [optional] {[Object](#object)}
+
+This property identifies external dependencies required to configure, build,
+test, install, and run the extensions in the distribution. These include not
+only other extensions, but also external libraries, system dependencies and
+the versions of PostgreSQL required, as well as any OS and version
+dependencies and architectures ([arm64], [amd64], etc.)
+
+Properties:
+
+*   **platforms**: An [Array](#array) of one or more platform strings that
+    identify OSes and architectures supported by the distribution. If this
+    property is not present, [Consumers](#consumer) **MAY** assume that the
+    distribution supports any platform that PostgreSQL supports.
+
+    The list of supported platform strings is defined as an OS name, a dash,
+    and then the architecture. Acceptable values will be determined by the
+    [bulid farm animals].
+
+*   **postgres**: An [Object](#object) describing the versions of PostgreSQL
+    required by the package. The object supports the following keys:
+
+    *   **version**: A [Version Range](#version-range) identifying the
+        supported versions of PostgreSQL. Required.
+    *   **with**: An [Array](#array) of [Terms](#term) that correspond
+        features that are required to be compiled into PostgreSQL. Each
+        corresponds to the appropriate `--with` [configure flags]. Optional.
+
+*   **pipeline**: A [Term](#term) identifying the build pipeline required to
+    configure, build, test, and install the distribution's contents. Supported
+    values **MAY** include:
+
+    *   pgxs
+    *   meson
+    *   pgrx
+    *   autoconf
+    *   gem
+    *   cpan
+    *   pip
+    *   go
+    *   rust
+
+    If this field is not present, [Consumers](#consumer) may use heuristics to
+    ascertain the pipeline to use, such as the presence or absence of a
+    `Makefile`, `Cargo.toml` file, etc.
+
+*   **prereqs**: An [Object](#object) defining external dependencies required
+    for different phases of the build process. The supported properties are:
+
+    *   **configure**: Dependencies to configure the package (e.g., items
+        required for `./configure` to work)
+    *   **build**: Dependencies to build the package but not to run the
+        package (e.g., items required for `make` to work)
+    *   **test**: Dependencies to test the package, but not to build and
+        run dependencies
+    *   **run**: Dependencies to run the package
+    *   **develop**: Dependencies to develop the package, but not for any
+        other phase dependencies
+
+    Each of these properties points to an [Object](#object) with at least one
+    of these properties:
+
+    *   **requires**: Required to use the package
+    *   **recommends**: Not required, but recommended as a best practice
+    *   **suggests**: Not required, but nice to have
+    *   **conflicts**: Package will not work with these items
+
+    Each of these properties, in turn, points to an [Object](#object) with at
+    least one of these properties:
+
+    *   **package**: An [Object](#object) identifying other distributions, with their
+        name [Terms](#term) pointing to a [Version Range](#version-range).
+    *   **external**: An [Object](#object) identifying external dependencies
+        not included with the package, such as libraries and applications,
+        each pointing to a [Version Range](#version-range). The format of keys
+        is TBD, with the goal to provide a canonical representation that can
+        be interpreted by [Consumers](#consumer) as appropriate.
+    *   **contrib**: An [Array](#array) [Terms](#term) that identify of
+        PostgreSQL [contrib] or development packages such as [auto_explain],
+        [dblink], [pg_regress] and [pg_isolation_regress].
+
+*   **variations**: An [Array](#array) of [Object](#object)s that define
+    dependency variations. Each object contains two properties:
+
+    *   **where**: An [Object](#object) containing the subset of the
+        [dependencies](#dependencies) to identify a variation, such as
+        `{ "platforms": ["gnulinux-arm64", "gnulinux-amd64"] }`
+        for Linux configurations, or
+        `{"postgres": { "version": ">= 16, < 17" }}`. Must not include a
+        `variations` property.
+    *   **dependencies**: An [Object](#object) containing the subset of
+        [dependencies](#dependencies) required for the `where` property's
+        configuration. Must not include a `variations` property.
 
 ### release_status ###
 
@@ -827,7 +1097,22 @@ Sims, David Golden, and Ricardo Signes. Ported to PGXN by David E. Wheeler.
   [IETF RFC 3986]: https://www.rfc-editor.org/info/rfc3986
     "RFC 3986: Uniform Resource Identifier (URI): Generic Syntax"
   [semver]: https://semver.org/
-  [SPDX License List v3.24.0]: https://github.com/spdx/license-list-data/tree/v3.24.0
-  [SPDX Standard License Expression]: https://spdx.github.io/spdx-spec/v3.0/annexes/SPDX-license-expressions/
+  [SPDX License List]: https://github.com/spdx/license-list-data/
+  [SPDX Standard License Expression]:
+    https://spdx.github.io/spdx-spec/v3.0/annexes/SPDX-license-expressions/
+  [control file]: https://www.postgresql.org/docs/current/extend-extensions.html
+  [trusted language extension]: https://github.com/aws/pg_tle
+    "pg_tle: Framework for building trusted language extensions for PostgreSQL"
+  [background workers]: https://www.postgresql.org/docs/current/bgworker.html
+    "PostgreSQL Docs: Background Worker Processes"
+  [loadable modules]: https://www.postgresql.org/docs/16/gist-extensibility.html
+  [gitignore format]: https://git-scm.com/docs/gitignore
+  [bulid farm animals]: https://buildfarm.postgresql.org/cgi-bin/show_members.pl
+  [configure flags]: https://www.postgresql.org/docs/current/install-make.html#CONFIGURE-OPTIONS-FEATURES
+  [contrib]: https://www.postgresql.org/docs/current/contrib.html
+  [auto_explain]: https://www.postgresql.org/docs/current/auto-explain.html
+  [dblink]: https://www.postgresql.org/docs/current/dblink.html
+  [pg_regress]: https://github.com/postgres/postgres/tree/master/src/test/regress
+  [pg_isolation_regress]: https://github.com/postgres/postgres/tree/master/src/test/isolation
   [CPAN Meta Spec]: https://metacpan.org/pod/CPAN::Meta::Spec
   [PGXN]: https://pgxn.org/
