@@ -17,17 +17,13 @@
     },
     "type": {
       "type": "string",
-      "format": "email",
-      "description": "a lowercase string indicating the VCS used."
+      "pattern": "^\\p{lower}+$",
+      "description": "A lowercase string indicating the VCS used."
     }
   },
-  "anyOf": [
-    { "required": ["url", "type"] },
-    { "required": ["web"] },
-    { "required": ["web", "url", "type"] }
-  ],
+  "anyOf": [{ "required": ["url", "type"] }, { "required": ["web"] }],
   "patternProperties": {
-    "^[xX]_": {
+    "^[xX]_.": {
       "description": "Custom key"
     }
   },

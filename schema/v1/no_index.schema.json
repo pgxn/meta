@@ -7,32 +7,16 @@
   "properties": {
     "file": {
       "description": "A list of relative paths to files. Paths **must be** specified with unix conventions.",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "description": "Relative path in unix convention to a file to ignore.",
-        "minLength": 1
-      }
+      "$ref": "#/$defs/fileList"
     },
     "directory": {
       "description": "A list of relative paths to directories. Paths **must be** specified with unix conventions.",
-      "type": "array",
-      "minItems": 1,
-      "items": {
-        "type": "string",
-        "description": "Relative path in unix convention to a directory to ignore.",
-        "minLength": 1
-      }
+      "$ref": "#/$defs/fileList"
     }
   },
-  "anyOf": [
-    { "required": ["file"] },
-    { "required": ["directory"] },
-    { "required": ["file", "directory"] }
-  ],
+  "anyOf": [{ "required": ["file"] }, { "required": ["directory"] }],
   "patternProperties": {
-    "^[xX]_": {
+    "^[xX]_.": {
       "description": "Custom key"
     }
   },
@@ -42,5 +26,25 @@
       "file": ["src/file.sql"],
       "directory": ["src/private"]
     }
-  ]
+  ],
+  "$defs": {
+    "fileList": {
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "description": "Relative path in unix convention to a file to ignore.",
+            "minLength": 1
+          }
+        },
+        {
+          "type": "string",
+          "description": "Relative path in unix convention to a file to ignore.",
+          "minLength": 1
+        }
+      ]
+    }
+  }
 }

@@ -14,13 +14,16 @@
     "repository": { "$ref": "repository.schema.json" }
   },
   "patternProperties": {
-    "^[xX]_": {
+    "^[xX]_.": {
       "description": "Custom key"
     }
   },
   "additionalProperties": false,
-  "minProperties": 1,
-  "$comment": "Really should require at least one of the named properties; this allows for a single _x property. Good enough for now.",
+  "anyOf": [
+    { "required": ["homepage"] },
+    { "required": ["bugtracker"] },
+    { "required": ["repository"] }
+  ],
   "examples": [
     {
       "homepage": "https://pgxn.org/",
