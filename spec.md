@@ -167,6 +167,24 @@ A [String](#string) containing a valid package URL defined by the [purl spec].
 All known [purl Types] may be used, as well as `pgxn` for PGXN packages and
 `postgres` for PostgreSQL core [contrib] or development packages.
 
+#### Platform ####
+
+A [Platform] specification is a [String](#string) that identifies a supported
+platform with one to three dash-delimited substrings: An OS name, the OS
+version, and the architecture: `$os-$version-$architecture`.
+
+If the string contains no dash, it represents only the OS. If it contains a
+single dash, the values represent the OS and the architecture. The complete
+list of values will be determined by the [bulid farm animals]. Some likely
+Examples:
+
+*   `linux`: Any Linux
+*   `linux-x86_64`: Any Linux on x86_64
+*   `gnulinux-x86_64`: [GNU] Linux on x86_64
+*   `musllinux-1.2-aarch64`: [musl] Linux v1.2 on aarch64
+*   `darwin`: Any Darwin (macOS)
+*   `darwin-23.5.0-aarch64`: Darwin (macOS) 23.5.0 on aarch64
+
 ## Structure
 
 The metadata structure is an [Object](#object). This section describes valid
@@ -578,12 +596,11 @@ the [gitignore format].
 "dependencies": {
   "pipeline": "pgrx",
   "platforms": [
-    "gnulinux-amd64",
-    "gnulinux-amd64v3",
+    "linux-amd64",
+    "linux-amd64v3",
     "gnulinux-arm64",
     "musllinux-amd64",
-    "musllinux-arm64",
-    "darwin-arm64"
+    "darwin-23.5.0-arm64"
   ],
   "prereqs": {
     "configure": {
@@ -613,7 +630,7 @@ the [gitignore format].
   },
   "pipeline": "pgxs",
   "platforms": [
-    "gnulinux-amd64", "gnulinux-arm64",
+    "linux-amd64", "linux-arm64",
     "darwin-amd64", "darwin-arm64"
   ],
   "dependencies": {
@@ -671,9 +688,7 @@ the [gitignore format].
   "variations": [
     {
       "where": {
-        "platforms": {
-          "linux": []
-        }
+        "platforms": ["linux"]
       },
       "dependencies": {
         "prereqs": {
@@ -704,14 +719,12 @@ to install.
 
 Properties:
 
-*   **platforms**: An [Array](#array) of one or more platform strings that
-    identify OSes and architectures supported by the distribution. If this
-    property is not present, [Consumers](#consumer) **SHOULD** assume that the
-    distribution supports any platform that PostgreSQL supports.
-
-    The list of supported platform strings is defined as an OS name, a dash,
-    and then the architecture. Acceptable values will be determined by the
-    [bulid farm animals].
+*   **platforms**: An [Array](#array) of one or more [Platform](#platform)
+    strings that identify OSes and architectures supported by the
+    distribution. If this property is not present, [Consumers](#consumer)
+    **SHOULD** assume that the distribution supports any platform that
+    PostgreSQL supports. Typically only needed when the distribution depends
+    on platform-specific features.
 
 *   **postgres**: An [Object](#object) describing the versions of PostgreSQL
     required by the package. The object supports the following keys:
@@ -878,9 +891,11 @@ of each [Object](#object) are:
 *   **type**: The type of artifact. Must a single lowercase word describing
     the artifact, such as none of `binary`, `source`, `rpm`, `homebrew`, etc.
     Required.
-*   **platform**:
+*   **platform**: A [Platform](#platform) string identifying the platform the
+    artifact was built for. Recommended for packages compiled for a specific
+    platform, such as a C extension compiled for `linux-x86_64`.
 
-Each URL must properly resolve and the checksum must match.
+Each URL **MUST** properly resolve and the checksum must match.
 
 Version Numbers
 ===============
@@ -1128,3 +1143,5 @@ Sims, David Golden, and Ricardo Signes. Ported to PGXN by David E. Wheeler.
   [Shields badge specification]: https://github.com/badges/shields/blob/master/spec/SPECIFICATION.md
   [CPAN Meta Spec]: https://metacpan.org/pod/CPAN::Meta::Spec
   [PGXN]: https://pgxn.org/
+  [musl]: https://musl.libc.org/
+  [GNU]: https://www.gnu.org/software/libc/
