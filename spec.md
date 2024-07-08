@@ -147,8 +147,24 @@ metadata], which is reserved for use by downstream packaging systems.
 #### Version Range ####
 
 A *Version Range* is a [String](#string) that describes a range of Versions
-that **MAY** be present or installed to fulfill prerequisites. It is specified
-in detail in the [Version Ranges](#version-ranges) section.
+that **MAY** be present or installed to fulfill dependencies.
+
+The simplest format for a Version Range is just the version number itself,
+e.g. `2.4.2`. This means that **at least** version 2.4.2 must be present.
+Versions may also be truncated to their major or minor parts, as appropriate.
+For example, `2.4` means that **at least** version 2.4.0 must be present.
+
+To indicate that **any** version is okay, use the version `0`.
+
+Alternatively, a version range **may** use the operators `<` (less than), `<=`
+(less than or equal), `>` (greater than), `>=` (greater than or equal), `==`
+(equal), and `!=` (not equal). For example, the specification `< 2` means that
+any version of the dependency less than version 2 is suitable.
+
+For more complicated situations, version specifications **may** be AND-ed
+together using commas. The specification `>= 1.2, != 1.5.2, < 2.0`
+indicates a version that must be **at least** 1.2, **less than** 2.0, and
+**not equal to** 1.5.2.
 
 #### License String ####
 
@@ -579,7 +595,7 @@ of the [gitignore format].
     "with": [ "xml", "uuid", "perl" ]
   },
   "pipeline": "pgxs",
-  "prereqs": {
+  "packages": {
     "build": {
       "requires": [
         "pkg:generic/awk",
@@ -604,7 +620,7 @@ of the [gitignore format].
     "musllinux-amd64",
     "darwin-23.5.0-arm64"
   ],
-  "prereqs": {
+  "packages": {
     "configure": {
       "requires": [ "pkg:cargo/cargo-pgrx@0.11.4" ]
     },
@@ -635,7 +651,7 @@ of the [gitignore format].
     "linux-amd64", "linux-arm64",
     "darwin-amd64", "darwin-arm64"
   ],
-  "dependencies": {
+  "packages": {
     "configure": {
       "requires": {
         "external": [
@@ -693,7 +709,7 @@ of the [gitignore format].
         "platforms": ["linux"]
       },
       "dependencies": {
-        "prereqs": {
+        "packages": {
           "run": {
             "recommends": [
               "pkg:pypi/auto-gptq",
@@ -730,7 +746,6 @@ Properties:
 
 *   **postgres**: An [Object](#object) describing the versions of PostgreSQL
     required by the package. The object supports the following keys:
-
     *   **version**: A [Version Range](#version-range) identifying the
         supported versions of PostgreSQL. **REQUIRED**.
     *   **with**: An [Array](#array) of [Terms](#term) that correspond
@@ -756,14 +771,14 @@ Properties:
     heuristics to ascertain the pipeline to use, such as the presence or
     absence of a `Makefile`, `Cargo.toml` file, etc.
 
-*   **prereqs**: An [Object](#object) defining dependencies required for
+*   **packages**: An [Object](#object) defining dependencies required for
     different phases of the build process. The supported properties are
     `configure`, `build`, `test`, `run`, and `develop`. Values are
     [Objects](#object) with at least one of the properties `requires`,
     `recommends`, `suggests`, and `conflicts`. Their values are
-    [Arrays](#array) of [purls](#purl) that identify the prerequisites.
+    [Arrays](#array) of [purls](#purl) that identify the packages.
 
-    See the [Prereq Spec](#prereq-spec) for the full definition for this
+    See the [Package Spec](#packages-spec) for the full definition for this
     property.
 
     *   **variations**: An [Array](#array) of [Object](#object)s that define
@@ -867,22 +882,22 @@ Each URL **MUST** properly resolve and the checksum **MUST** match.
 Dependencies
 ============
 
-Prereq Spec
------------
+Packages Spec
+-------------
 
-The `prereqs` sub-property of the `dependencies` property defines the
+The `packages` sub-property of the `dependencies` property defines the
 relationship between a distribution and external dependencies, including other
 extension packages, system packages, and third-party packages, expressed as
 [purls](#purl). The structure is a hierarchical data structure which divides
-prerequisites into *Phases* of activity in the installation process and
-*Relationships* that indicate how prerequisites **SHOULD** be resolved.
+package dependencies into *Phases* of activity in the installation process and
+*Relationships* that indicate how dependencies **SHOULD** be resolved.
 
 For example, to specify that the PGXN extension `pgtap` by user `theory` is
 required during the `test` phase, this entry would appear in the distribution
 metadata:
 
 ``` json
-"prereqs": {
+"packages": {
   "test": {
     "requires": [ "pkg:pgxn/theory/pgtap" ]
   }
@@ -946,11 +961,11 @@ phases.
     **SHOULD** be listed here.
 
 *   **runtime**: The runtime phase refers not only to when the distribution's
-    contents are installed, but also to its continued use. Any dependency that
-    is a prerequisite for regular use of this distribution **SHOULD** be
-    indicated here.
+    contents are installed, but also to its continued use. Any package that is
+    a dependency for regular use of this distribution **SHOULD** be indicated
+    here.
 
-*   **develop**: The develop phase's prereqs are dependency needed to work on
+*   **develop**: The develop phase's packages are dependency needed to work on
     the distribution's source code as its maintainer does. These tools might
     be needed to build a release archive, to run maintainer-only tests, or to
     perform other tasks related to developing new versions of the
