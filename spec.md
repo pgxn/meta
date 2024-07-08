@@ -39,7 +39,7 @@ authors. All rights reserved.
 
 This RFC is distributed under the [CC BY-SA 4.0] license.
 
-Code Components extracted from this document MUST include the [PostgreSQL
+Code Components extracted from this document **MUST** include the [PostgreSQL
 License].
 
 ## Introduction ##
@@ -160,6 +160,12 @@ A *License Expression* is a [String](#string) that represents one or more
 licenses under which the contents of the package are distributed by combining
 License Strings into a single value. The format is defined by the [SPDX
 Standard License Expression].
+
+#### purl ####
+
+A [String](#string) containing a valid package URL defined by the [purl spec].
+All known [purl Types] may be used, as well as `pgxn` for PGXN packages and
+`postgres` for PostgreSQL core [contrib] or development packages.
 
 ## Structure
 
@@ -555,18 +561,14 @@ the [gitignore format].
   "pipeline": "pgxs",
   "prereqs": {
     "build": {
-      "requires": {
-        "external": {
-          "awk": "",
-          "perl": "5.20"
-        }
-      },
-      "recommends": {
-        "external": {
-          "jq": "",
-          "perl": "5.38"
-        }
-      }
+      "requires": [
+        "pkg:generic/awk",
+        "pkg:generic/perl@5.20"
+      ],
+      "recommends": [
+        "pkg:generic/jq",
+        "pkg:generic/perl@5.40"
+      ]
     }
   }
 }
@@ -585,25 +587,20 @@ the [gitignore format].
   ],
   "prereqs": {
     "configure": {
-      "requires": {
-        "external": { "cargo-pgrx": "" }
-      }
+      "requires": [ "pkg:cargo/cargo-pgrx@0.11.4" ]
     },
     "test": {
-      "requires": {
-        "contrib": [ "pg_regress", "plpgsql" ],
-        "packages": {
-          "theory/pgtap": "1.1.0"
-        }
-      }
+      "requires": [
+        "pkg:postgres/pg_regress",
+        "pkg:postgres/plpgsql"
+        "pkg:pgxn/theory/pgtap@1.1.0"
+      ]
     },
     "run": {
-      "requires": {
-        "contrib": [ "plperl" ],
-        "packages": {
-          "theory/hostname": ""
-        }
-      }
+      "requires": [
+        "pkg:postgres/plperl"
+        "pkg:pgxn/theory/hostname"
+      ]
     }
   }
 }
@@ -622,60 +619,53 @@ the [gitignore format].
   "dependencies": {
     "configure": {
       "requires": {
-        "external": {
-          "cargo-pgrx": "",
-          "bison": "",
-          "cmake": "",
-          "flex": "",
-          "libclang-dev": "",
-          "libopenblas-dev": "",
-          "libpython3-dev": "",
-          "libreadline-dev": "",
-          "libssl-dev": "",
-          "pkg-config": ""
-        }
+        "external": [
+          "pkg:cargo/cargo-pgrx@0.11.4",
+          "pkg:generic/bison",
+          "pkg:generic/cmake",
+          "pkg:generic/flex",
+          "pkg:generic/readline",
+          "pkg:generic/openssl",
+          "pkg:generic/pkg-config"
+        ]
       }
     },
     "run": {
-      "requires": {
-        "external": {
-          "libopenblas": "",
-          "libpython3": "",
-          "libreadline": "",
-          "libssl": "",
-          "python3": ""
-        }
-      },
-      "recommends": {
-        "external": {
-          "python(pyarrow)": "=11.0.0",
-          "python(catboost)": "",
-          "python(lightgbm)": "",
-          "python(torch)": "",
-          "python(torchaudio)": "",
-          "python(torchvision)": "",
-          "python(xgboost)": "",
-          "python(accelerate)": "",
-          "python(bitsandbytes)": "",
-          "python(ctransformers)": "",
-          "python(huggingface-hub)": "",
-          "python(deepspeed)": "",
-          "python(einops)": "",
-          "python(optimum)": "",
-          "python(peft)": "",
-          "python(tokenizers)": "",
-          "python(transformers)": "",
-          "python(transformers-stream-generator)": "",
-          "python(InstructorEmbedding)": "",
-          "python(sentence-transformers)": "",
-          "python(rouge)": "",
-          "python(sacrebleu)": "",
-          "python(sacremoses)": "",
-          "python(datasets)": "",
-          "python(orjson)": "",
-          "python(langchain)": ""
-        }
-      }
+      "requires": [
+          "pkg:generic/penblas",
+          "pkg:generic/python3",
+          "pkg:generic/readline",
+          "pkg:generic/openssl",
+          "pkg:generic/bison"
+      ],
+      "recommends": [
+          "pkg:pypi/pyarrow)@11.0.0",
+          "pkg:pypi/catboost",
+          "pkg:pypi/lightgbm",
+          "pkg:pypi/torch",
+          "pkg:pypi/torchaudio",
+          "pkg:pypi/torchvision",
+          "pkg:pypi/xgboost",
+          "pkg:pypi/accelerate",
+          "pkg:pypi/bitsandbytes",
+          "pkg:pypi/ctransformers",
+          "pkg:pypi/huggingface-hub",
+          "pkg:pypi/deepspeed",
+          "pkg:pypi/einops",
+          "pkg:pypi/optimum",
+          "pkg:pypi/peft",
+          "pkg:pypi/tokenizers",
+          "pkg:pypi/transformers",
+          "pkg:pypi/transformers-stream-generator",
+          "pkg:pypi/InstructorEmbedding",
+          "pkg:pypi/sentence-transformers",
+          "pkg:pypi/rouge",
+          "pkg:pypi/sacrebleu",
+          "pkg:pypi/sacremoses",
+          "pkg:pypi/datasets",
+          "pkg:pypi/orjson",
+          "pkg:pypi/langchain"
+      ]
     }
   },
   "variations": [
@@ -688,12 +678,10 @@ the [gitignore format].
       "dependencies": {
         "prereqs": {
           "run": {
-            "recommends": {
-              "external": {
-                "python(auto-gptq)": "",
-                "python(xformers)": ""
-              }
-            }
+            "recommends": [
+              "pkg:pypi/auto-gptq",
+              "pkg:pypi/xformers"
+            ]
           }
         }
       }
@@ -704,17 +692,21 @@ the [gitignore format].
 
 (Spec 2) [optional] {[Object](#object)}
 
-This property identifies external dependencies required to configure, build,
-test, install, and run the extensions in the distribution. These include not
-only other extensions, but also external libraries, system dependencies and
-the versions of PostgreSQL required, as well as any OS and version
-dependencies and architectures ([arm64], [amd64], etc.)
+This property identifies dependencies required to configure, build, test,
+install, and run the extensions in the distribution, expressed as
+[purls](#purl). These include not only other extensions, but also external
+libraries, system dependencies and the versions of PostgreSQL required, as
+well as any OS and version dependencies and architectures ([arm64], [amd64],
+etc.).
+
+[Consumers](#consumer) **SHOULD** use this data to determine what dependencies
+to install.
 
 Properties:
 
 *   **platforms**: An [Array](#array) of one or more platform strings that
     identify OSes and architectures supported by the distribution. If this
-    property is not present, [Consumers](#consumer) **MAY** assume that the
+    property is not present, [Consumers](#consumer) **SHOULD** assume that the
     distribution supports any platform that PostgreSQL supports.
 
     The list of supported platform strings is defined as an OS name, a dash,
@@ -744,12 +736,12 @@ Properties:
     *   go
     *   rust
 
-    If this field is not present, [Consumers](#consumer) may use heuristics to
-    ascertain the pipeline to use, such as the presence or absence of a
-    `Makefile`, `Cargo.toml` file, etc.
+    If this field is not present, [Consumers](#consumer) **MAY** use
+    heuristics to ascertain the pipeline to use, such as the presence or
+    absence of a `Makefile`, `Cargo.toml` file, etc.
 
-*   **prereqs**: An [Object](#object) defining external dependencies required
-    for different phases of the build process. The supported properties are:
+*   **prereqs**: An [Object](#object) defining dependencies required for
+    different phases of the build process. The supported properties are:
 
     *   **configure**: Dependencies to configure the package (e.g., items
         required for `./configure` to work)
@@ -769,19 +761,29 @@ Properties:
     *   **suggests**: Not required, but nice to have
     *   **conflicts**: Package will not work with these items
 
-    Each of these properties, in turn, points to an [Object](#object) with at
-    least one of these properties:
+    Each of these properties, in turn, points to an [Array](#array) of
+    [purls](#purl). All known [purl Types] may be used to identify
+    dependencies and specific versions. [Producers](#producer) **SHOULD**
+    specify dependencies of two additional types:
 
-    *   **package**: An [Object](#object) identifying other distributions, with their
-        name [Terms](#term) pointing to a [Version Range](#version-range).
-    *   **external**: An [Object](#object) identifying external dependencies
-        not included with the package, such as libraries and applications,
-        each pointing to a [Version Range](#version-range). The format of keys
-        is TBD, with the goal to provide a canonical representation that can
-        be interpreted by [Consumers](#consumer) as appropriate.
-    *   **contrib**: An [Array](#array) [Terms](#term) that identify of
-        PostgreSQL [contrib] or development packages such as [auto_explain],
-        [dblink], [pg_regress] and [pg_isolation_regress].
+    *   **`pkg:pgxn`**: Packages distributed via [PGXN]. These must include
+        both the username and package name, e.g., `pkg:pgxn/theory/pair`.
+    *   **`pkg:postgres`**: Dependencies distributed as part of the PostgreSQL
+        core, including [contrib] or development packages such as
+        [auto_explain], [dblink], [pg_regress] and [pg_isolation_regress].
+        Example: `pkg:postgres/dblink`.
+
+    [Consumers](#consumer) They also **SHOULD** use [Repology] to resolve
+    `pkg:generic` [purls](#purl) to packages specific to the platform on which
+    an extension is being built. This is useful for specifying system
+    dependencies that vary by name and packaging system. Otherwise, they
+    **MAY** use whatever techniques or heuristics are appropriate to install
+    dependencies.
+
+    [Producers](#producer) **SHOULD** avoid OS-specific [purls](#purl) such as
+    `pkg:rpm:/libreadline-dev` unless the package supports only OSes that
+    provide such packages. (See the next item, "variations", for
+    platform-specific dependency specification.)
 
 *   **variations**: An [Array](#array) of [Object](#object)s that define
     dependency variations. Each object contains two properties:
@@ -796,85 +798,89 @@ Properties:
         [dependencies](#dependencies) required for the `where` property's
         configuration. Must not include a `variations` property.
 
-### release_status ###
-
-Example:
-
-``` json
-"release_status": "stable"
-```
-
-(Spec 1) [optional] {[String](#string)}
-
-This field specifies the release status of this distribution. It **must** have
-one of the following values:
-
-*   **stable**: Indicates an ordinary, "final" release that should be indexed
-    by PGXN.
-
-*   **testing**: Indicates a "beta" release that is substantially complete,
-    but has an elevated risk of bugs and requires additional testing. The
-    distribution should not be installed over a stable release without an
-    explicit request or other confirmation from a user. This release status
-    may also be used for "release candidate" versions of a distribution.
-
-*   **unstable**: Indicates an "alpha" release that is under active
-    development, but has been released for early feedback or testing and may
-    be missing features or may have serious bugs. The distribution should not
-    be installed over a stable release without an explicit request or other
-    confirmation from a user.
-
-Consumers **may** use this field to determine how to index the distribution
-for PGXN or other repositories. If this field is not present, consumers
-**may** assume that the distribution status is "stable."
-
-### resources ###
-
-Example:
+#### resources ####
 
 ``` json
 "resources": {
-  "homepage": "https://pgxn.org/",
-  "bugtracker": {
-    "web": "https://github.com/theory/pgtap/issues",
-    "mailto": "pgxn-bugs@example.com"
-  },
-  "repository": {
-    "url": "git://github.com/theory/pgtap.git",
-    "web": "https://github.com/theory/pgtap/",
-    "type": "git"
-  },
-  "x_twitter": "https://twitter.com/pgtap/"
+  "homepage": "https://pair.example.com",
+  "issues": "https://github.com/example/pair/issues",
+  "documentation": "https://pair.example.com/docs",
+  "support": "https://github.com/example/pair/discussions",
+  "repository": "https://github.com/example/pair",
+  "badges": [
+    {
+      "alt": "Test Status",
+      "src": "https://test.packages.postgresql.org/github.com/example/pair.svg"
+    }
+  ]
 }
 ```
 
-(Spec 1) [optional] {[Map](#Map)}
+(Spec 2) [optional] {[Object](#object)}
 
-This field describes resources related to this distribution.
+This property provides external information about the package, mostly links,
+including source code repository, issues, documentation, badges, etc.
+[Consumers](#consumer) may use this data for links and displaying useful
+information about the package.
 
-Valid subkeys include:
+The `resources` object must contain at least one of the following properties:
 
-*   **homepage**: A [URI](#URI) for the official home of this project on the
-    web.
+*   **homepage**: [URI](#uri) for the official home of the project on the web.
+*   **issues**: [URI](#uri) for the package's issue tracking system.
+*   **repository**: [URI](#uri) for the package's source code repository.
+*   **documentation**: [URI](#uri) for the package's documentation.
+*   **support**: [URI](#uri) for support resources and contacts for the
+    package.
+*   **badges**: An [Array](#array) of [Objects](#object) linking to badge
+    images that should follow the [Shields badge specification]. It must have
+    at least one entry, and all entries requires two properties:
+    *   **src**: The [URI](#uri) for the badge.
+    *   **alt**: Alt text for the badge.
 
-*   **bugtracker**: This entry describes the bug tracking system for this distribution. It is
-    a [Map](#Map) with the following valid keys:
+#### artifacts ####
 
-    *   **web**: a [URI](#uri) pointing to a web front-end for the bug
-        tracker
-    *   **mailto**: an email address to which bug reports can be sent
 
-*   **repository**: This entry describes the source control repository for this distribution.
-    It is a [Map](#Map) with the following valid keys:
+``` json
+[
+  {
+    "type": "source",
+    "url": "https://github.com/theory/pg-pair/releases/download/v1.1.0/pair-1.1.0.zip",
+    "sha256": "2b9d2416096d2930be51e5332b70bcd97846947777a93e4a3d65fe1b5fd7b004"
+  },
+  {
+    "type": "binary",
+    "url": "https://github.com/theory/pg-pair/releases/download/v1.1.0/pair-1.1.0-linux-amd64.tar.gz",
+    "sha1": "12d9bc5cfb6bc3c453627eac69511f48be63cfc0"
+  },
+  {
+    "type": "binary",
+    "url": "https://github.com/theory/pg-pair/releases/download/v1.1.0/pair-1.1.0-linux-arm64.tar.gz",
+    "sha1": "787dc39137f7d1510a33ab0a1b8905cd5f3f72d1"
+  }
+]
+```
 
-    *   **url**: a [URI](#uri) pointing to the repository itself
-    *   **web**: a [URI](#uri) pointing to a web front-end for the repository
-    *   **type**: a lowercase string indicating the VCS used
+(Spec 2) [optional] {[Array](#array)}
 
-    Because a URI like `https://myrepo.example.com/` is ambiguous as to type,
-    producers should provide a `type` whenever a `url` key is given. The
-    `type` field should be the name of the most common program used to work
-    with the repository, e.g. git, svn, cvs, darcs, bzr or hg.
+An [Array](#array) of [Objects](#objects) describing links and checksums for
+downloading the distribution in one or more formats, including source code,
+binaries, system packages, and more. [Consumers](#consumer) my use this
+information to determine the best option for installing an extension on a
+particular system. Useful for projects that publish their own binaries in
+GitHu releases and the like.
+
+The [Array](#array) must have at least one [Object](#object). The properties
+of each [Object](#object) are:
+
+*   **url**: A [URI](#uri) to download the artifact. Required.
+*   **sha256** or **sha512**: A [String](#string) containing a SHA-256 or
+    SHA-512 checksum in hex format. Required.
+*   **type**: The type of artifact. Must a single lowercase word describing
+    the artifact, such as none of `binary`, `source`, `rpm`, `homebrew`, etc.
+    Required.
+*   **platform**:
+
+Each URL must properly resolve and the checksum must match.
 
 Version Numbers
 ===============
@@ -1096,6 +1102,10 @@ Sims, David Golden, and Ricardo Signes. Ported to PGXN by David E. Wheeler.
   [JSON]: https://json.org/
   [IETF RFC 3986]: https://www.rfc-editor.org/info/rfc3986
     "RFC 3986: Uniform Resource Identifier (URI): Generic Syntax"
+  [purl spec]: https://github.com/package-url/purl-spec
+    "package-url/purl-spec: A minimal specification a “mostly universal” package URL"
+  [purl Types]: https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst
+    "Package URL Type definitions"
   [semver]: https://semver.org/
   [SPDX License List]: https://github.com/spdx/license-list-data/
   [SPDX Standard License Expression]:
@@ -1109,10 +1119,12 @@ Sims, David Golden, and Ricardo Signes. Ported to PGXN by David E. Wheeler.
   [gitignore format]: https://git-scm.com/docs/gitignore
   [bulid farm animals]: https://buildfarm.postgresql.org/cgi-bin/show_members.pl
   [configure flags]: https://www.postgresql.org/docs/current/install-make.html#CONFIGURE-OPTIONS-FEATURES
+  [Repology API]: https://repology.org/api "Repology, the packaging hub: API"
   [contrib]: https://www.postgresql.org/docs/current/contrib.html
   [auto_explain]: https://www.postgresql.org/docs/current/auto-explain.html
   [dblink]: https://www.postgresql.org/docs/current/dblink.html
   [pg_regress]: https://github.com/postgres/postgres/tree/master/src/test/regress
   [pg_isolation_regress]: https://github.com/postgres/postgres/tree/master/src/test/isolation
+  [Shields badge specification]: https://github.com/badges/shields/blob/master/spec/SPECIFICATION.md
   [CPAN Meta Spec]: https://metacpan.org/pod/CPAN::Meta::Spec
   [PGXN]: https://pgxn.org/
