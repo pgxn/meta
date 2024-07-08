@@ -141,7 +141,8 @@ in the distribution. The path **MUST** be specified with unix conventions.
 
 A *Version* is a [String](#string) containing a value that describes the
 version number of extensions or distributions, and adhere to the format of the
-[Semantic Versioning 2.0.0 Specification][semver].
+[Semantic Versioning 2.0.0 Specification][semver] with the exception of [Build
+metadata], which is reserved for use by downstream packaging systems.
 
 #### Version Range ####
 
@@ -273,7 +274,7 @@ The addressee(s) can be contacted for any purpose including but not limited
 to: (security) problems with the distribution, questions about the
 distribution, or bugs in the distribution.
 
-A distribution’s original author is usually the contact listed within this
+A distribution's original author is usually the contact listed within this
 field. Co-maintainers, successor maintainers, or mailing lists devoted to the
 distribution may also be listed in addition to or instead of the original
 author.
@@ -754,52 +755,17 @@ Properties:
     absence of a `Makefile`, `Cargo.toml` file, etc.
 
 *   **prereqs**: An [Object](#object) defining dependencies required for
-    different phases of the build process. The supported properties are:
+    different phases of the build process. The supported properties are
+    `configure`, `build`, `test`, `run`, and `develop`. Values are
+    [Objects](#object) with at least one of the properties `requires`,
+    `recommends`, `suggests`, and `conflicts`. Their values are
+    [Arrays](#array) of [purls](#purl) that identify the prerequisites.
 
-    *   **configure**: Dependencies to configure the package (e.g., items
-        required for `./configure` to work)
-    *   **build**: Dependencies to build the package but not to run the
-        package (e.g., items required for `make` to work)
-    *   **test**: Dependencies to test the package, but not to build and
-        run dependencies
-    *   **run**: Dependencies to run the package
-    *   **develop**: Dependencies to develop the package, but not for any
-        other phase dependencies
+    See the [Prereq Spec](#prereq-spec) for the full definition for this
+    property.
 
-    Each of these properties points to an [Object](#object) with at least one
-    of these properties:
-
-    *   **requires**: Required to use the package
-    *   **recommends**: Not required, but recommended as a best practice
-    *   **suggests**: Not required, but nice to have
-    *   **conflicts**: Package will not work with these items
-
-    Each of these properties, in turn, points to an [Array](#array) of
-    [purls](#purl). All known [purl Types] may be used to identify
-    dependencies and specific versions. [Producers](#producer) **SHOULD**
-    specify dependencies of two additional types:
-
-    *   **`pkg:pgxn`**: Packages distributed via [PGXN]. These must include
-        both the username and package name, e.g., `pkg:pgxn/theory/pair`.
-    *   **`pkg:postgres`**: Dependencies distributed as part of the PostgreSQL
-        core, including [contrib] or development packages such as
-        [auto_explain], [dblink], [pg_regress] and [pg_isolation_regress].
-        Example: `pkg:postgres/dblink`.
-
-    [Consumers](#consumer) They also **SHOULD** use [Repology] to resolve
-    `pkg:generic` [purls](#purl) to packages specific to the platform on which
-    an extension is being built. This is useful for specifying system
-    dependencies that vary by name and packaging system. Otherwise, they
-    **MAY** use whatever techniques or heuristics are appropriate to install
-    dependencies.
-
-    [Producers](#producer) **SHOULD** avoid OS-specific [purls](#purl) such as
-    `pkg:rpm:/libreadline-dev` unless the package supports only OSes that
-    provide such packages. (See the next item, "variations", for
-    platform-specific dependency specification.)
-
-*   **variations**: An [Array](#array) of [Object](#object)s that define
-    dependency variations. Each object contains two properties:
+    *   **variations**: An [Array](#array) of [Object](#object)s that define
+        dependency variations. Each object contains two properties:
 
     *   **where**: An [Object](#object) containing the subset of the
         [dependencies](#dependencies) to identify a variation, such as
@@ -897,79 +863,60 @@ of each [Object](#object) are:
 
 Each URL **MUST** properly resolve and the checksum must match.
 
-Version Numbers
-===============
-
-Version Format
---------------
-
-This section defines the [Version](#Version) type, used by several
-fields in the PGXN Meta Spec.
-
-Version numbers must be treated as strings, and adhere to the [Semantic
-Versioning 2.0.0 Specification][semver]. Semantic versions take a
-dotted-integer format consisting of three positive integers separated by full
-stop characters (i.e. "dots", "periods" or "decimal points"). A "pre-release
-version" *may* be denoted by appending a dash followed by an arbitrary ASCII
-string immediately following the patch version. Please see [the
-specification][semver] for all details on the format.
-
-Version Ranges
---------------
-
-Some fields (`prereqs`) indicate the particular version(s) of some other
-extension that may be required as a prerequisite. This section details the
-[Version Range](#Version.Range) type used to provide this information.
-
-The simplest format for a Version Range is just the version number itself,
-e.g. `2.4.0`. This means that **at least** version 2.4.0 must be present. To
-indicate that **any** version of a prerequisite is okay, even if the
-prerequisite doesn’t define a version at all, use the version `0`.
-
-Alternatively, a version range **may** use the operators `<` (less than), `<=`
-(less than or equal), `>` (greater than), `>=` (greater than or equal), `==`
-(equal), and `!=` (not equal). For example, the specification `< 2.0.0` means
-that any version of the prerequisite less than 2.0.0 is suitable.
-
-For more complicated situations, version specifications **may** be AND-ed
-together using commas. The specification `>= 1.2.0, != 1.5.0, < 2.0.0`
-indicates a version that must be **at least** 1.2.0, **less than** 2.0.0, and
-**not equal to** 1.5.0.
-
-Prerequisites
-=============
+Dependencies
+============
 
 Prereq Spec
 -----------
 
-The `prereqs` key defines the relationship between a distribution and other
-extensions. The prereq spec structure is a hierarchical data structure which
-divides prerequisites into *Phases* of activity in the installation process
-and *Relationships* that indicate how prerequisites should be resolved.
+The `prereqs` sub-property of the `dependencies` property defines the
+relationship between a distribution and external dependencies, including other
+extension packages, system packages, and third-party packages, expressed as
+[purls](#purl). The structure is a hierarchical data structure which divides
+prerequisites into *Phases* of activity in the installation process and
+*Relationships* that indicate how prerequisites should be resolved.
 
-For example, to specify that `pgtap` is required during the `test` phase, this
-entry would appear in the distribution metadata:
+For example, to specify that the PGXN extension `pgtap` by user `theory` is
+required during the `test` phase, this entry would appear in the distribution
+metadata:
 
 ``` json
 "prereqs": {
   "test": {
-    "requires": {
-      "pgtap": 0
-    }
+    "requires": [ "pkg:pgxn/theory/pgtap" ]
   }
 }
 ```
 
-Note that the `prereqs` key may not be used to specify prerequisites
-distributed outside PGXN or the PostgreSQL core and its contrib extensions.
+All known [purl Types] may be used to identify dependencies and specific
+versions. [Producers](#producer) **SHOULD** specify dependencies of two
+additional types as appropriate:
+
+*   **`pkg:pgxn`**: Packages distributed via [PGXN]. These must include both
+    the username and package name, e.g., `pkg:pgxn/theory/pair`.
+*   **`pkg:postgres`**: Dependencies distributed as part of the PostgreSQL
+    core, including [contrib] or development packages such as [auto_explain],
+    [dblink], [pg_regress] and [pg_isolation_regress]. Example:
+    `pkg:postgres/dblink`.
+
+[Producers](#producer) **SHOULD** avoid OS-specific [purls](#purl) such as
+`pkg:rpm:/libreadline-dev` unless the package supports only OSes that
+provide such packages. (See the next item, "variations", for
+platform-specific dependency specification.)
+
+[Consumers](#consumer) **SHOULD** use [Repology] to resolve `pkg:generic`
+[purls](#purl) to packages specific to the platform on which an extension is
+being built. This is useful for specifying system dependencies that vary by
+name and packaging system. Otherwise, they **MAY** use whatever techniques or
+heuristics are appropriate to install dependencies.
 
 ### Phases ###
 
-Requirements for regular use must be listed in the `runtime` phase. Other
-requirements should be listed in the earliest stage in which they are required
-and consumers must accumulate and satisfy requirements across phases before
-executing the activity. For example, `build` requirements must also be
-available during the `test` phase.
+Requirements for regular use MUST be listed in the `runtime` phase. Other
+requirements SHOULD be listed in the earliest stage in which they are
+required, and [Consumers](#consumer) MUST accumulate and satisfy requirements
+across phases before executing the action. For example, `build` requirements
+MUST also be available during the `test` phase.
 
   before action | requirements that must be met
 ----------------|---------------------------------
@@ -977,8 +924,8 @@ available during the `test` phase.
   make          | configure, runtime, build
   make test     | configure, runtime, build, test
 
-Consumers that install the distribution must ensure that *runtime*
-requirements are also installed and may install dependencies from other
+Consumers that install the distribution MUST ensure that *runtime*
+requirements are also installed and MAY install dependencies from other
 phases.
 
   after action  | requirements that must be met
@@ -986,106 +933,50 @@ phases.
   make install  | runtime
 
 *   **configure**: The configure phase occurs before any dynamic configuration
-    has been attempted. Extensions required by the configure phase **must** be
+    has been attempted. Dependencies required by the configure phase MUST be
     available for use before the distribution building tool has been executed.
 
-*   **build**: The build phase is when the distribution’s source code is
+*   **build**: The build phase is when the distribution's source code is
     compiled (if necessary) and otherwise made ready for installation.
 
-*   **test**: The test phase is when the distribution’s automated test suite
-    is run. Any extension needed only for testing and not for subsequent use
+*   **test**: The test phase is when the distribution's automated test suite
+    is run. Any dependency needed only for testing and not for subsequent use
     should be listed here.
 
-*   **runtime**: The runtime phase refers not only to when the distribution’s
-    contents are installed, but also to its continued use. Any extension that
+*   **runtime**: The runtime phase refers not only to when the distribution's
+    contents are installed, but also to its continued use. Any dependency that
     is a prerequisite for regular use of this distribution should be indicated
     here.
 
-*   **develop**: The develop phase’s prereqs are extensions needed to work on
-    the distribution’s source code as its maintainer does. These tools might
-    be needed to build a release tarball, to run maintainer-only tests, or to
+*   **develop**: The develop phase's prereqs are dependency needed to work on
+    the distribution's source code as its maintainer does. These tools might
+    be needed to build a release archive, to run maintainer-only tests, or to
     perform other tasks related to developing new versions of the
     distribution.
 
 ### Relationships ###
 
-requires
-:   These dependencies **must** be installed for proper completion of the
-    phase.
+*   **requires**: These dependencies **MUST** be installed for proper
+    completion of the phase.
 
-recommends
-:   Recommended dependencies are *strongly* encouraged and should be satisfied
-    except in resource constrained environments.
+*   **recommends**: Recommended dependencies are *strongly* encouraged and
+    should be satisfied except in resource constrained environments.
 
-suggests
-:   These dependencies are optional, but are suggested for enhanced operation
-    of the described distribution.
+*   **suggests**: These dependencies are optional, but are suggested for
+    enhanced operation of the described distribution.
 
-conflicts
-:   These dependencies cannot be installed when the phase is in operation.
-    This is a very rare situation, and the conflicts relationship should be
-    used with great caution, or not at all.
-
-Merging and Resolving Prerequisites
------------------------------------
-
-Whenever metadata consumers merge prerequisites, they should be merged in a
-way that preserves the intended semantics of the prerequisite structure.
-Generally, this means concatenating the version specifications using commas,
-as described in the [Version Ranges](#Version.Ranges) section.
-
-A subtle error that can occur when resolving prerequisites comes from the way
-that extensions in prerequisites are indexed to distribution files on PGXN.
-When a extension is deleted from a distribution, prerequisites calling for
-that extension could indicate that an older distribution should installed,
-potentially overwriting files from a newer distribution.
-
-For example, say the PGXN index contained these extension-distribution
-mappings:
-
-  Extension | Version |   Distribution
-------------|---------|------------------
- pgtap      | 0.25.0  | pgtap-0.25.0.zip
- schematap  | 0.25.0  | pgtap-0.25.0.zip
- functap    | 0.18.1  | pgtap-0.18.1.zip
-
-Note that functap was removed from the pgtap distribution sometime after
-0.18.1. Consider the case where pgtap 0.25.0 is installed. If a distribution
-specified "functap" as a prerequisite, it could result in
-`pgtap-0.18.1.tar.gz` being installed, overwriting any files from
-`pgtap-0.25.0.zip`.
-
-Consumers of metadata **should** test whether prerequisites would result in
-installed module files being "downgraded" to an older version and **may** warn
-users or ignore the prerequisite that would cause such a result.
+*   **conflicts**: These dependencies cannot be installed when the phase is in
+    operation. This is a very rare situation, and the conflicts relationship
+    should be used with great caution, or not at all.
 
 Serialization
 =============
 
-Distribution metadata should be serialized as JSON-encoded data and packaged
-with distributions as the file `META.json`.
+Distribution metadata **SHOULD** be serialized as JSON-encoded data and
+packaged with distributions as the file `META.json`.
 
 Notes For Implementors
 ======================
-
-Comparing Version Numbers
--------------------------
-
-Following the [Semantic Versioning 2.0.0 Spec][semver], version numbers
-**must** be strictly compared by splitting the [Version](#Version) string on
-full stop characters (i.e. "dots", "periods" or "decimal points") and
-comparing each of the three parts as integers. If a dash and prerelease ASCII
-string has been appended to the third number, it will be extracted and
-compared in ASCII-betical order, and in any event will be considered to be
-less than an un-encumbered third integer of the same value. Some examples:
-
-```
-0.12.1      < 0.12.2
-1.42.0      > 1.41.99
-2.0.0       > 1.999.999
-2.0.0alpha3 < 2.0.0beta1
-2.0.0beta   < 2.0.0
-```
 
 See Also
 ========
@@ -1098,9 +989,9 @@ See Also
 Contributors
 ============
 
-The PGXN Meta Spec borrows heavily from the [CPAN Meta Spec], which was
-originally written by Ken Williams in 2003 and has since been updated by Randy
-Sims, David Golden, and Ricardo Signes. Ported to PGXN by David E. Wheeler.
+The PGXN Meta Spec was originally based on the [CPAN Meta Spec], which was
+written by Ken Williams in 2003 and has since been updated by David Golden,
+Ricardo Signes, Adam Kennedy, and others.
 
   [source code repository]: https://www.rfc-editor.org/info/rfc9591
   [PostgreSQL License]: https://www.postgresql.org/about/licence/
@@ -1117,7 +1008,7 @@ Sims, David Golden, and Ricardo Signes. Ported to PGXN by David E. Wheeler.
   [JSON]: https://json.org/
   [IETF RFC 3986]: https://www.rfc-editor.org/info/rfc3986
     "RFC 3986: Uniform Resource Identifier (URI): Generic Syntax"
-  [purl spec]: https://github.com/package-url/purl-spec
+  [purl spec]: https://github.com/package-url/purl-spec/blob/master/PURL-SPECIFICATION.rst
     "package-url/purl-spec: A minimal specification a “mostly universal” package URL"
   [purl Types]: https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst
     "Package URL Type definitions"
