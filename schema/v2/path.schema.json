@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/path.schema.json",
+  "title": "Path",
+  "description": "A *Path* is a string with a relative file path that identifies a file in the Distribution. The path **MUST** be specified with Unix conventions.",
+  "type": "string",
+  "minLength": 2,
+  "format": "path",
+  "pattern": "^(?:[^/\\\\]|\\\\\\\\)(?:[^\\\\]|\\\\\\\\)+$",
+  "$comment": "https://regex101.com/r/d49AVj",
+  "examples": [".git", "src/pair.c", "doc/pair.md"]
+}

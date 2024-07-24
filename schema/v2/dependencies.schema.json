@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/dependencies.schema.json",
+  "title": "Dependencies",
+  "description": "*Dependencies* identify dependencies required to configure, build, test, install, and run the package provided by the distribution. These include not only PGXN packages, but also external libraries, system dependencies, and versions of PostgreSQL --- as well as any OS and architectures.",
+  "type": "object",
+  "properties": {
+    "platforms": { "$ref": "platforms.schema.json" },
+    "postgres": { "$ref": "postgres.schema.json" },
+    "pipeline": { "$ref": "pipeline.schema.json" },
+    "packages": { "$ref": "packages.schema.json" },
+    "variations": { "$ref": "variations.schema.json" }
+  },
+  "anyOf": [
+    { "required": ["platforms"] },
+    { "required": ["postgres"] },
+    { "required": ["pipeline"] },
+    { "required": ["packages"] },
+    { "required": ["variations"] }
+  ],
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "additionalProperties": false,
+  "examples": [
+    { "postgres": { "version": "14.0" } },
+    {
+      "postgres": {
+        "version": ">= 12.0, < 17.0",
+        "with": ["xml", "uuid", "perl"]
+      },
+      "pipeline": "pgxs",
+      "packages": {
+        "build": {
+          "requires": {
+            "pkg:generic/awk": 0,
+            "pkg:generic/perl": "5.20"
+          },
+          "recommends": {
+            "pkg:generic/jq": 0,
+            "pkg:generic/perl": "5.40"
+          }
+        }
+      }
+    },
+    {
+      "pipeline": "pgrx",
+      "platforms": [
+        "linux-amd64",
+        "linux-amd64v3",
+        "gnulinux-arm64",
+        "musllinux-amd64",
+        "darwin-23.5.0-arm64"
+      ],
+      "packages": {
+        "configure": {
+          "requires": { "pkg:cargo/cargo-pgrx": "==0.11.4" }
+        },
+        "test": {
+          "requires": {
+            "pkg:postgres/pg_regress": 0,
+            "pkg:postgres/plpgsql": 0,
+            "pkg:pgxn/pgtap": "1.1.0"
+          }
+        },
+        "run": {
+          "requires": {
+            "pkg:postgres/plperl": 0,
+            "pkg:pgxn/hostname": 0
+          }
+        }
+      }
+    },
+    {
+      "postgres": {
+        "version": ">= 15.0, < 16.0"
+      },
+      "pipeline": "pgxs",
+      "platforms": [
+        "linux-amd64",
+        "linux-arm64",
+        "darwin-amd64",
+        "darwin-arm64"
+      ],
+      "packages": {
+        "configure": {
+          "requires": {
+            "pkg:cargo/cargo-pgrx": "==0.11.4",
+            "pkg:generic/bison": 0,
+            "pkg:generic/cmake": 0,
+            "pkg:generic/flex": 0,
+            "pkg:generic/readline": 0,
+            "pkg:generic/openssl": 0,
+            "pkg:generic/pkg-config": 0
+          }
+        },
+        "run": {
+          "requires": {
+            "pkg:generic/penblas": 0,
+            "pkg:generic/python3": 0,
+            "pkg:generic/readline": 0,
+            "pkg:generic/openssl": 0,
+            "pkg:generic/bison": 0
+          },
+          "recommends": {
+            "pkg:pypi/pyarrow": "11.0.0",
+            "pkg:pypi/catboost": 0,
+            "pkg:pypi/lightgbm": 0,
+            "pkg:pypi/torch": 0,
+            "pkg:pypi/langchain": 0
+          }
+        }
+      },
+      "variations": [
+        {
+          "where": {
+            "platforms": ["linux"]
+          },
+          "dependencies": {
+            "packages": {
+              "run": {
+                "recommends": {
+                  "pkg:pypi/auto-gptq": 0,
+                  "pkg:pypi/xformers": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -22,11 +22,7 @@
       "description": "These dependencies cannot be installed when the phase is in operation. This is a very rare situation, and the conflicts relationship should be used with great caution, or not at all."
     }
   },
-  "patternProperties": {
-    "^[xX]_.": {
-      "description": "Custom key"
-    }
-  },
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
   "additionalProperties": false,
   "anyOf": [
     { "required": ["requires"] },

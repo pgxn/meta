@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/badges.schema.json",
+  "title": "Badges",
+  "description": "*Badges* represents links to a [Shields](https://github.com/badges/shields/blob/master/spec/SPECIFICATION.md \"Shields badge specification\")-conformant badges.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "properties": {
+      "src": {
+        "type": "string",
+        "format": "uri",
+        "description": "The URI for the badge."
+      },
+      "alt": {
+        "type": "string",
+        "minLength": 4,
+        "maxLength": 4048,
+        "description": "Alternate text for accessability."
+      },
+      "url": {
+        "type": "string",
+        "format": "uri",
+        "description": "The URL the badge links to."
+      }
+    },
+    "required": ["src", "alt"],
+    "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+    "additionalProperties": false
+  },
+  "examples": [
+    [
+      {
+        "alt": "Test Status",
+        "src": "https://test.packages.postgresql.org/github.com/example/pair.svg"
+      }
+    ]
+  ]
+}

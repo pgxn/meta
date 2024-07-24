@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/platforms.schema.json",
+  "title": "Platforms",
+  "description": "*Platforms* identify the OSes and architectures supported by the package provided by the distribution. If this property is not present, consumers **SHOULD** assume that the package supports any platform that PostgreSQL supports. This property is typically needed only when the package depends on platform-specific features.",
+  "type": "array",
+  "minItems": 1,
+  "items": { "$ref": "platform.schema.json" },
+  "examples": [
+    ["any"],
+    ["linux", "darwin", "windows"],
+    ["gnulinux", "musllinux"],
+    ["gnulinux-amd64", "musllinux-amd64"],
+    ["musllinux-1.2"],
+    ["musllinux-1.2-arm64"],
+    ["darwin-arm64"],
+    ["darwin-23.5.0"],
+    ["darwin-23.5.0-arm64"]
+  ]
+}

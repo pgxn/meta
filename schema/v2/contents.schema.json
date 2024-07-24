@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/contents.schema.json",
+  "title": "Contents",
+  "description": "A description of what's included in the package provided by the distribution. This information is used by PGXN to build indexes identifying in which package various extensions can be found, and to create binary distribution packages.",
+  "type": "object",
+  "properties": {
+    "extensions": {
+      "propertyNames": { "$ref": "term.schema.json" },
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "extension.schema.json" }
+    },
+    "modules": {
+      "propertyNames": { "$ref": "term.schema.json" },
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "module.schema.json" }
+    },
+    "apps": {
+      "propertyNames": { "$ref": "term.schema.json" },
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "app.schema.json" }
+    }
+  },
+  "anyOf": [
+    { "required": ["extensions"] },
+    { "required": ["modules"] },
+    { "required": ["apps"] }
+  ],
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "extensions": {
+        "pair": {
+          "control": "pair.control",
+          "sql": "pair-1.2.0.sql",
+          "doc": "doc/pair.md",
+          "abstract": "A key/value pair data type",
+          "tle": true
+        }
+      }
+    },
+    {
+      "modules": {
+        "my_worker": {
+          "type": "bgw",
+          "lib": "lib/my_bgw",
+          "doc": "doc/my_bgw.md",
+          "preload": "server",
+          "abstract": "My background worker"
+        },
+        "my_hook": {
+          "type": "hook",
+          "lib": "lib/my_hook",
+          "doc": "doc/my_hook.md",
+          "preload": "session",
+          "abstract": "My hook"
+        }
+      }
+    },
+    {
+      "apps": {
+        "my_app": {
+          "lang": "perl",
+          "bin": "blib/script/app",
+          "lib": "blib/lib",
+          "man": "blib/libdoc",
+          "html": "blib/libhtml",
+          "doc": "doc/app.md",
+          "abstract": "blah blah blah"
+        }
+      }
+    },
+    {
+      "extensions": {
+        "pg_partman": {
+          "control": "pg_partman.control",
+          "sql": "sql/types/types.sql",
+          "doc": "doc/pg_partman.md",
+          "abstract": "Extension to manage partitioned tables by time or ID"
+        }
+      },
+      "modules": {
+        "pg_partman_bgw": {
+          "type": "bgw",
+          "lib": "src/pg_partman_bgw",
+          "preload": "server"
+        }
+      },
+      "apps": {
+        "check_unique_constraint": {
+          "lang": "python",
+          "bin": "bin/common/check_unique_constraint.py",
+          "abstract": "Check that all rows in a partition set are unique for the given columns"
+        },
+        "dump_partition": {
+          "lang": "python",
+          "bin": "bin/common/dump_partition.py",
+          "abstract": "Dump out and then drop all tables contained in a schema."
+        },
+        "vacuum_maintenance": {
+          "lang": "python",
+          "bin": "bin/common/vacuum_maintenance.py",
+          "abstract": "Performing vacuum maintenance on to avoid excess vacuuming and transaction id wraparound issues"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/phase.schema.json",
+  "title": "Dependency Phase",
+  "description": "A Phase maps dependency relationships, such as `requires`, `recommends`, `suggests`, and `conflicts`, to their dependencies.",
+  "type": "object",
+  "properties": {
+    "requires": {
+      "$ref": "#/$defs/relationship",
+      "description": "These dependencies **MUST** be installed for proper completion of the phase."
+    },
+    "recommends": {
+      "$ref": "#/$defs/relationship",
+      "description": "Recommended dependencies are *strongly* encouraged and **SHOULD** be satisfied except in resource constrained environments."
+    },
+    "suggests": {
+      "$ref": "#/$defs/relationship",
+      "description": "These dependencies are **OPTIONAL**, are suggested for enhanced operation of the described distribution, and **MAY** be satisfied."
+    },
+    "conflicts": {
+      "$ref": "#/$defs/relationship",
+      "description": "These dependencies **MUST NOT** be installed when the phase is in operation. This is a very rare situation, and the conflicts relationship **SHOULD** be used with great caution, or not at all."
+    }
+  },
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "additionalProperties": false,
+  "anyOf": [
+    { "required": ["requires"] },
+    { "required": ["recommends"] },
+    { "required": ["suggests"] },
+    { "required": ["conflicts"] }
+  ],
+  "examples": [
+    {
+      "requires": { "pkg:cargo/cargo-pgrx": "==0.11.4" }
+    },
+    {
+      "requires": {
+        "pkg:postgres/pg_regress": 0,
+        "pkg:postgres/plpgsql": 0,
+        "pkg:pgxn/pgtap": "1.1.0"
+      }
+    },
+    {
+      "requires": {
+        "pkg:generic/awk": 0,
+        "pkg:generic/perl": "5.20"
+      },
+      "recommends": {
+        "pkg:generic/jq": 0,
+        "pkg:generic/perl": "5.40"
+      }
+    },
+    {
+      "requires": {
+        "pkg:generic/penblas": 0,
+        "pkg:generic/python3": 0,
+        "pkg:generic/readline": 0,
+        "pkg:generic/openssl": 0,
+        "pkg:generic/bison": 0
+      },
+      "suggests": {
+        "pkg:pypi/pyarrow": "11.0.0",
+        "pkg:pypi/catboost": 0,
+        "pkg:pypi/lightgbm": 0,
+        "pkg:pypi/torch": 0,
+        "pkg:pypi/langchain": 0
+      }
+    }
+  ],
+  "$defs": {
+    "relationship": {
+      "title": "Dependency Relationship",
+      "description": "A Dependency Relationship lists dependencies and their version ranges.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "purl.schema.json" },
+      "additionalProperties": { "$ref": "version_range.schema.json" }
+    }
+  }
+}

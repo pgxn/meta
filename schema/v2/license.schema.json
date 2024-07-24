@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/license.schema.json",
+  "title": "License Expression",
+  "description": "A *License Expression* represents one or more licenses from the [SPDX License List](https://github.com/spdx/license-list-data/) in a single value. The format is defined by [SPDX Standard License Expression](https://spdx.github.io/spdx-spec/v3.0/annexes/SPDX-license-expressions/).",
+  "type": "string",
+  "format": "license",
+  "pattern": "^(?:[\\w.()-]+(?:[+]|:[\\w.-]+)?|\\s*(?:OR|or|AND|and|WITH|with)\\s*)+$",
+  "$comment": "Over-simplified pattern; rely on format when possible.",
+  "examples": [
+    "PostgreSQL",
+    "MIT",
+    "Apache-2.0",
+    "LGPL-2.1-only OR MIT",
+    "LGPL-2.1-only AND MIT AND BSD-2-Clause",
+    "GPL-2.0-or-later WITH Bison-exception-2.2",
+    "LGPL-2.1-only OR BSD-3-Clause AND MIT"
+  ]
+}

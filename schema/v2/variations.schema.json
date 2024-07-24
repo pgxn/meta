@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/variations.schema.json",
+  "title": "Dependency Variations",
+  "description": "*Variations* describe rule-based dependency variations.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "properties": {
+      "where": {
+        "description": "Contains the subset of dependencies to identify a variation",
+        "$ref": "dependencies.schema.json",
+        "patternProperties": { "^variations$": false }
+      },
+      "dependencies": {
+        "description": "Contains the subset of dependencies required for the `where` property’s configuration.",
+        "$ref": "dependencies.schema.json",
+        "patternProperties": { "^variations$": false }
+      }
+    },
+    "required": ["where", "dependencies"],
+    "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+    "additionalProperties": false
+  },
+  "examples": [
+    [
+      {
+        "where": { "platforms": ["linux"] },
+        "dependencies": {
+          "packages": {
+            "configure": {
+              "requires": {
+                "pkg:generic/libelf": 0,
+                "pkg:generic/libbsd": 0
+              }
+            }
+          }
+        }
+      }
+    ],
+    [
+      {
+        "where": { "postgres": { "version": ">= 16.0" } },
+        "dependencies": {
+          "postgres": { "version": ">= 16.0", "with": ["zstd"] }
+        }
+      },
+      {
+        "where": {
+          "platforms": ["linux"]
+        },
+        "dependencies": {
+          "packages": {
+            "run": {
+              "recommends": {
+                "pkg:pypi/auto-gptq": 0,
+                "pkg:pypi/xformers": 0
+              }
+            }
+          }
+        }
+      }
+    ]
+  ]
+}

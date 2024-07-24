@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/module.schema.json",
+  "title": "Module",
+  "description": "An Extension represents a loadable module (a.k.a., shared library) that can be loaded into PostgreSQL.",
+  "type": "object",
+  "properties": {
+    "type": {
+      "enum": ["extension", "hook", "bgw"],
+      "description": "The type of the module, one of \"extension\" for a module supporting a `CREATE EXTENSION` extension, \"bgw\" for a background worker, or \"hook\" for a hook."
+    },
+    "lib": {
+      "$ref": "path.schema.json",
+      "description": "A path pointing to the pointing to the shared object file, without the suffix."
+    },
+    "doc": {
+      "$ref": "path.schema.json",
+      "description": "A path pointing to the documentation file for the module, which **SHOULD** be more than a README."
+    },
+    "abstract": {
+      "type": "string",
+      "description": "A short String value describing the  module.",
+      "minLength": 1
+    },
+    "preload": {
+      "enum": ["server", "session"],
+      "description": "A string indicating that the module requires loading before it can be used. A value of `server` means that the module requires loading on server start, while `session` means it can be loaded in a session. Omit this field if the module does not require preloading."
+    }
+  },
+  "required": ["type", "lib"],
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "type": "extension",
+      "lib": "src/my_extension"
+    },
+    {
+      "type": "bgw",
+      "lib": "lib/my_bgw",
+      "doc": "doc/my_bgw.md",
+      "preload": "server",
+      "abstract": "My background worker"
+    },
+    {
+      "type": "hook",
+      "lib": "lib/my_hook",
+      "doc": "doc/my_hook.md",
+      "preload": "session",
+      "abstract": "My hook"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/artifacts.schema.json",
+  "title": "Artifacts",
+  "description": "*Artifacts* describes non-PGXN links and checksums for downloading the distribution in one or more formats, including source code, binaries, system packages, etc. Consumers **MAY** use this information to determine the best option for installing an extension on a particular system. Useful for projects that publish their own binaries, such as in GitHub releases.",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "properties": {
+      "url": {
+        "type": "string",
+        "format": "uri",
+        "description": "The URL to download the artifact."
+      },
+      "type": {
+        "type": "string",
+        "minLength": 2,
+        "pattern": "^[a-z0-9]{2,}$",
+        "description": "The type of artifact. **MUST** be a single lowercase word describing the artifact, such as none of `binary`, `source`, `rpm`, `homebrew`, etc."
+      },
+      "platform": {
+        "$ref": "platform.schema.json",
+        "description": "Identifies the platform the artifact was built for. **RECOMMENDED** for packages compiled for a specific platform, such as a C extension compiled for `linux-arm64`."
+      },
+      "sha256": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]{64}$",
+        "description": "The SHA-256 checksum for the artifact in hex format."
+      },
+      "sha512": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]{128}$",
+        "description": "The SHA-512 checksum for the artifact in hex format."
+      }
+    },
+    "anyOf": [
+      { "required": ["url", "type", "sha256"] },
+      { "required": ["url", "type", "sha512"] }
+    ],
+    "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+    "additionalProperties": false
+  },
+  "examples": [
+    [
+      {
+        "type": "source",
+        "url": "https://github.com/theory/pg-pair/releases/download/v1.1.0/pair-1.1.0.zip",
+        "sha256": "2b9d2416096d2930be51e5332b70bcd97846947777a93e4a3d65fe1b5fd7b004"
+      },
+      {
+        "type": "binary",
+        "url": "https://github.com/theory/pg-pair/releases/download/v1.1.0/pair-1.1.0-linux-amd64.tar.gz",
+        "sha256": "ec33656ba693c01be2b2b500c639846fb0ede7f7f8ee1f4c157bc9cab53c8500"
+      },
+      {
+        "type": "binary",
+        "url": "https://github.com/theory/pg-pair/releases/download/v1.1.0/pair-1.1.0-linux-arm64.tar.gz",
+        "sha512": "612ad0a8b7e292daf0c723bd0ac8029a838357b2d3abbada7cd7445f7690191abd6593a1336742e705314df81fc1c0063423f62e4abd846f350c251ef6a6a24f"
+      }
+    ]
+  ]
+}

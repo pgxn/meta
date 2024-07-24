@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/purl.schema.json",
+  "title": "Path",
+  "description": "A *purl* is specifies a valid package in the format defined by the [purl spec](https://github.com/package-url/purl-spec/blob/master/PURL-SPECIFICATION.rst). All known [purl Types](https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst) **MAY** be used, as well as `pgxn` for PGXN packages and `postgres` for PostgreSQL core [contrib](https://www.postgresql.org/docs/current/contrib.html) or development packages. Versions appearing after a `@` are valid but ignored.",
+  "type": "string",
+  "format": "uri",
+  "pattern": "^pkg:[a-zA-Z.+-][a-zA-Z0-9.+-]+/[^@?#]+(?:@[^?#]+)?(?:\\?[^#]+)?(?:#\\S+)?$",
+  "examples": [
+    "pkg:pgxn/pgtap",
+    "pkg:postgres/pg_regress",
+    "pkg:generic/python3",
+    "pkg:pypi/pyarrow@11.0.0"
+  ]
+}

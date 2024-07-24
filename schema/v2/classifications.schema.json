@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/classifications.schema.json",
+  "title": "Classifications",
+  "description": "Classification metadata associates additional information about the distribution to improve discovery.",
+  "type": "object",
+  "properties": {
+    "tags": { "$ref": "tags.schema.json" },
+    "categories": { "$ref": "categories.schema.json" }
+  },
+  "anyOf": [{ "required": ["tags"] }, { "required": ["categories"] }],
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "tags": ["testing", "unit testing", "tap", "tddd"]
+    },
+    {
+      "categories": ["Analytics", "Data and Transformations"]
+    },
+    {
+      "tags": ["background worker", "foreign data wrapper", "parquet"],
+      "categories": ["Metrics", "Orchestration", "Search"]
+    }
+  ]
+}

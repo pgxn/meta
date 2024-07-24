@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/maintainers.schema.json",
+  "title": "Maintainers",
+  "description": "*Maintainers* are person(s) to contact concerning the distribution. This property provides a general contact list independent of other structured fields provided within the resources schema, such as `issues`. The addressee(s) can be contacted for any purpose including but not limited to: (security) problems with the distribution, questions about the distribution, or bugs in the distribution.\n\nA distribution's original author is usually the contact listed within this field. Co-maintainers, successor maintainers, or mailing lists devoted to the distribution **MAY** also be listed in addition to or instead of the original author.",
+  "type": "array",
+  "items": { "$ref": "#/$defs/maintainer" },
+  "minItems": 1,
+  "uniqueItems": true,
+  "examples": [
+    [
+      {
+        "name": "David E. Wheeler",
+        "url": "https://pgxn.org/user/theory"
+      }
+    ],
+    [
+      {
+        "name": "David E. Wheeler",
+        "email": "theory@pgxn.org",
+        "url": "https://pgxn.org/user/theory"
+      },
+      {
+        "name": "Josh Berkus",
+        "email": "jberkus@pgxn.org"
+      }
+    ]
+  ],
+  "$defs": {
+    "maintainer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the maintainer.",
+          "minLength": 1
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The email address of the maintainer."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "The URL for the maintainer."
+        }
+      },
+      "patternProperties": {
+        "^[xX]_.": {
+          "description": "Custom key"
+        }
+      },
+      "additionalProperties": false,
+      "anyOf": [
+        { "required": ["name", "email"] },
+        { "required": ["name", "url"] }
+      ],
+      "examples": [
+        {
+          "name": "David E. Wheeler",
+          "url": "https://pgxn.org/user/theory"
+        },
+        {
+          "name": "David E. Wheeler",
+          "email": "theory@pgxn.org",
+          "url": "https://pgxn.org/user/theory"
+        },
+        {
+          "name": "Josh Berkus",
+          "email": "jberkus@pgxn.org"
+        }
+      ]
+    }
+  }
+}

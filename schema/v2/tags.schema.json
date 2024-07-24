@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://pgxn.org/meta/v1/tags.schema.json",
+  "$id": "https://pgxn.org/meta/v2/tags.schema.json",
   "title": "Tags",
   "description": "A list of keywords that describe the distribution.",
   "type": "array",
@@ -8,7 +8,7 @@
   "uniqueItems": true,
   "items": {
     "title": "Tag",
-    "description": "A Tag is a subtype of String that must be fewer than 256 characters long contain no slash (/), backslash (\\), or control characters.",
+    "description": "A *Tag* is a string that **MUST** be at least two and no more than 255 characters long, and contain no slash (`/`), backslash (`\\`), or control characters.",
     "type": "string",
     "minLength": 2,
     "maxLength": 255,

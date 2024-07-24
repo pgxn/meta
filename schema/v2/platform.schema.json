@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/platform.schema.json",
+  "title": "Platform",
+  "description": "A *Platform* identifies a computing platform as a one to three dash-delimited substrings: An OS name, the OS version, and the architecture: `$os-$version-$architecture`.\n\nIf the string contains no dash, it represents only the OS. If it contains a single dash, the first value represents the OS and second value is a version if it starts with an integer followed by a dot and the architecture if it does not start with a digit.",
+  "type": "string",
+  "pattern": "^(?:(any)|([a-zA-Z][a-zA-Z0-9]+)(?:-(?:0|[1-9]\\d*)[.][^\\s-]+[^-\\s]*)?(?:-([a-zA-Z0-9]+))?)$",
+  "$comment": "https://regex101.com/r/vJv9cK",
+  "examples": [
+    "any",
+    "linux",
+    "gnulinux",
+    "musllinux",
+    "linux-amd64",
+    "gnulinux-amd64",
+    "musllinux-1.2",
+    "musllinux-1.2-arm64",
+    "darwin",
+    "darwin-arm64",
+    "darwin-23.5.0",
+    "darwin-23.5.0-arm64"
+  ]
+}

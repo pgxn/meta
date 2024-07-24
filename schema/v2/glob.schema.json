@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/glob.schema.json",
+  "title": "Glob",
+  "description": "*Glob* defines a pattern to identify one or more files in the distribution.",
+  "type": "string",
+  "minLength": 2,
+  "format": "",
+  "pattern": "^(?:[^\\\\]|\\\\\\\\)+$",
+  "$comment": "https://regex101.com/r/d49AVj; Crates: fast-glob or wax",
+  "examples": ["/.git", "src/private.c", "doc/*.html"]
+}

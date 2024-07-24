@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://pgxn.org/meta/v1/resources.schema.json",
-  "title": "Source Control Repository",
-  "description": "An Extension is provided by a distribution.",
+  "title": "Resources",
+  "description": "Resources related to this distribution.",
   "type": "object",
   "properties": {
     "homepage": {
@@ -13,11 +13,7 @@
     "bugtracker": { "$ref": "bugtracker.schema.json" },
     "repository": { "$ref": "repository.schema.json" }
   },
-  "patternProperties": {
-    "^[xX]_.": {
-      "description": "Custom key"
-    }
-  },
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
   "additionalProperties": false,
   "anyOf": [
     { "required": ["homepage"] },

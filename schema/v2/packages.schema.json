@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/packages.schema.json",
+  "title": "Packages",
+  "description": "*Packages* define dependencies required for different phases of the build process,runtime, and development.",
+  "type": "object",
+  "properties": {
+    "configure": {
+      "description": "The configure phase occurs before any dynamic configuration has been attempted. Dependencies required by the configure phase **MUST** be available for use before the build tool has been executed.",
+      "$ref": "phase.schema.json"
+    },
+    "build": {
+      "description": "The build phase is when the distribution's source code is compiled (if necessary) and otherwise made ready for installation.",
+      "$ref": "phase.schema.json"
+    },
+    "test": {
+      "description": "The test phase is when the distribution's automated test suite is run. Any dependency needed only for testing and not for subsequent use **SHOULD** be listed here.",
+      "$ref": "phase.schema.json"
+    },
+    "run": {
+      "description": "The runtime phase refers not only to when the contents of the package provided by the distribution are installed, but also to its continued use. Any package that is a dependency for regular use of this [Package](#package) **SHOULD** be indicated here.",
+      "$ref": "phase.schema.json"
+    },
+    "develop": {
+      "description": "The develop phase's packages are needed to work on the package's source code as its maintainer does.  These tools might be needed to build a release archive, to run maintainer-only tests, or to perform other tasks related to developing new versions of the package.",
+      "$ref": "phase.schema.json"
+    }
+  },
+  "anyOf": [
+    { "required": ["configure"] },
+    { "required": ["build"] },
+    { "required": ["test"] },
+    { "required": ["run"] },
+    { "required": ["develop"] }
+  ],
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "build": {
+        "requires": {
+          "pkg:generic/awk": 0,
+          "pkg:generic/perl": "5.20"
+        },
+        "recommends": {
+          "pkg:generic/jq": 0,
+          "pkg:generic/perl": "5.40"
+        }
+      }
+    },
+    {
+      "configure": {
+        "requires": { "pkg:cargo/cargo-pgrx": "==0.11.4" }
+      },
+      "test": {
+        "requires": {
+          "pkg:postgres/pg_regress": 0,
+          "pkg:postgres/plpgsql": 0,
+          "pkg:pgxn/pgtap": "1.1.0"
+        }
+      },
+      "run": {
+        "requires": {
+          "pkg:postgres/plperl": 0,
+          "pkg:pgxn/hostname": 0
+        }
+      }
+    }
+  ]
+}

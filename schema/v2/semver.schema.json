@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/semver.schema.json",
+  "title": "SemVer",
+  "description": "A *SemVer* is a string containing a value that describes the version number of extensions or distributions, and adheres to the format of the [Semantic Versioning 2.0.0 Specification][semver] with the exception of [build metadata], which is reserved for use by downstream packaging systems.",
+  "type": "string",
+  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?$",
+  "$comment": "https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string",
+  "examples": [
+    "1.3.6",
+    "10.20.30",
+    "1.0.0-alpha",
+    "1.0.0-alpha-a.b-c-something-long"
+  ]
+}

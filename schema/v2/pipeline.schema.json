@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/pipeline.schema.json",
+  "title": "Pipeline",
+  "description": "The build pipeline required to configure, build, test, and install the package provided by the distribution.",
+  "enum": [
+    "pgxs",
+    "meson",
+    "pgrx",
+    "autoconf",
+    "cmake",
+    "npm",
+    "cpanm",
+    "go",
+    "cargo"
+  ]
+}

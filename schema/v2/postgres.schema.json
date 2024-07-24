@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/postgres.schema.json",
+  "title": "Postgres",
+  "description": "Describes the versions of PostgreSQL supported by the package provided by the distribution.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "description": "A version range identifying the supported versions of PostgreSQL.",
+      "$ref": "version_range.schema.json"
+    },
+    "with": {
+      "description": "The  features that are required to be compiled into PostgreSQL. Each corresponds to the appropriate `--with` configure flag. Omit if the package requires no features.",
+      "type": "array",
+      "items": { "$ref": "term.schema.json" }
+    }
+  },
+  "required": ["version"],
+  "additionalProperties": false,
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "examples": [
+    { "version": "14.0" },
+    {
+      "version": ">= 12.0, < 17.0",
+      "with": ["xml", "uuid", "perl"]
+    }
+  ]
+}

@@ -14,6 +14,7 @@
       "items": { "$ref": "#/$defs/validLicense" },
       "description": "A list of shortcuts to identify well-known licenses for the distribution.",
       "minItems": 1,
+      "uniqueItems": true,
       "examples": [["apache_2_0", "postgresql"], ["mit"]]
     },
     {

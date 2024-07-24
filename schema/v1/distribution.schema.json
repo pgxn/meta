@@ -50,11 +50,7 @@
     },
     "resources": { "$ref": "resources.schema.json" }
   },
-  "patternProperties": {
-    "^[xX]_.": {
-      "description": "Custom key"
-    }
-  },
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
   "additionalProperties": false,
   "required": [
     "name",

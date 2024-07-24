@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/ignore.schema.json",
+  "title": "Ignore",
+  "description": "Describes any files or directories that are private to the distribution and **SHOULD** be ignored by indexing or search tools.",
+  "type": "array",
+  "minItems": 1,
+  "items": { "$ref": "glob.schema.json" },
+  "examples": [["/src/private", "/src/file.sql", "*.html"]]
+}

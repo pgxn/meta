@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/resources.schema.json",
+  "title": "Resources",
+  "description": "*Resources* provide external information about the package provided by the distribution. Consumers **MAY** use this data for links and displaying useful information about the package.",
+  "type": "object",
+  "properties": {
+    "homepage": {
+      "type": "string",
+      "format": "uri",
+      "description": "A URI for the official home of this project on the web."
+    },
+    "issues": {
+      "type": "string",
+      "format": "uri",
+      "description": "A URI for the package’s issue tracking system."
+    },
+    "repository": {
+      "type": "string",
+      "format": "uri",
+      "description": "A URI for the package’s source code repository."
+    },
+    "docs": {
+      "type": "string",
+      "format": "uri",
+      "description": "A URI for the package’s documentation."
+    },
+    "support": {
+      "type": "string",
+      "format": "uri",
+      "description": "A URI for support resources and contacts for the package"
+    },
+    "badges": { "$ref": "badges.schema.json" }
+  },
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "additionalProperties": false,
+  "anyOf": [
+    { "required": ["homepage"] },
+    { "required": ["issues"] },
+    { "required": ["repository"] },
+    { "required": ["docs"] },
+    { "required": ["support"] },
+    { "required": ["docs"] },
+    { "required": ["badges"] }
+  ],
+  "examples": [
+    {
+      "homepage": "https://pair.example.com",
+      "issues": "https://github.com/example/pair/issues",
+      "docs": "https://pair.example.com/docs",
+      "support": "https://github.com/example/pair/discussions",
+      "repository": "https://github.com/example/pair",
+      "badges": [
+        {
+          "alt": "Test Status",
+          "src": "https://test.packages.postgresql.org/github.com/example/pair.svg"
+        }
+      ]
+    }
+  ]
+}

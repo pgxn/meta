@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/extension.schema.json",
+  "title": "Extension",
+  "description": "An Extension represents a `CREATE EXTENSION` extension provided by the distribution.",
+  "type": "object",
+  "properties": {
+    "control": {
+      "$ref": "path.schema.json",
+      "description": "A path pointing to the [control file](https://www.postgresql.org/docs/current/extend-extensions.html) used by `CREATE EXTENSION`."
+    },
+    "sql": {
+      "$ref": "path.schema.json",
+      "description": "A path pointing to the SQL file used by `CREATE EXTENSION`."
+    },
+    "doc": {
+      "$ref": "path.schema.json",
+      "description": "A path pointing to the documentation file for the extension, which **SHOULD** be more than a README."
+    },
+    "abstract": {
+      "type": "string",
+      "description": "A short String value describing the extension.",
+      "minLength": 1
+    },
+    "tle": {
+      "type": "boolean",
+      "description": "Indicates that the extension can be used as a [trusted language extension](https://github.com/aws/pg_tle)."
+    }
+  },
+  "required": ["sql", "control"],
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "control": "pair.control",
+      "sql": "sql/pair.sql",
+      "doc": "doc/pair.md",
+      "abstract": "A key/value pair data type",
+      "tle": true
+    },
+    {
+      "sql": "sql/schematap.sql",
+      "control": "schematap.control",
+      "doc": "doc/schematap.md",
+      "abstract": "Schema testing assertions for PostgreSQL"
+    }
+  ]
+}

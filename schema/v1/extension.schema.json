@@ -26,11 +26,7 @@
     }
   },
   "required": ["file", "version"],
-  "patternProperties": {
-    "^[xX]_.": {
-      "description": "Custom key"
-    }
-  },
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
   "additionalProperties": false,
   "examples": [
     {

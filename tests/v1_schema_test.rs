@@ -1,89 +1,20 @@
-use std::fs::{self, File};
+use std::error::Error;
+use std::fs::File;
 use std::io::{prelude::*, BufReader};
-use std::{collections::HashMap, error::Error};
 
-use boon::{Compiler, Schemas};
+use boon::Schemas;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 
-const SCHEMA_BASE: &str = "https://pgxn.org/meta/v1";
-const SCHEMA_ID: &str = "https://pgxn.org/meta/v1/distribution.schema.json";
+// importing common module.
+mod common;
+use common::*;
+
+const SCHEMA_VERSION: u8 = 1;
 
 #[test]
 fn test_schema_v1() -> Result<(), Box<dyn Error>> {
-    let mut compiler = Compiler::new();
-    compiler.enable_format_assertions();
-    let mut loaded: HashMap<String, Vec<Value>> = HashMap::new();
-
-    let paths = fs::read_dir("./schema/v1")?;
-    for path in paths {
-        let path = path?.path();
-        let bn = path.file_name().unwrap().to_str().unwrap();
-        if bn.ends_with(".schema.json") {
-            let schema: Value = serde_json::from_reader(File::open(path.clone())?)?;
-            if let Value::String(s) = &schema["$id"] {
-                // Make sure that the ID is correct.
-                assert_eq!(format!("https://pgxn.org/meta/v1/{bn}"), *s);
-
-                // Add the schema to the compiler.
-                compiler.add_resource(s, schema.to_owned())?;
-
-                // Grab the examples, if any, to test later.
-                if let Value::Array(a) = &schema["examples"] {
-                    loaded.insert(s.clone(), a.to_owned());
-                } else {
-                    loaded.insert(s.clone(), Vec::new());
-                }
-            } else {
-                panic!("Unable to find ID in {}", path.display());
-            }
-        } else {
-            println!("Skipping {}", path.display());
-        }
-    }
-
-    // Make sure we found schemas.
-    assert!(!loaded.is_empty(), "No schemas loaded!");
-
-    // Make sure each schema we loaded is valid.
-    let mut schemas = Schemas::new();
-    for (id, examples) in loaded {
-        let index = compiler.compile(id.as_str(), &mut schemas)?;
-        println!("{} ok", id);
-
-        // Test the schema's examples.
-        for (i, example) in examples.iter().enumerate() {
-            if let Err(e) = schemas.validate(example, index) {
-                panic!("Example {i} failed: {e}");
-            }
-            // println!("  Example {i} ok");
-        }
-    }
-
-    Ok(())
-}
-
-fn new_compiler(dir: &str) -> Result<Compiler, Box<dyn Error>> {
-    let mut compiler = Compiler::new();
-    compiler.enable_format_assertions();
-    let paths = fs::read_dir(dir)?;
-    for path in paths {
-        let path = path?.path();
-        let bn = path.file_name().unwrap().to_str().unwrap();
-        if bn.ends_with(".schema.json") {
-            let schema: Value = serde_json::from_reader(File::open(path.clone())?)?;
-            if let Value::String(s) = &schema["$id"] {
-                // Add the schema to the compiler.
-                compiler.add_resource(s, schema.to_owned())?;
-            } else {
-                panic!("Unable to find ID in {}", path.display());
-            }
-        } else {
-            println!("Skipping {}", path.display());
-        }
-    }
-
-    Ok(compiler)
+    test_schema_version(SCHEMA_VERSION)
 }
 
 #[derive(Deserialize, Serialize)]
@@ -98,7 +29,8 @@ fn test_corpus_v1_valid() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the root schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let index = compiler.compile(SCHEMA_ID, &mut schemas)?;
+    let id = id_for(SCHEMA_VERSION, "distribution");
+    let index = compiler.compile(&id, &mut schemas)?;
 
     // Test each meta JSON in the corpus.
     let file = File::open("tests/corpus/v1/valid.txt")?;
@@ -120,7 +52,8 @@ fn test_corpus_v1_invalid() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the root schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let index = compiler.compile(SCHEMA_ID, &mut schemas)?;
+    let id = id_for(SCHEMA_VERSION, "distribution");
+    let index = compiler.compile(&id, &mut schemas)?;
 
     // Test each meta JSON in the corpus.
     let file = File::open("tests/corpus/v1/invalid.txt")?;
@@ -143,187 +76,33 @@ fn test_corpus_v1_invalid() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v1_term() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the term schema.
-    let mut compiler = new_compiler("schema/v1")?;
-    let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/term.schema.json");
-    let idx = compiler.compile(&id, &mut schemas)?;
-
-    for valid_term in [
-        ("two chars", json!("hi")),
-        ("underscores", json!("hi_this_is_a_valid_term")),
-        ("dashes", json!("hi-this-is-a-valid-term")),
-        ("punctuation", json!("!@#$%^&*()-=+{}<>,.?")),
-        ("unicode", json!("😀🍒📸")),
-    ] {
-        if let Err(e) = schemas.validate(&valid_term.1, idx) {
-            panic!("extension {} failed: {e}", valid_term.0);
-        }
-    }
-
-    for invalid_term in [
-        ("array", json!([])),
-        ("empty string", json!("")),
-        ("too short", json!("x")),
-        ("true", json!(true)),
-        ("false", json!(false)),
-        ("null", json!(null)),
-        ("object", json!({})),
-        ("space", json!("hi there")),
-        ("slash", json!("hi/there")),
-        ("backslash", json!("hi\\there")),
-        ("null byte", json!("hi\x00there")),
-    ] {
-        if schemas.validate(&invalid_term.1, idx).is_ok() {
-            panic!("{} unexpectedly passed!", invalid_term.0)
-        }
-    }
-
-    Ok(())
+    let compiler = new_compiler("schema/v1")?;
+    test_term_schema(compiler, SCHEMA_VERSION)
 }
 
 #[test]
 fn test_v1_tags() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the tags schema.
-    let mut compiler = new_compiler("schema/v1")?;
-    let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/tags.schema.json");
-    let idx = compiler.compile(&id, &mut schemas)?;
-
-    for valid_tags in [
-        ("two chars", json!(["hi"])),
-        ("underscores", json!(["hi_this_is_a_valid_tags"])),
-        ("dashes", json!(["hi-this-is-a-valid-tags"])),
-        ("punctuation", json!(["!@#$%^&*()-=+{}<>,.?"])),
-        ("unicode", json!(["😀🍒📸"])),
-        ("space", json!(["hi there"])),
-        ("multiple", json!(["testing", "json", "😀🍒📸"])),
-        ("max length", json!(["x".repeat(255)])),
-    ] {
-        if let Err(e) = schemas.validate(&valid_tags.1, idx) {
-            panic!("extension {} failed: {e}", valid_tags.0);
-        }
-    }
-
-    for invalid_tags in [
-        ("empty array", json!([])),
-        ("string", json!("")),
-        ("true", json!(true)),
-        ("false", json!(false)),
-        ("null", json!(null)),
-        ("object", json!({})),
-        ("true tag", json!([true])),
-        ("false tag", json!([false])),
-        ("null tag", json!([null])),
-        ("object tag", json!([{}])),
-        ("empty tag", json!([""])),
-        ("too short", json!(["x"])),
-        ("object tag", json!({})),
-        ("slash", json!(["hi/there"])),
-        ("backslash", json!(["hi\\there"])),
-        ("null byte", json!(["hi\x00there"])),
-        ("too long", json!("x".repeat(256))),
-    ] {
-        if schemas.validate(&invalid_tags.1, idx).is_ok() {
-            panic!("{} unexpectedly passed!", invalid_tags.0)
-        }
-    }
-
-    Ok(())
+    let compiler = new_compiler("schema/v1")?;
+    test_tags_schema(compiler, SCHEMA_VERSION)
 }
-
-// https://regex101.com/r/Ly7O1x/3/
-const VALID_VERSIONS: &[&str] = &[
-    "0.0.4",
-    "1.2.3",
-    "10.20.30",
-    "1.1.2-prerelease+meta",
-    "1.1.2+meta",
-    "1.1.2+meta-valid",
-    "1.0.0-alpha",
-    "1.0.0-beta",
-    "1.0.0-alpha.beta",
-    "1.0.0-alpha.beta.1",
-    "1.0.0-alpha.1",
-    "1.0.0-alpha0.valid",
-    "1.0.0-alpha.0valid",
-    "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay",
-    "1.0.0-rc.1+build.1",
-    "2.0.0-rc.1+build.123",
-    "1.2.3-beta",
-    "10.2.3-DEV-SNAPSHOT",
-    "1.2.3-SNAPSHOT-123",
-    "1.0.0",
-    "2.0.0",
-    "1.1.7",
-    "2.0.0+build.1848",
-    "2.0.1-alpha.1227",
-    "1.0.0-alpha+beta",
-    "1.2.3----RC-SNAPSHOT.12.9.1--.12+788",
-    "1.2.3----R-S.12.9.1--.12+meta",
-    "1.2.3----RC-SNAPSHOT.12.9.1--.12",
-    "1.0.0+0.build.1-rc.10000aaa-kk-0.1",
-    "1.0.0-0A.is.legal",
-];
-
-const INVALID_VERSIONS: &[&str] = &[
-    "1",
-    "1.2",
-    "1.2.3-0123",
-    "1.2.3-0123.0123",
-    "1.1.2+.123",
-    "+invalid",
-    "-invalid",
-    "-invalid+invalid",
-    "-invalid.01",
-    "alpha",
-    "alpha.beta",
-    "alpha.beta.1",
-    "alpha.1",
-    "alpha+beta",
-    "alpha_beta",
-    "alpha.",
-    "alpha..",
-    "beta",
-    "1.0.0-alpha_beta",
-    "-alpha.",
-    "1.0.0-alpha..",
-    "1.0.0-alpha..1",
-    "1.0.0-alpha...1",
-    "1.0.0-alpha....1",
-    "1.0.0-alpha.....1",
-    "1.0.0-alpha......1",
-    "1.0.0-alpha.......1",
-    "01.1.1",
-    "1.01.1",
-    "1.1.01",
-    "1.2",
-    "1.2.3.DEV",
-    "1.2-SNAPSHOT",
-    "1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788",
-    "1.2-RC-SNAPSHOT",
-    "-1.0.3-gamma+b7718",
-    "+justmeta",
-    "9.8.7+meta+meta",
-    "9.8.7-whatever+meta+meta",
-    "99999999999999999999999.999999999999999999.99999999999999999----RC-SNAPSHOT.12.09.1--------------------------------..12",
-];
 
 #[test]
 fn test_v1_version() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the version schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/version.schema.json");
+    let id = id_for(SCHEMA_VERSION, "version");
     let idx = compiler.compile(&id, &mut schemas)?;
 
-    for valid_version in VALID_VERSIONS {
+    for valid_version in VALID_SEMVERS {
         let vv = json!(valid_version);
         if let Err(e) = schemas.validate(&vv, idx) {
             panic!("extension {} failed: {e}", valid_version);
         }
     }
 
-    for invalid_version in INVALID_VERSIONS {
+    for invalid_version in INVALID_SEMVERS {
         let iv = json!(invalid_version);
         if schemas.validate(&iv, idx).is_ok() {
             panic!("{} unexpectedly passed!", invalid_version)
@@ -338,10 +117,10 @@ fn test_v1_version_range() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the version_range schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/version_range.schema.json");
+    let id = id_for(SCHEMA_VERSION, "version_range");
     let idx = compiler.compile(&id, &mut schemas)?;
 
-    for valid_version in VALID_VERSIONS {
+    for valid_version in VALID_SEMVERS {
         for op in ["", "==", "!=", ">", "<", ">=", "<="] {
             for append in [
                 "",
@@ -371,7 +150,7 @@ fn test_v1_version_range() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // Bar integer 0 allowed.
+    // Bare integer 0 allowed.
     let zero = json!(0);
     if let Err(e) = schemas.validate(&zero, idx) {
         panic!("extension {} failed: {e}", zero);
@@ -385,7 +164,7 @@ fn test_v1_version_range() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    for invalid_version in INVALID_VERSIONS {
+    for invalid_version in INVALID_SEMVERS {
         for op in ["", "==", "!=", ">", "<", ">=", "<="] {
             for append in [
                 "",
@@ -409,7 +188,7 @@ fn test_v1_license() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the license schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/license.schema.json");
+    let id = id_for(SCHEMA_VERSION, "license");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     // Test valid license values.
@@ -463,6 +242,7 @@ fn test_v1_license() -> Result<(), Box<dyn Error>> {
         json!([]),
         json!({}),
         json!({"foo": ":hello"}),
+        json!(["mit", "mit"]),
     ] {
         if schemas.validate(&invalid_license, idx).is_ok() {
             panic!("{} unexpectedly passed!", invalid_license)
@@ -477,7 +257,7 @@ fn test_v1_provides() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the provides schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/provides.schema.json");
+    let id = id_for(SCHEMA_VERSION, "provides");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_provides in [
@@ -576,20 +356,20 @@ fn test_v1_extension() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the extension schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/extension.schema.json");
+    let id = id_for(SCHEMA_VERSION, "extension");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_extension in [
         (
             "required fields",
-            json!( {
+            json!({
                 "file": "widget.sql",
                 "version": "0.26.0",
             }),
         ),
         (
             "with abstract",
-            json!( {
+            json!({
                 "file": "widget.sql",
                 "version": "0.26.0",
                 "abstract": "This and that",
@@ -641,7 +421,7 @@ fn test_v1_extension() -> Result<(), Box<dyn Error>> {
         ),
         (
             "bare x_",
-            json!( {
+            json!({
                 "file": "widget.sql",
                 "version": "0.26.0",
                 "x_": "hi",
@@ -752,7 +532,7 @@ fn test_v1_maintainer() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/maintainer.schema.json");
+    let id = id_for(SCHEMA_VERSION, "maintainer");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_maintainer in [
@@ -787,6 +567,7 @@ fn test_v1_maintainer() -> Result<(), Box<dyn Error>> {
         ("false", json!(false)),
         ("null", json!(null)),
         ("object", json!({})),
+        ("dupe", json!(["x", "x"])),
     ] {
         if schemas.validate(&invalid_maintainer.1, idx).is_ok() {
             panic!("{} unexpectedly passed!", invalid_maintainer.0)
@@ -801,7 +582,7 @@ fn test_v1_meta_spec() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/meta-spec.schema.json");
+    let id = id_for(SCHEMA_VERSION, "meta-spec");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_meta_spec in [
@@ -855,7 +636,7 @@ fn test_v1_bugtracker() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/bugtracker.schema.json");
+    let id = id_for(SCHEMA_VERSION, "bugtracker");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_bugtracker in [
@@ -909,7 +690,7 @@ fn test_v1_no_index() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/no_index.schema.json");
+    let id = id_for(SCHEMA_VERSION, "no_index");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_no_index in [
@@ -959,6 +740,8 @@ fn test_v1_no_index() -> Result<(), Box<dyn Error>> {
         ("directory null", json!({"directory": null})),
         ("unknown field", json!({"file": ["x"], "hi": 0})),
         ("bare x_", json!({"file": ["x"], "x_": 0})),
+        ("dupe", json!({"file": ["x", "x"]})),
+        ("dupe", json!({"dir": ["x", "x"]})),
         ("missing required", json!({"x_y": 0})),
     ] {
         if schemas.validate(&invalid_no_index.1, idx).is_ok() {
@@ -974,7 +757,7 @@ fn test_v1_prereq_relationship() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/prereq_relationship.schema.json");
+    let id = id_for(SCHEMA_VERSION, "prereq_relationship");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_prereq_relationship in [
@@ -1027,7 +810,7 @@ fn test_v1_prereq_phase() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/prereq_phase.schema.json");
+    let id = id_for(SCHEMA_VERSION, "prereq_phase");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_prereq_phase in [
@@ -1139,7 +922,7 @@ fn test_v1_prereqs() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/prereqs.schema.json");
+    let id = id_for(SCHEMA_VERSION, "prereqs");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_prereqs in [
@@ -1287,7 +1070,7 @@ fn test_v1_repository() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the repository schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/repository.schema.json");
+    let id = id_for(SCHEMA_VERSION, "repository");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_repository in [
@@ -1364,7 +1147,7 @@ fn test_v1_resources() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the resources schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let id = format!("{SCHEMA_BASE}/resources.schema.json");
+    let id = id_for(SCHEMA_VERSION, "resources");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     for valid_resources in [
@@ -1501,7 +1284,8 @@ fn test_v1_distribution() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the distribution schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
-    let idx = compiler.compile(SCHEMA_ID, &mut schemas)?;
+    let id = id_for(SCHEMA_VERSION, "distribution");
+    let idx = compiler.compile(&id, &mut schemas)?;
 
     // Make sure the valid distribution is in fact valid.
     let meta = valid_distribution();
@@ -2062,11 +1846,23 @@ fn test_v1_distribution() -> Result<(), Box<dyn Error>> {
         ("number name", |m: &mut Obj| {
             m.insert("name".to_string(), json!(42));
         }),
+        ("empty description", |m: &mut Obj| {
+            m.insert("description".to_string(), json!(""));
+        }),
         ("null description", |m: &mut Obj| {
             m.insert("description".to_string(), json!(null));
         }),
-        ("null description", |m: &mut Obj| {
-            m.insert("generated_by".to_string(), json!(null));
+        ("array description", |m: &mut Obj| {
+            m.insert("description".to_string(), json!([]));
+        }),
+        ("object description", |m: &mut Obj| {
+            m.insert("description".to_string(), json!({}));
+        }),
+        ("bool description", |m: &mut Obj| {
+            m.insert("description".to_string(), json!(false));
+        }),
+        ("number description", |m: &mut Obj| {
+            m.insert("description".to_string(), json!(42));
         }),
         ("array generated_by", |m: &mut Obj| {
             m.insert("generated_by".to_string(), json!([]));
@@ -2085,18 +1881,6 @@ fn test_v1_distribution() -> Result<(), Box<dyn Error>> {
         }),
         ("null generated_by", |m: &mut Obj| {
             m.insert("generated_by".to_string(), json!(null));
-        }),
-        ("array generated_by", |m: &mut Obj| {
-            m.insert("generated_by".to_string(), json!([]));
-        }),
-        ("object generated_by", |m: &mut Obj| {
-            m.insert("generated_by".to_string(), json!({}));
-        }),
-        ("bool generated_by", |m: &mut Obj| {
-            m.insert("generated_by".to_string(), json!(false));
-        }),
-        ("number generated_by", |m: &mut Obj| {
-            m.insert("generated_by".to_string(), json!(42));
         }),
         ("null tags", |m: &mut Obj| {
             m.insert("tags".to_string(), json!(null));
