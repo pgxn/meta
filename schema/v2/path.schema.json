@@ -6,7 +6,6 @@
   "type": "string",
   "minLength": 2,
   "format": "path",
-  "pattern": "^(?:[^/\\\\]|\\\\\\\\)(?:[^\\\\]|\\\\\\\\)+$",
   "$comment": "https://regex101.com/r/d49AVj",
   "examples": [".git", "src/pair.c", "doc/pair.md"]
 }

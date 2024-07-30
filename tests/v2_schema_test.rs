@@ -6,6 +6,7 @@ use serde_json::{json, Map, Value};
 // importing common module.
 mod common;
 use common::*;
+use pgxn_meta::compiler;
 
 const SCHEMA_VERSION: u8 = 2;
 
@@ -17,21 +18,21 @@ fn test_schema_v2() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_term() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the term schema.
-    let compiler = new_compiler("schema/v2")?;
+    let compiler = compiler::new("schema/v2")?;
     test_term_schema(compiler, SCHEMA_VERSION)
 }
 
 #[test]
 fn test_v2_tags() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the tags schema.
-    let compiler = new_compiler("schema/v2")?;
+    let compiler = compiler::new("schema/v2")?;
     test_tags_schema(compiler, SCHEMA_VERSION)
 }
 
 #[test]
 fn test_v2_semver() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the semver schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "semver");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -61,13 +62,17 @@ fn test_v2_semver() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_path() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the semver schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "path");
     let idx = compiler.compile(&id, &mut schemas)?;
 
     // Test valid paths.
     for valid in [
+        json!("\\foo.md"),
+        json!("this\\and\\that.txt"),
+        json!("/absolute/path"),
+        json!("C:\\foo"),
         json!("README.txt"),
         json!(".git"),
         json!("src/pair.c"),
@@ -81,16 +86,15 @@ fn test_v2_path() -> Result<(), Box<dyn Error>> {
 
     // Test invalid paths.
     for invalid in [
-        json!("\\foo.md"),
-        json!("this\\and\\that.txt"),
-        json!("/absolute/path"),
-        // Enforced only by custom format for now.
-        // https://github.com/santhosh-tekuri/boon/issues/19
         json!("../outside/path"),
         json!("thing/../other"),
         json!(null),
         json!(""),
-        json!("C:\\foo"),
+        json!({}),
+        json!([]),
+        json!(true),
+        json!(null),
+        json!(42),
     ] {
         if schemas.validate(&invalid, idx).is_ok() {
             panic!("{} unexpectedly passed!", invalid)
@@ -102,7 +106,7 @@ fn test_v2_path() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_glob() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the semver schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "glob");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -143,7 +147,7 @@ fn test_v2_glob() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_version_range() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the version_range schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "version_range");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -213,7 +217,7 @@ fn test_v2_version_range() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_license() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the semver schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "license");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -256,13 +260,14 @@ fn test_v2_license() -> Result<(), Box<dyn Error>> {
             panic!("{} unexpectedly passed!", invalid_license)
         }
     }
+
     Ok(())
 }
 
 #[test]
 fn test_v2_purl() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the semver schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "purl");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -306,7 +311,7 @@ fn test_v2_purl() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_platform() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the semver schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "platform");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -392,7 +397,7 @@ fn test_v2_platform() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_platforms() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the semver schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "platforms");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -440,7 +445,7 @@ fn test_v2_platforms() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_maintainers() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "maintainers");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -578,7 +583,7 @@ fn test_v2_maintainers() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_extension() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the extension schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "extension");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -755,7 +760,7 @@ fn test_v2_extension() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_module() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the extension schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "module");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -924,7 +929,7 @@ fn test_v2_module() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_app() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the extension schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "app");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -983,7 +988,7 @@ fn test_v2_app() -> Result<(), Box<dyn Error>> {
         // doc
         ("empty doc", json!({"bin": "bog", "doc": ""})),
         ("null doc", json!({"bin": "bog", "doc": null})),
-        ("windows doc", json!({"bin": "bog", "doc": "c:\\foo"})),
+        ("up-dir doc", json!({"bin": "bog", "doc": "../foo"})),
         ("number doc", json!({"bin": "bog", "doc": 42})),
         ("bool doc", json!({"bin": "bog", "doc": true})),
         ("array doc", json!({"bin": "bog", "doc": ["hi"]})),
@@ -1005,7 +1010,7 @@ fn test_v2_app() -> Result<(), Box<dyn Error>> {
         // lib
         ("empty lib", json!({"bin": "bog", "lib": ""})),
         ("null lib", json!({"bin": "bog", "lib": null})),
-        ("windows lib", json!({"bin": "bog", "lib": "c:\\foo"})),
+        ("up-dir lib", json!({"bin": "bog", "lib": "../foo"})),
         ("number lib", json!({"bin": "bog", "lib": 42})),
         ("bool lib", json!({"bin": "bog", "lib": true})),
         ("array lib", json!({"bin": "bog", "lib": ["hi"]})),
@@ -1013,7 +1018,7 @@ fn test_v2_app() -> Result<(), Box<dyn Error>> {
         // man
         ("empty man", json!({"bin": "bog", "man": ""})),
         ("null man", json!({"bin": "bog", "man": null})),
-        ("windows man", json!({"bin": "bog", "man": "c:\\foo"})),
+        ("up-dir man", json!({"bin": "bog", "man": "../foo"})),
         ("number man", json!({"bin": "bog", "man": 42})),
         ("bool man", json!({"bin": "bog", "man": true})),
         ("array man", json!({"bin": "bog", "man": ["hi"]})),
@@ -1021,7 +1026,7 @@ fn test_v2_app() -> Result<(), Box<dyn Error>> {
         // html
         ("empty html", json!({"bin": "bog", "html": ""})),
         ("null html", json!({"bin": "bog", "html": null})),
-        ("windows html", json!({"bin": "bog", "html": "c:\\foo"})),
+        ("up-dir html", json!({"bin": "bog", "html": "../foo"})),
         ("number html", json!({"bin": "bog", "html": 42})),
         ("bool html", json!({"bin": "bog", "html": true})),
         ("array html", json!({"bin": "bog", "html": ["hi"]})),
@@ -1038,7 +1043,7 @@ fn test_v2_app() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_contents() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the extension schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "contents");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -1177,7 +1182,7 @@ fn test_v2_contents() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_meta_spec() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "meta-spec");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -1231,7 +1236,7 @@ fn test_v2_meta_spec() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_categories() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "categories");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -1300,7 +1305,7 @@ fn test_v2_categories() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_classifications() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "classifications");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -1371,7 +1376,7 @@ fn test_v2_classifications() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_ignore() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the semver schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "ignore");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -1429,7 +1434,7 @@ fn test_v2_ignore() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_phase() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "phase");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -1556,7 +1561,7 @@ fn test_v2_phase() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_packages() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "packages");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -1710,7 +1715,7 @@ fn test_v2_packages() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_postgres() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "postgres");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -1770,7 +1775,7 @@ fn test_v2_postgres() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_pipeline() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the semver schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "pipeline");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -1814,7 +1819,7 @@ fn test_v2_pipeline() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_dependencies() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "dependencies");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -2069,7 +2074,7 @@ fn test_v2_dependencies() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_variations() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "variations");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -2199,7 +2204,7 @@ fn test_v2_variations() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_badges() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "badges");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -2312,7 +2317,7 @@ fn test_v2_badges() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_resources() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "resources");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -2438,7 +2443,7 @@ fn test_v2_resources() -> Result<(), Box<dyn Error>> {
 #[test]
 fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the maintainer schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "artifacts");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -2884,7 +2889,7 @@ fn valid_v2_distribution() -> Value {
 #[test]
 fn test_v2_distribution() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the distribution schema.
-    let mut compiler = new_compiler("schema/v2")?;
+    let mut compiler = compiler::new("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "distribution");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -2957,7 +2962,7 @@ fn test_v2_distribution() -> Result<(), Box<dyn Error>> {
             spec.remove("url");
         }),
         ("multibyte name", |m: &mut Obj| {
-            m.insert("name".to_string(), json!("yoŭknow"));
+            m.insert("name".to_string(), json!("_know"));
         }),
         ("emoji name", |m: &mut Obj| {
             m.insert("name".to_string(), json!("📀📟🎱"));
@@ -2966,7 +2971,7 @@ fn test_v2_distribution() -> Result<(), Box<dyn Error>> {
             m.insert("name".to_string(), json!("foo-bar"));
         }),
         ("multibyte abstract", |m: &mut Obj| {
-            m.insert("abstract".to_string(), json!("yoŭknow"));
+            m.insert("abstract".to_string(), json!("yoŭ_know"));
         }),
         ("emoji abstract", |m: &mut Obj| {
             m.insert("abstract".to_string(), json!("📀📟🎱"));
@@ -2999,13 +3004,13 @@ fn test_v2_distribution() -> Result<(), Box<dyn Error>> {
             m.insert("version".to_string(), json!("1.2.1-beta1"));
         }),
         ("multibyte description", |m: &mut Obj| {
-            m.insert("description".to_string(), json!("yoŭknow"));
+            m.insert("description".to_string(), json!("yoŭ_know"));
         }),
         ("emoji description", |m: &mut Obj| {
             m.insert("description".to_string(), json!("📀📟🎱"));
         }),
         ("multibyte producer", |m: &mut Obj| {
-            m.insert("producer".to_string(), json!("yoŭknow"));
+            m.insert("producer".to_string(), json!("yoŭ_know"));
         }),
         ("emoji producer", |m: &mut Obj| {
             m.insert("producer".to_string(), json!("📀📟🎱"));

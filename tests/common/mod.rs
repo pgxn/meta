@@ -1,5 +1,4 @@
 use std::fs::{self, File};
-use std::path::{Component, Path};
 use std::{collections::HashMap, error::Error};
 
 use boon::{Compiler, Schemas};
@@ -86,69 +85,6 @@ pub const INVALID_SEMVERS: &[&str] = &[
 
 pub fn id_for(version: u8, schema: &str) -> String {
     format!("{SCHEMA_BASE}{version}/{schema}.schema.json")
-}
-
-fn spec_compiler() -> Compiler {
-    let mut compiler = Compiler::new();
-    compiler.enable_format_assertions();
-    compiler.register_format(boon::Format {
-        name: "path",
-        func: is_path,
-    });
-    compiler.register_format(boon::Format {
-        name: "license",
-        func: is_license,
-    });
-    compiler
-}
-
-pub fn new_compiler(dir: &str) -> Result<Compiler, Box<dyn Error>> {
-    let mut compiler = spec_compiler();
-
-    let paths = fs::read_dir(dir)?;
-    for path in paths {
-        let path = path?.path();
-        let bn = path.file_name().unwrap().to_str().unwrap();
-        if bn.ends_with(".schema.json") {
-            let schema: Value = serde_json::from_reader(File::open(path.clone())?)?;
-            if let Value::String(s) = &schema["$id"] {
-                // Add the schema to the compiler.
-                compiler.add_resource(s, schema.to_owned())?;
-            } else {
-                panic!("Unable to find ID in {}", path.display());
-            }
-        } else {
-            println!("Skipping {}", path.display());
-        }
-    }
-
-    Ok(compiler)
-}
-
-fn is_path(v: &Value) -> Result<(), Box<dyn Error>> {
-    let Value::String(s) = v else {
-        return Ok(()); // applicable only on strings
-    };
-
-    let path = Path::new(s);
-    for c in path.components() {
-        match c {
-            Component::ParentDir => Err("parent dir")?,
-            Component::Prefix(_) => Err("windows path")?,
-            Component::RootDir => Err("absolute path")?,
-            _ => (),
-        };
-    }
-
-    Ok(())
-}
-
-fn is_license(v: &Value) -> Result<(), Box<dyn Error>> {
-    let Value::String(s) = v else {
-        return Ok(()); // applicable only on strings
-    };
-    _ = spdx::Expression::parse(s)?;
-    Ok(())
 }
 
 pub fn test_term_schema(mut compiler: Compiler, version: u8) -> Result<(), Box<dyn Error>> {
@@ -250,7 +186,8 @@ pub fn test_tags_schema(mut compiler: Compiler, version: u8) -> Result<(), Box<d
 }
 
 pub fn test_schema_version(version: u8) -> Result<(), Box<dyn Error>> {
-    let mut compiler = spec_compiler();
+    let mut compiler = Compiler::new();
+    compiler.enable_format_assertions();
     let mut loaded: HashMap<String, Vec<Value>> = HashMap::new();
 
     let paths = fs::read_dir(format!("./schema/v{version}"))?;

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e
+
+DESTDIR="${PWD}/target/cover"
+
+rustup component add llvm-tools
+cargo install grcov
+
+export RUSTFLAGS="-Cinstrument-coverage"
+export LLVM_PROFILE_FILE="${DESTDIR}/default_%m_%p.profraw"
+cargo test
+
+grcov "${DESTDIR}" \
+    --ignore '**/clang-sys*/**' \
+    --ignore "$HOME/.cargo/**" \
+    --ignore-not-existing \
+    --ignore 'tests/**' \
+    --excl-start '#(\[cfg\(test\)\]|\[test\])' \
+    --llvm \
+    --binary-path "target/debug/" \
+    -s . \
+    --branch \
+    -o "${DESTDIR}" \
+    --output-types html,cobertura
+
+xmllint --xpath "concat('Coverage: ', 100 * string(//coverage/@line-rate), '%')" "${DESTDIR}/cobertura.xml"
+
+if [ "$(uname -o)" = "Darwin" ] && [ -z "$CI" ]; then
+	open "${DESTDIR}/html/index.html"
+fi

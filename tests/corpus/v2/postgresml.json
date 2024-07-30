@@ -1,0 +1,147 @@
+{
+  "name": "pgml",
+  "version": "2.8.2",
+  "abstract": "pgml: Created by the PostgresML team",
+  "maintainers": [
+    {
+      "name": "the PostgresML team",
+      "url": "https://github.com/postgresml/postgresml/"
+    }
+  ],
+  "license": "MIT",
+  "contents": {
+    "extensions": {
+      "pgml": {
+        "sql": "target/release/**/pgml--2.7.13.sql",
+        "control": "target/release/**/pgml.control"
+      }
+    },
+    "modules": {
+      "pgml": {
+        "type": "extension",
+        "lib": "target/release/pgml",
+        "preload": "server"
+      }
+    }
+  },
+  "dependencies": {
+    "postgres": {
+      "version": "9.1.0"
+    },
+    "pipeline": "pgrx",
+    "packages": {
+      "configure": {
+        "requires": {
+          "pkg:generic/cmake": 0,
+          "pkg:cargo/cargo-pgrx": "0.11.2"
+        }
+      },
+      "build": {
+        "requires": {
+          "pkg:generic/cargo": 0,
+          "pkg:generic/bison": 0,
+          "pkg:generic/flex": 0,
+          "pkg:generic/clang": 0,
+          "pkg:generic/openblas": 0,
+          "pkg:generic/python3": "3.7",
+          "pkg:generic/readline": 0,
+          "pkg:generic/openssl": 0,
+          "pkg:generic/pkg-config": 0
+        }
+      },
+      "run": {
+        "requires": {
+          "pkg:generic/openblas": 0,
+          "pkg:generic/python3": "3.7",
+          "pkg:generic/readline": 0,
+          "pkg:generic/openssl": 0
+        },
+        "recommends": {
+          "pkg:pypi/pyarrow": "11.0.0",
+          "pkg:pypi/catboost": 0,
+          "pkg:pypi/lightgbm": 0,
+          "pkg:pypi/torch": 0,
+          "pkg:pypi/torchaudio": 0,
+          "pkg:pypi/torchvision": 0,
+          "pkg:pypi/xgboost": 0,
+          "pkg:pypi/accelerate": 0,
+          "pkg:pypi/bitsandbytes": 0,
+          "pkg:pypi/ctransformers": 0,
+          "pkg:pypi/huggingface-hub": 0,
+          "pkg:pypi/deepspeed": 0,
+          "pkg:pypi/einops": 0,
+          "pkg:pypi/optimum": 0,
+          "pkg:pypi/peft": 0,
+          "pkg:pypi/tokenizers": 0,
+          "pkg:pypi/transformers": 0,
+          "pkg:pypi/transformers-stream-generator": 0,
+          "pkg:pypi/InstructorEmbedding": 0,
+          "pkg:pypi/sentence-transformers": 0,
+          "pkg:pypi/rouge": 0,
+          "pkg:pypi/sacrebleu": 0,
+          "pkg:pypi/sacremoses": 0,
+          "pkg:pypi/datasets": 0,
+          "pkg:pypi/orjson": 0,
+          "pkg:pypi/langchain": 0
+        }
+      }
+    },
+    "variations": [
+      {
+        "where": {
+          "platforms": ["linux"]
+        },
+        "dependencies": {
+          "packages": {
+            "run": {
+              "recommends": {
+                "pkg:pypi/auto-gptq": 0,
+                "pkg:pypi/xformers": 0
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "resources": {
+    "homepage": "https://postgresml.org/",
+    "issues": "https://github.com/postgresml/postgresml/issues",
+    "docs": "https://postgresml.org/docs/",
+    "support": "https://discord.com/invite/DmyJP3qJ7U",
+    "repository": "https://github.com/postgresml/postgresml",
+    "badges": [
+      {
+        "alt": "Tests Passing",
+        "src": "https://github.com/postgresml/postgresml/actions/workflows/ci.yml/badge.svg",
+        "url": "https://github.com/postgresml/postgresml/actions/workflows/ci.yml"
+      },
+      {
+        "alt": "Chat Activity",
+        "src": "https://img.shields.io/discord/1013868243036930099",
+        "url": "https://discord.gg/DmyJP3qJ7U"
+      }
+    ]
+  },
+  "producer": "David E. Wheeler",
+  "meta-spec": {
+    "version": "2.0.0",
+    "url": "https://rfcs.pgxn.org/0003-meta-spec-v2.html"
+  },
+  "classifications": {
+    "tags": ["machine learning", "ml", "transformers"],
+    "categories": ["Machine Learning"]
+  },
+  "artifacts": [
+    {
+      "type": "source",
+      "url": "https://github.com/postgresml/postgresml/archive/refs/tags/v2.8.2.zip",
+      "sha256": "2b9d2416096d2930be51e5332b70bcd97846947777a93e4a3d65fe1b5fd7b004"
+    },
+    {
+      "type": "source",
+      "url": "https://github.com/postgresml/postgresml/archive/refs/tags/v2.8.2.tar.gz",
+      "sha256": "845f28339c6159ac32daccea1cd17b386ea083c3e60bb8d58fb737725afe7eb5"
+    }
+  ]
+}

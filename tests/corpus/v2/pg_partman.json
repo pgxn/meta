@@ -1,0 +1,91 @@
+{
+  "name": "pg_partman",
+  "abstract": "Extension to manage partitioned tables by time or ID",
+  "version": "5.1.0",
+  "maintainers": [
+    {
+      "name": "Keith Fiske",
+      "email": "keith@keithf4.com"
+    }
+  ],
+  "license": "PostgreSQL",
+  "contents": {
+    "extensions": {
+      "pg_partman": {
+        "control": "pg_partman.control",
+        "sql": "sql/types/types.sql",
+        "doc": "doc/pg_partman.md",
+        "abstract": "Extension to manage partitioned tables by time or ID"
+      }
+    },
+    "modules": {
+      "pg_partman_bgw": {
+        "type": "bgw",
+        "lib": "src/pg_partman_bgw",
+        "preload": "server"
+      }
+    },
+    "apps": {
+      "check_unique_constraint": {
+        "lang": "python",
+        "bin": "bin/common/check_unique_constraint.py",
+        "abstract": "Check that all rows in a partition set are unique for the given columns"
+      },
+      "dump_partition": {
+        "lang": "python",
+        "bin": "bin/common/dump_partition.py",
+        "abstract": "Dump out and then drop all tables contained in a schema."
+      },
+      "vacuum_maintenance": {
+        "lang": "python",
+        "bin": "bin/common/vacuum_maintenance.py",
+        "abstract": "Performing vacuum maintenance on to avoid excess vacuuming and transaction id wraparound issues"
+      }
+    }
+  },
+  "dependencies": {
+    "postgres": {
+      "version": "14.0"
+    },
+    "packages": {
+      "run": {
+        "requires": {
+          "pkg:generic/python": "2.0",
+          "pkg:pypi/psycopg2": 0
+        },
+        "recommends": {
+          "pkg:pgxn/pg_jobmon": "1.4.1"
+        }
+      }
+    }
+  },
+  "resources": {
+    "issues": "https://github.com/theory/pg-envvar/issues/",
+    "repository": "https://github.com/theory/pg-envvar/",
+    "badges": [
+      {
+        "alt": "CI Status",
+        "src": "https://github.com/theory/pg-envvar/actions/workflows/ci.yml/badge.svg",
+        "url": "https://github.com/theory/pg-envvar/actions/workflows/ci.yml"
+      }
+    ]
+  },
+  "producer": "David E. Wheeler",
+  "meta-spec": {
+    "version": "2.0.0",
+    "url": "https://rfcs.pgxn.org/0003-meta-spec-v2.html"
+  },
+  "classifications": {
+    "categories": ["Orchestration"],
+    "tags": [
+      "partition",
+      "partitions",
+      "partitioning",
+      "table",
+      "tables",
+      "bgw",
+      "background worker",
+      "custom background worker"
+    ]
+  }
+}

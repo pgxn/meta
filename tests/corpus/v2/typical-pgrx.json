@@ -1,0 +1,85 @@
+{
+  "name": "jsonschema",
+  "abstract": "JSON Schema validation functions for PostgreSQL",
+  "description": "The jsonschema extension provides JSON Schema validation functions supporting drafts 2020-12, 2019-09, 7, 6, and 4",
+  "version": "0.1.1",
+  "maintainers": [
+    {
+      "name": "David E. Wheeler",
+      "email": "david@justatheory.com"
+    },
+    {
+      "name": "Tembo",
+      "email": "admin+pgxn@tembo.io"
+    }
+  ],
+  "license": "MIT",
+  "contents": {
+    "extensions": {
+      "jsonschema": {
+        "abstract": "JSON Schema validation functions for PostgreSQL",
+        "doc": "doc/jsonschema.md",
+        "x_comment": "Paths non-deterministic until pgrx ",
+        "sql": "target/release/**/jsonschema--0.1.1.sql",
+        "control": "target/release/**/jsonschema.control"
+      }
+    },
+    "modules": {
+      "libjsonschema": {
+        "type": "extension",
+        "lib": "target/release/libjsonschema"
+      }
+    }
+  },
+  "dependencies": {
+    "pipeline": "pgrx",
+    "postgres": {
+      "version": "12.0"
+    }
+  },
+  "resources": {
+    "issues": "https://github.com/tembo-io/pg-jsonschema-boon/issues/",
+    "repository": "https://github.com/tembo-io/pg-jsonschema-boon/",
+    "badges": [
+      {
+        "alt": "⚖️ MIT License",
+        "src": "https://img.shields.io/badge/License-MIT-blue.svg",
+        "url": "https://github.com/tembo-io/pg-jsonschema-boon/blob/main/LICENSE.md"
+      },
+      {
+        "alt": "🧪 Lint and Test",
+        "src": "https://github.com/tembo-io/pg-jsonschema-boon/actions/workflows/lint-and-test.yml/badge.svg",
+        "url": "https://github.com/tembo-io/pg-jsonschema-boon/actions/workflows/lint-and-test.yml"
+      },
+      {
+        "alt": "📊 Code Coverage",
+        "src": "https://codecov.io/gh/tembo-io/pg-jsonschema-boon/graph/badge.svg",
+        "url": "https://codecov.io/gh/tembo-io/pg-jsonschema-boon"
+      }
+    ]
+  },
+  "producer": "David E. Wheeler",
+  "meta-spec": {
+    "version": "2.0.0",
+    "url": "https://rfcs.pgxn.org/0003-meta-spec-v2.html"
+  },
+  "classifications": {
+    "categories": ["Data and Transformations"],
+    "tags": [
+      "jsonschema",
+      "validation",
+      "json",
+      "schema",
+      "constraint",
+      "pgrx",
+      "rust"
+    ]
+  },
+  "artifacts": [
+    {
+      "type": "source",
+      "url": "https://github.com/tembo-io/pg-jsonschema-boon/releases/download/v0.1.1/jsonschema-0.1.1.zip",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

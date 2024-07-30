@@ -1,0 +1,19 @@
+{
+  "name": "pair",
+  "abstract": "A key/value pair data type",
+  "version": "0.1.0",
+  "maintainer": "David E. Wheeler <david@justatheory.com>",
+  "license": "postgresql",
+  "provides": {
+    "pair": {
+      "abstract": "A key/value pair data type",
+      "file": "sql/pair.sql",
+      "docfile": "doc/pair.md",
+      "version": "0.1.0"
+    }
+  },
+  "meta-spec": {
+    "version": "1.0.0",
+    "url": "https://pgxn.org/meta/spec.txt"
+  }
+}

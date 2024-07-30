@@ -1,0 +1,62 @@
+{
+  "name": "pair",
+  "abstract": "A key/value pair data type",
+  "description": "This library contains a single PostgreSQL extension, a key/value pair data type called “pair”, along with a convenience function for constructing key/value pairs.",
+  "version": "0.1.8",
+  "maintainers": [
+    {
+      "name": "David E. Wheeler",
+      "email": "david@justatheory.com"
+    }
+  ],
+  "license": "PostgreSQL",
+  "contents": {
+    "extensions": {
+      "pair": {
+        "abstract": "A key/value pair data type",
+        "sql": "sql/pair.sql",
+        "doc": "doc/pair.md",
+        "control": "pair.control",
+        "tle": true
+      }
+    }
+  },
+  "dependencies": {
+    "postgres": {
+      "version": "9.1.0"
+    }
+  },
+  "resources": {
+    "issues": "https://github.com/theory/kv-pair/issues/",
+    "repository": "https://github.com/theory/kv-pair/",
+    "badges": [
+      {
+        "alt": "Test Status",
+        "src": "https://github.com/theory/kv-pair/workflows/CI/badge.svg",
+        "url": "https://github.com/theory/kv-pair/actions"
+      }
+    ]
+  },
+  "producer": "David E. Wheeler",
+  "meta-spec": {
+    "version": "2.0.0",
+    "url": "https://rfcs.pgxn.org/0003-meta-spec-v2.html"
+  },
+  "classifications": {
+    "categories": ["Data and Transformations"],
+    "tags": [
+      "variadic function",
+      "ordered pair",
+      "pair",
+      "key value",
+      "key value pair"
+    ]
+  },
+  "artifacts": [
+    {
+      "type": "source",
+      "url": "https://github.com/theory/kv-pair/releases/download/v0.1.7/pair-0.1.7.zip",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

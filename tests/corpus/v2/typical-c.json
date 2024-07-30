@@ -1,0 +1,61 @@
+{
+  "name": "envvar",
+  "abstract": "Get the value of a server environment variable",
+  "description": "Provides a function that returns the value of an environment variable set on the Postgres server.",
+  "version": "1.0.0",
+  "maintainers": [
+    {
+      "name": "David E. Wheeler",
+      "email": "david@justatheory.com"
+    }
+  ],
+  "license": "PostgreSQL",
+  "contents": {
+    "extensions": {
+      "envvar": {
+        "abstract": "Get the value of a server environment variable",
+        "control": "envvar.control",
+        "sql": "sql/envvar.sql",
+        "doc": "doc/envvar.md"
+      }
+    },
+    "modules": {
+      "envvar": {
+        "type": "extension",
+        "lib": "src/envvar"
+      }
+    }
+  },
+  "dependencies": {
+    "postgres": {
+      "version": "9.1.0"
+    }
+  },
+  "resources": {
+    "issues": "https://github.com/theory/pg-envvar/issues/",
+    "repository": "https://github.com/theory/pg-envvar/",
+    "badges": [
+      {
+        "alt": "CI Status",
+        "src": "https://github.com/theory/pg-envvar/actions/workflows/ci.yml/badge.svg",
+        "url": "https://github.com/theory/pg-envvar/actions/workflows/ci.yml"
+      }
+    ]
+  },
+  "producer": "David E. Wheeler",
+  "meta-spec": {
+    "version": "2.0.0",
+    "url": "https://rfcs.pgxn.org/0003-meta-spec-v2.html"
+  },
+  "classifications": {
+    "categories": ["Data and Transformations"],
+    "tags": ["environment variable", "environment", "server"]
+  },
+  "artifacts": [
+    {
+      "type": "source",
+      "url": "https://github.com/theory/pg-envvar/releases/download/v1.0.0/envvar-1.0.0.zip",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}
