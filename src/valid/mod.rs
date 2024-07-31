@@ -4,6 +4,13 @@ use std::{error::Error, fmt};
 use boon::{Compiler, Schemas};
 use serde_json::Value;
 
+// Export compiler publicly only for tests.
+#[cfg(test)]
+pub mod compiler;
+
+#[cfg(not(test))]
+mod compiler;
+
 /// PGXN Meta validator.
 pub struct Validator {
     compiler: Compiler,
@@ -46,7 +53,7 @@ impl Validator {
     /// `dir`.
     pub fn new() -> Validator {
         Validator {
-            compiler: super::compiler::new(),
+            compiler: compiler::new(),
             schemas: Schemas::new(),
         }
     }
@@ -99,7 +106,7 @@ mod tests {
         let mut validator = Validator::default();
 
         for v_dir in ["v1", "v2"] {
-            let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "corpus", v_dir]
+            let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", v_dir]
                 .iter()
                 .collect();
             let glob = Glob::new("*.json")?;
@@ -122,7 +129,6 @@ mod tests {
 
         for tc in [("v1", "widget.json"), ("v2", "typical-sql.json")] {
             let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("tests")
                 .join("corpus")
                 .join(tc.0)
                 .join(tc.1);

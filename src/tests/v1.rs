@@ -4,8 +4,7 @@ use boon::Schemas;
 use serde_json::{json, Map, Value};
 
 // importing common module.
-mod common;
-use common::*;
+use super::common::*;
 
 const SCHEMA_VERSION: u8 = 1;
 

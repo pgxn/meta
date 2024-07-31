@@ -17,7 +17,7 @@ pub fn new() -> Compiler {
         let schema: Value = serde_json::from_str(str).unwrap();
         let id = &schema["$id"]
             .as_str()
-            .ok_or(super::valid::ValidationError::UnknownID)
+            .ok_or(super::ValidationError::UnknownID)
             .unwrap();
         compiler.add_resource(id, schema.to_owned()).unwrap();
     }
@@ -161,7 +161,6 @@ mod tests {
             let idx = compiler.compile(&id, &mut schemas)?;
 
             let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("tests")
                 .join("corpus")
                 .join(tc.0)
                 .join(tc.1);

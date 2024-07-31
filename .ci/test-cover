@@ -15,7 +15,7 @@ grcov "${DESTDIR}" \
     --ignore '**/clang-sys*/**' \
     --ignore "$HOME/.cargo/**" \
     --ignore-not-existing \
-    --ignore 'tests/**' \
+    --ignore '**/tests/**' \
     --ignore 'build.rs' \
     --excl-start '#(\[cfg\(test\)\]|\[test\])' \
     --llvm \

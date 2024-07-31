@@ -41,8 +41,8 @@ assert!(validator.validate(&meta).is_ok());
 
 */
 
-#[doc(hidden)]
-pub mod compiler;
-
 mod valid;
 pub use valid::{ValidationError, Validator};
+
+#[cfg(test)]
+mod tests;

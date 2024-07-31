@@ -1,4 +1,3 @@
-use pgxn_meta::compiler;
 use std::{
     collections::HashMap,
     error::Error,
@@ -6,6 +5,7 @@ use std::{
     path::Path,
 };
 
+use crate::valid::compiler;
 use boon::{Compiler, Schemas};
 use serde_json::{json, Value};
 use wax::Glob;
@@ -27,7 +27,7 @@ pub const VALID_SEMVERS: &[&str] = &[
     "1.0.0-alpha.1",
     "1.0.0-alpha0.valid",
     "1.0.0-alpha.0valid",
-    "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay",
+    "1.0.0-alpha-a.b-c-something-long+build.1-aef.1-its-okay",
     "1.0.0-rc.1+build.1",
     "2.0.0-rc.1+build.123",
     "1.2.3-beta",
@@ -83,7 +83,7 @@ pub const INVALID_SEMVERS: &[&str] = &[
     "1.2.31.2.3----RC-SNAPSHOT.12.09.1--..12+788",
     "1.2-RC-SNAPSHOT",
     "-1.0.3-gamma+b7718",
-    "+justmeta",
+    "+just-meta",
     "9.8.7+meta+meta",
     "9.8.7-whatever+meta+meta",
     "99999999999999999999999.999999999999999999.99999999999999999----RC-SNAPSHOT.12.09.1--------------------------------..12",
