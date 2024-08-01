@@ -1,5 +1,4 @@
 //! The valid module provides pgxn_meta validation.
-use std::path::Path;
 use std::{error::Error, fmt};
 
 use boon::{Compiler, Schemas};
@@ -34,23 +33,29 @@ impl fmt::Display for ValidationError {
 }
 const SCHEMA_BASE: &str = "https://pgxn.org/meta/v";
 
+impl Default for Validator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Validator {
     /// Validator constructor.
     ///
     /// new creates and returns a new Validator with the schemas loaded from
     /// `dir`.
-    pub fn new<P: AsRef<Path>>(dir: P) -> Result<Validator, Box<dyn Error>> {
-        let compiler = super::compiler::new(dir)?;
-        let schemas = Schemas::new();
-        Ok(Validator { compiler, schemas })
+    pub fn new() -> Validator {
+        Validator {
+            compiler: super::compiler::new(),
+            schemas: Schemas::new(),
+        }
     }
 
     /// Validates a PGXN Meta document.
     ///
     /// Load a `META.json` file into a serde_json::value::Value and pass it
-    /// for validation. Returns true on success and a validation error on
-    /// failure.
-    pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<bool, Box<dyn Error + '_>> {
+    /// for validation. Returns a validation error on failure.
+    pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<(), Box<dyn Error + '_>> {
         let map = meta.as_object().ok_or(ValidationError::UnknownSpec)?;
         let version = map
             .get("meta-spec")
@@ -73,7 +78,8 @@ impl Validator {
         let schemas = &mut self.schemas;
         let idx = compiler.compile(&id, schemas)?;
         schemas.validate(meta, idx)?;
-        Ok(true)
+
+        Ok(())
     }
 }
 
@@ -81,15 +87,16 @@ impl Validator {
 mod tests {
     use super::*;
     use serde_json::{json, Value};
-    use std::error::Error;
-    use std::fs::File;
-    use std::path::PathBuf;
+    use std::{
+        error::Error,
+        fs::File,
+        path::{Path, PathBuf},
+    };
     use wax::Glob;
 
     #[test]
     fn test_corpus() -> Result<(), Box<dyn Error>> {
-        let schemas_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "schema"].iter().collect();
-        let mut validator = Validator::new(schemas_dir)?;
+        let mut validator = Validator::default();
 
         for v_dir in ["v1", "v2"] {
             let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "corpus", v_dir]
@@ -110,6 +117,23 @@ mod tests {
     }
 
     #[test]
+    fn test_validator() -> Result<(), Box<dyn Error>> {
+        let mut v = Validator::new();
+
+        for tc in [("v1", "widget.json"), ("v2", "typical-sql.json")] {
+            let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests")
+                .join("corpus")
+                .join(tc.0)
+                .join(tc.1);
+            let meta: Value = serde_json::from_reader(File::open(path)?)?;
+            assert!(v.validate(&meta).is_ok());
+        }
+
+        Ok(())
+    }
+
+    #[test]
     fn test_errors() {
         assert_eq!(
             format!("{}", ValidationError::UnknownSpec),
@@ -123,8 +147,7 @@ mod tests {
 
     #[test]
     fn test_invalid_schemas() -> Result<(), Box<dyn Error>> {
-        let schemas_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "schema"].iter().collect();
-        let mut validator = Validator::new(schemas_dir)?;
+        let mut validator = Validator::new();
 
         for tc in [
             ("no meta spec", json!({})),

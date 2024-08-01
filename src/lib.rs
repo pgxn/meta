@@ -13,8 +13,6 @@ use std::{path::PathBuf, error::Error};
 use serde_json::json;
 use pgxn_meta::*;
 
-let schemas_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "schema"].iter().collect();
-let mut validator = Validator::new(schemas_dir)?;
 
 let meta = json!({
   "name": "pair",
@@ -33,6 +31,7 @@ let meta = json!({
   "meta-spec": { "version": "2.0.0" }
 });
 
+let mut validator = Validator::new();
 assert!(validator.validate(&meta).is_ok());
 # Ok::<(), Box<dyn Error>>(())
 ```
@@ -42,8 +41,8 @@ assert!(validator.validate(&meta).is_ok());
 
 */
 
-mod valid;
-pub use valid::{ValidationError, Validator};
-
 #[doc(hidden)]
 pub mod compiler;
+
+mod valid;
+pub use valid::{ValidationError, Validator};

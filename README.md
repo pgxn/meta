@@ -2,8 +2,7 @@ PGXN Meta Spec
 ==============
 
 [![PostgreSQL License](https://img.shields.io/badge/License-PostgreSQL-blue.svg)](https://opensource.org/licenses/PostgreSQL "⚖️ PostgreSQL License")
-[![Build Status](https://github.com/pgxn/meta/actions/workflows/test-and-lint/badge.svg)](https://github.com/pgxn/meta/actions
-workflows/test-and-lint "🧪 Test and Lint")
+[![Build Status](https://github.com/pgxn/meta/actions/workflows/test-and-lint.yml/badge.svg)](https://github.com/pgxn/meta/actions/workflows/test-and-lint "🧪 Test and Lint")
 [![Code Coverage](https://codecov.io/gh/pgxn/meta/graph/badge.svg?token=5DOLLPIHEO)](https://codecov.io/gh/pgxn/meta "📊 Code Coverage")
 
 The PGXN Meta Spec defines the requirements for the metadata file

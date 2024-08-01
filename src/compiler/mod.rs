@@ -2,33 +2,32 @@ use relative_path::{Component, RelativePath};
 /// Public but undocumented and un-exported module that creates a
 /// boon::Compiler for use in validation and Tests.
 use std::error::Error;
-use std::fs::File;
-use std::path::Path;
 
 use boon::Compiler;
 use serde_json::Value;
-use wax::Glob;
 
-/// new returns a new boon::compiler with the schema files loaded from `dir`
+/// new returns a new boon::Compiler with the schema files loaded from `dir`
 /// and configured to validate `path` and `license` formats.
-pub fn new<P: AsRef<Path>>(dir: P) -> Result<Compiler, Box<dyn Error>> {
+pub fn new() -> Compiler {
+    let schema_v1 = include_str!(concat!(env!("OUT_DIR"), "/pgxn-meta-v1.schema.json"));
+    let schema_v2 = include_str!(concat!(env!("OUT_DIR"), "/pgxn-meta-v2.schema.json"));
     let mut compiler = spec_compiler();
 
-    let glob = Glob::new("**/*.schema.json")?;
-    for path in glob.walk(dir) {
-        let schema: Value = serde_json::from_reader(File::open(path?.into_path())?)?;
-        let s = &schema["$id"]
+    for str in [schema_v1, schema_v2] {
+        let schema: Value = serde_json::from_str(str).unwrap();
+        let id = &schema["$id"]
             .as_str()
-            .ok_or(super::valid::ValidationError::UnknownID)?;
-        compiler.add_resource(s, schema.to_owned())?;
+            .ok_or(super::valid::ValidationError::UnknownID)
+            .unwrap();
+        compiler.add_resource(id, schema.to_owned()).unwrap();
     }
 
-    Ok(compiler)
+    compiler
 }
 
 /// Creates a new boon::compiler with format assertions enabled and validation
 /// for the custom `path` and `license` formats.
-fn spec_compiler() -> Compiler {
+pub fn spec_compiler() -> Compiler {
     let mut compiler = Compiler::new();
     compiler.enable_format_assertions();
     compiler.register_format(boon::Format {
@@ -70,7 +69,9 @@ fn is_license(v: &Value) -> Result<(), Box<dyn Error>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use boon::Schemas;
     use serde_json::json;
+    use std::{fs::File, path::Path};
 
     #[test]
     fn test_path() {
@@ -148,5 +149,26 @@ mod tests {
                 panic!("{} unexpectedly passed!", invalid_license)
             }
         }
+    }
+
+    #[test]
+    fn test_new() -> Result<(), Box<dyn Error>> {
+        let mut compiler = new();
+
+        for tc in [("v1", "widget.json"), ("v2", "typical-sql.json")] {
+            let mut schemas = Schemas::new();
+            let id = format!("https://pgxn.org/meta/{}/distribution.schema.json", tc.0);
+            let idx = compiler.compile(&id, &mut schemas)?;
+
+            let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests")
+                .join("corpus")
+                .join(tc.0)
+                .join(tc.1);
+            let meta: Value = serde_json::from_reader(File::open(path)?)?;
+            assert!(schemas.validate(&meta, idx).is_ok());
+        }
+
+        Ok(())
     }
 }

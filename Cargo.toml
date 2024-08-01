@@ -20,4 +20,8 @@ serde_json = "1.0"
 spdx = "0.10.6"
 wax = "0.6.0"
 
+[build-dependencies]
+wax = "0.6.0"
+serde_json = "1.0"
+
 [dev-dependencies]
