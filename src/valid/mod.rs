@@ -168,4 +168,27 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn test_v1_meta() {
+        let meta = json!({
+          "name": "pair",
+          "abstract": "A key/value pair data type",
+          "version": "0.1.8",
+          "maintainer": "theory <theory@pgxn.org>",
+          "license": "postgresql",
+          "provides": {
+            "pair": {
+              "file": "sql/pair.sql",
+              "version": "0.1.8"
+            }
+          },
+          "meta-spec": { "version": "1.0.0" }
+        });
+
+        let mut validator = Validator::new();
+        if let Err(e) = validator.validate(&meta) {
+            panic!("Validation failed: {e}");
+        };
+    }
 }

@@ -13,7 +13,6 @@ use std::{path::PathBuf, error::Error};
 use serde_json::json;
 use pgxn_meta::*;
 
-
 let meta = json!({
   "name": "pair",
   "abstract": "A key/value pair data type",
