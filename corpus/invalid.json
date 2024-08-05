@@ -1,0 +1,20 @@
+{
+  "name": "pair",
+  "abstract": "A key/value pair data type",
+  "maintainers": [
+    {
+      "name": "David E. Wheeler",
+      "email": "david@justatheory.com"
+    }
+  ],
+  "license": "PostgreSQL",
+  "contents": {
+    "extensions": {
+      "pair": {
+        "sql": "sql/pair.sql",
+        "control": "pair.control"
+      }
+    }
+  },
+  "meta-spec": { "version": "2.0.0" }
+}

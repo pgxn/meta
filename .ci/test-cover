@@ -23,9 +23,8 @@ grcov "${DESTDIR}" \
     -s . \
     --branch \
     -o "${DESTDIR}" \
-    --output-types html,cobertura
-
-xmllint --xpath "concat('Coverage: ', 100 * string(//coverage/@line-rate), '%')" "${DESTDIR}/cobertura.xml"
+    --token 5DOLLPIHEO \
+    --output-types html,coveralls
 
 if [ "$(uname -o)" = "Darwin" ] && [ -z "$CI" ]; then
 	open "${DESTDIR}/html/index.html"
