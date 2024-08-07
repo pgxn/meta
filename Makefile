@@ -22,4 +22,4 @@ target/doc/pgxn_meta/index.html: $(shell find . -name \*.rs)
 	cargo doc
 
 target/release-notes.md: CHANGELOG.md .ci/mknotes Cargo.toml
-	@./.ci/mknotes -f $< -r https://github.com/$(or $(GITHUB_REPOSITORY),theory/meta) -o $@
+	@./.ci/mknotes -f $< -r https://github.com/$(or $(GITHUB_REPOSITORY),pgxn/meta) -o $@
