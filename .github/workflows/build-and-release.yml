@@ -17,10 +17,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # https://github.com/cross-rs/cross#supported-targets
         platform:
           - os_name: freebsd-amd64
             os: ubuntu-20.04
             target: x86_64-unknown-freebsd
+            bin: pgxn_meta
+            emoji: 😈
+            skip_tests: true
+          - os_name: freebsd-i686
+            os: ubuntu-20.04
+            target: i686-unknown-freebsd
             bin: pgxn_meta
             emoji: 😈
             skip_tests: true
@@ -97,12 +104,12 @@ jobs:
             bin: pgxn_meta.exe
             emoji: 🪟
           - os_name: darwin-amd64
-            os: darwin-latest
+            os: macos-latest
             target: x86_64-apple-darwin
             bin: pgxn_meta
             emoji: 🍎
           - os_name: darwin-arm64
-            os: darwin-latest
+            os: macos-latest
             target: aarch64-apple-darwin
             bin: pgxn_meta
             emoji: 🍎
@@ -112,6 +119,25 @@ jobs:
             bin: pgxn_meta
             emoji: 🐦‍🔥
             skip_tests: true
+          - os_name: solaris-sparcv9
+            os: ubuntu-20.04
+            target: sparcv9-sun-solaris
+            bin: pgxn_meta
+            emoji: ☀️
+            skip_tests: true
+          # https://github.com/cross-rs/cross/issues/1536
+          # - os_name: solaris-amd64
+          #   os: ubuntu-20.04
+          #   target: x86_64-pc-solaris
+          #   bin: pgxn_meta
+          #   emoji: ☀️
+          # Dragonfly: No std component available.
+          # - os_name: dragonfly-amd64
+          #   os: ubuntu-20.04
+          #   target: x86_64-unknown-dragonfly
+          #   bin: pgxn_meta
+          #   emoji: 🐉🪰
+          #   skip_tests: true
         toolchain:
           - stable
           - beta
@@ -179,10 +205,13 @@ jobs:
               exit 1
           fi
         if: matrix.toolchain == 'stable' && startsWith( github.ref, 'refs/tags/v' )
+      - name: Generate Release Changes
+        run: make target/release-notes.md
+        if: matrix.toolchain == 'stable' && github.ref == 'refs/tags/test-release'
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           files: "pgxn_meta*"
-          body_path: CHANGELOG.md
+          body_path: target/release-notes.md
         if: matrix.toolchain == 'stable' && startsWith( github.ref, 'refs/tags/v' )
