@@ -33,6 +33,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.1
+      - uses: actions-rust-lang/audit@v1
+        name: Audit Rust Dependencies
       - name: Generate Coverage
         run: make cover RUST_BACKTRACE=1
       - name: Publish Coverage

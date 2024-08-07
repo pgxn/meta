@@ -1,5 +1,7 @@
-PGXN Meta &emsp; [![license-badge]][license] [![ci-badge]][ci] [![cov-badge]][cov] [![deps-badge]][deps]
-=========
+# PGXN Meta
+
+[![license-badge]][license] [![crates-badge]][crates] [![docs-badge]][docs] [![ci-badge]][ci] [![cov-badge]][cov] [![deps-badge]][deps]
+
 
 **The pgxn_meta crate provides [PGXN Meta Spec] validation**
 
@@ -9,8 +11,8 @@ The [PGXN Meta Spec] defines the requirements for the metadata file
 (`META.json`) file for [PGXN] source distribution packages. This project
 provides Rust a crates for working with spec `META.json` files.
 
-Example
--------
+Crate Usage
+-----------
 
 <details>
 <summary>Click to show `Cargo.toml`.</summary>
@@ -51,6 +53,53 @@ func main() {
 }
 ```
 
+See the [`pgxn_meta` docs on docs.rs] for complete details.
+
+Installation
+------------
+
+There are several ways to install `pgxn_meta`.
+
+### Use `ubi`
+
+Install the [universal binary installer (ubi)](https://github.com/houseabsolute/ubi) and
+use it to install `pgxn_meta` and many other tools.
+
+``` console
+$ ubi --project pgxn/meta --in ~/bin
+```
+
+### Binary Releases
+
+Grab the appropriate binary [release], untar or unzip it, and put the
+`pgxn_meta` executable somewhere in your path.
+
+### Cargo
+
+Install `pgxn_meta` via `cargo` by running:
+
+``` sh
+cargo install pgxn_meta
+```
+
+See the [cargo docs] to learn where the binary will be installed.
+
+Usage
+-----
+
+Simply execute `pgxn_meta` to validate the PGXN `META.json` file in the
+current directory:
+
+``` sh
+pgxn_meta
+```
+
+If the file has a different name, simply pass it:
+
+``` sh
+pgxn_meta widget.json
+```
+
 Contributing
 ------------
 
@@ -67,6 +116,10 @@ This project is distributed under the [PostgreSQL License][license].
 
   [license-badge]: https://img.shields.io/badge/License-PostgreSQL-blue.svg
   [license]: https://opensource.org/licenses/PostgreSQL "⚖️ PostgreSQL License"
+  [crates-badge]: https://img.shields.io/crates/v/pgxn_meta.svg
+  [crates]: https://crates.io/crates/pgxn_meta
+  [docs-badge]: https://docs.rs/pgxn_meta/badge.svg
+  [docs]: https://docs.rs/pgxn_meta
   [ci-badge]: https://github.com/pgxn/meta/actions/workflows/test-and-lint.yml/badge.svg
   [ci]: https://github.com/pgxn/meta/actions/workflows/test-and-lint "🧪 Test and Lint"
   [cov-badge]: https://codecov.io/gh/pgxn/meta/graph/badge.svg?token=5DOLLPIHEO
@@ -75,5 +128,10 @@ This project is distributed under the [PostgreSQL License][license].
   [deps]: https://deps.rs/repo/github/pgxn/meta "📦 Dependency Status"
   [PGXN Meta Spec]: https://rfcs.pgxn.org/0001-meta-spec-v1.html
   [PGXN]: https://pgxn.org "PGXN: PostgreSQL Extension Network"
+  [`pgxn_meta` docs on docs.rs]: https://docs.rs/ubi/latest/pgxn_meta/
+  [universal binary installer (ubi)]: https://github.com/houseabsolute/ubi
+  [release]: https://github.com/pgxn/meta/releases
+  [cargo docs]: https://doc.rust-lang.org/cargo/commands/cargo-install.html
   [PostgresSQL Code of Conduct]: https://www.postgresql.org/about/policies/coc/
-  [Issues]: https://github.con/pgxn/meta/issues
+  [Issues]: https://github.com/pgxn/meta/issues
+  [Pull Requests]: https://github.com/pgxn/meta/pulls

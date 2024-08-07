@@ -1,0 +1,188 @@
+name: 🚀 Build and Release
+on:
+  push:
+    branches-ignore: [wip/**]
+    tags: ["**"]
+  pull_request:
+env:
+  CRATE_NAME: pgxn_meta
+  GITHUB_TOKEN: ${{ github.token }}
+  RUST_BACKTRACE: 1
+permissions:
+  contents: write
+jobs:
+  release:
+    name: ${{ matrix.platform.emoji }} ${{ matrix.platform.os_name }} 🦀 ${{ matrix.toolchain }}
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - os_name: freebsd-amd64
+            os: ubuntu-20.04
+            target: x86_64-unknown-freebsd
+            bin: pgxn_meta
+            emoji: 😈
+            skip_tests: true
+          - os_name: linux-amd64
+            os: ubuntu-20.04
+            target: x86_64-unknown-linux-musl
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: linux-arm64
+            os: ubuntu-20.04
+            target: aarch64-unknown-linux-musl
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: linux-arm
+            os: ubuntu-20.04
+            target: arm-unknown-linux-musleabi
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: linux-i686
+            os: ubuntu-20.04
+            target: i686-unknown-linux-musl
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: linux-powerpc
+            os: ubuntu-20.04
+            target: powerpc-unknown-linux-gnu
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: linux-powerpc64
+            os: ubuntu-20.04
+            target: powerpc64-unknown-linux-gnu
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: linux-powerpc64le
+            os: ubuntu-20.04
+            target: powerpc64le-unknown-linux-gnu
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: linux-riscv64
+            os: ubuntu-20.04
+            target: riscv64gc-unknown-linux-gnu
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: linux-s390x
+            os: ubuntu-20.04
+            target: s390x-unknown-linux-gnu
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: linux-sparc64
+            os: ubuntu-20.04
+            target: sparc64-unknown-linux-gnu
+            bin: pgxn_meta
+            emoji: 🐧
+          - os_name: netbsd-amd64
+            os: ubuntu-20.04
+            target: x86_64-unknown-netbsd
+            bin: pgxn_meta
+            emoji: ⛳️
+            skip_tests: true
+          - os_name: windows-arm64
+            os: windows-latest
+            target: aarch64-pc-windows-msvc
+            bin: pgxn_meta.exe
+            emoji: 🪟
+            skip_tests: true
+          - os_name: windows-i686
+            os: windows-latest
+            target: i686-pc-windows-msvc
+            bin: pgxn_meta.exe
+            emoji: 🪟
+          - os_name: windows-amd64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin: pgxn_meta.exe
+            emoji: 🪟
+          - os_name: darwin-amd64
+            os: darwin-latest
+            target: x86_64-apple-darwin
+            bin: pgxn_meta
+            emoji: 🍎
+          - os_name: darwin-arm64
+            os: darwin-latest
+            target: aarch64-apple-darwin
+            bin: pgxn_meta
+            emoji: 🍎
+          - os_name: illumos-amd64
+            os: ubuntu-20.04
+            target: x86_64-unknown-illumos
+            bin: pgxn_meta
+            emoji: 🐦‍🔥
+            skip_tests: true
+        toolchain:
+          - stable
+          - beta
+          - nightly
+        exclude:
+          # Not sure why this is failing.
+          - toolchain: nightly
+            platform: { os_name: linux-arm64 }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Cache
+        uses: Swatinem/rust-cache@v2
+      - name: Install musl-tools on Linux
+        run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
+        if: contains(matrix.platform.name, 'musl')
+      - name: Build Binary
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: "build"
+          target: ${{ matrix.platform.target }}
+          toolchain: ${{ matrix.toolchain }}
+          args: "--locked --release"
+          strip: true
+      - name: Run Tests
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          command: "test"
+          target: ${{ matrix.platform.target }}
+          toolchain: ${{ matrix.toolchain }}
+          args: "--locked --release"
+        if: ${{ !matrix.platform.skip_tests }}
+      - name: Get the Version
+        if: env.VERSION == ''
+        run: echo "VERSION=$(grep "^version" Cargo.toml | sed -r 's/version[^"]+"([^"]+).*/\1/')" >> $GITHUB_ENV
+      - name: Determine Archive Name
+        shell: bash
+        run: |
+          echo "ARCHIVE=pgxn_meta-v$VERSION-${{ matrix.platform.os_name }}" >> $GITHUB_ENV
+      - name: Package Archive
+        shell: bash
+        run: |
+          printf "Packaging %s\n" "$ARCHIVE"
+          mkdir "$ARCHIVE"
+          cp "target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}" "$ARCHIVE"/
+          cp {README.md,CHANGELOG.md,LICENSE.md} "$ARCHIVE"/
+          if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
+            7z a "$ARCHIVE.zip" "$ARCHIVE"
+          else
+            tar czvf "$ARCHIVE.tar.gz" "$ARCHIVE"
+          fi
+        if: |
+          matrix.toolchain == 'stable' &&
+          ( startsWith( github.ref, 'refs/tags/v' ) ||
+            github.ref == 'refs/tags/test-release' )
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: "pgxn_meta-*"
+        if: matrix.toolchain == 'stable' && github.ref == 'refs/tags/test-release'
+      - name: Check the Version
+        shell: bash
+        run: |
+          if [ "${{ github.ref_name }}" != "v$VERSION" ]; then
+              printf "Cargo.toml version %s does not match tag %s\n" "$VERSION" "${{ github.ref_name }}" >&2
+              exit 1
+          fi
+        if: matrix.toolchain == 'stable' && startsWith( github.ref, 'refs/tags/v' )
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: "pgxn_meta*"
+          body_path: CHANGELOG.md
+        if: matrix.toolchain == 'stable' && startsWith( github.ref, 'refs/tags/v' )

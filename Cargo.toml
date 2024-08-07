@@ -3,12 +3,14 @@ name = "pgxn_meta"
 version = "0.1.0"
 description = "The PGXN distribution metadata specification"
 repository = "https://github.com/pgxn/pgxn-meta-spec"
+documentation = "https://docs.rs/pgxn_meta/"
 authors = ["David E. Wheeler <david@justatheory.com>"]
+readme = "README.md"
 keywords = ["pgxn", "postgres", "postgresql", "extension", "validation", "distribution"]
 license = "PostgreSQL"
 categories = ["web-programming", "database"]
 edition = "2021"
-exclude = [ ".github", ".gitattributes", "target", ".vscode", ".gitignore" ]
+exclude = [ ".github", ".vscode", ".gitignore", ".ci", ".pre-*.yaml"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -26,3 +28,14 @@ wax = "0.6.0"
 serde_json = "1.0"
 
 [dev-dependencies]
+
+# workaround for https://github.com/cross-rs/cross/issues/1345
+[package.metadata.cross.target.x86_64-unknown-netbsd]
+pre-build = [
+    "mkdir -p /tmp/netbsd",
+    "curl https://cdn.netbsd.org/pub/NetBSD/NetBSD-9.2/amd64/binary/sets/base.tar.xz -O",
+    "tar -C /tmp/netbsd -xJf base.tar.xz",
+    "cp /tmp/netbsd/usr/lib/libexecinfo.so /usr/local/x86_64-unknown-netbsd/lib",
+    "rm base.tar.xz",
+    "rm -rf /tmp/netbsd",
+]
