@@ -125,12 +125,12 @@ jobs:
             bin: pgxn_meta
             emoji: ☀️
             skip_tests: true
-          # https://github.com/cross-rs/cross/issues/1536
-          # - os_name: solaris-amd64
-          #   os: ubuntu-20.04
-          #   target: x86_64-pc-solaris
-          #   bin: pgxn_meta
-          #   emoji: ☀️
+          - os_name: solaris-amd64
+            os: ubuntu-20.04
+            target: x86_64-pc-solaris
+            bin: pgxn_meta
+            emoji: ☀️
+            skip_tests: true
           # Dragonfly: No std component available.
           # - os_name: dragonfly-amd64
           #   os: ubuntu-20.04
@@ -156,7 +156,8 @@ jobs:
       - name: Build Binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
-          command: "build"
+          command: build
+          cross-version: 7b79041 # Until upgrade from 0.2.5 to support solaris-amd64
           target: ${{ matrix.platform.target }}
           toolchain: ${{ matrix.toolchain }}
           args: "--locked --release"
@@ -164,7 +165,8 @@ jobs:
       - name: Run Tests
         uses: houseabsolute/actions-rust-cross@v0
         with:
-          command: "test"
+          command: test
+          cross-version: 7b79041 # Until upgrade from 0.2.5 to support solaris-amd64
           target: ${{ matrix.platform.target }}
           toolchain: ${{ matrix.toolchain }}
           args: "--locked --release"

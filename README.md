@@ -60,13 +60,13 @@ Installation
 
 There are several ways to install `pgxn_meta`.
 
-### Use `ubi`
+### `ubi`
 
-Install the [universal binary installer (ubi)](https://github.com/houseabsolute/ubi) and
-use it to install `pgxn_meta` and many other tools.
+Install the [universal binary installer (ubi)][ubi] and use it to install
+`pgxn_meta` and many other tools.
 
-``` console
-$ ubi --project pgxn/meta --in ~/bin
+``` sh
+ubi --project pgxn/meta --in ~/bin
 ```
 
 ### Binary Releases
@@ -76,7 +76,7 @@ Grab the appropriate binary [release], untar or unzip it, and put the
 
 ### Cargo
 
-Install `pgxn_meta` via `cargo` by running:
+Compile and install `pgxn_meta` via `cargo` by running:
 
 ``` sh
 cargo install pgxn_meta
@@ -129,7 +129,7 @@ This project is distributed under the [PostgreSQL License][license].
   [PGXN Meta Spec]: https://rfcs.pgxn.org/0001-meta-spec-v1.html
   [PGXN]: https://pgxn.org "PGXN: PostgreSQL Extension Network"
   [`pgxn_meta` docs on docs.rs]: https://docs.rs/ubi/latest/pgxn_meta/
-  [universal binary installer (ubi)]: https://github.com/houseabsolute/ubi
+  [ubi]: https://github.com/houseabsolute/ubi
   [release]: https://github.com/pgxn/meta/releases
   [cargo docs]: https://doc.rust-lang.org/cargo/commands/cargo-install.html
   [PostgresSQL Code of Conduct]: https://www.postgresql.org/about/policies/coc/
