@@ -173,6 +173,7 @@ jobs:
         if: ${{ !matrix.platform.skip_tests }}
       - name: Get the Version
         if: env.VERSION == ''
+        shell: bash
         run: echo "VERSION=$(grep "^version" Cargo.toml | sed -r 's/version[^"]+"([^"]+).*/\1/')" >> $GITHUB_ENV
       - name: Determine Archive Name
         shell: bash
@@ -198,6 +199,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: "pgxn_meta-*"
+          name: "${{ env.ARCHIVE }}"
           overwrite: true
         if: matrix.toolchain == 'stable' && github.ref == 'refs/tags/test-release'
       - name: Check the Version
