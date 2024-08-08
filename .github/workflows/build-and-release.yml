@@ -195,10 +195,10 @@ jobs:
           matrix.toolchain == 'stable' &&
           ( startsWith( github.ref, 'refs/tags/v' ) ||
             github.ref == 'refs/tags/test-release' )
-      - name: Publish Artifacts
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: "pgxn_meta-*"
+          path: "${{ env.ARCHIVE }}.*"
           name: "${{ env.ARCHIVE }}"
           overwrite: true
         if: matrix.toolchain == 'stable' && github.ref == 'refs/tags/test-release'
@@ -217,6 +217,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           draft: true
+          name: "Relelase ${{ env.VERSION }}"
           files: "pgxn_meta-*"
           body_path: target/release-notes.md
         if: matrix.toolchain == 'stable' && startsWith( github.ref, 'refs/tags/v' )
