@@ -80,6 +80,7 @@ sub run {
 			}
             # Reach the end of the file; must be the first release. Diff the
             # initial commit.
+            print {$out} "\n\n";
             return $self->finish_list($out, $self->initial_commit);
         }
     }
@@ -105,7 +106,7 @@ sub finish_list {
 
 	# Emit a footer line with a link to the diff for this version.
     print {$out} sprintf(
-		"\n---\n\n🆚 For more detail compare [changes since %s](%s/compare/%s...v%s).\n",
+		"---\n\n🆚 For more detail compare [changes since %s](%s/compare/%s...v%s).\n",
 		$prev, $self->{repo}, $prev, $self->{version},
 	);
 
