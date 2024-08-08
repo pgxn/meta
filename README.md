@@ -66,7 +66,7 @@ Install the [universal binary installer (ubi)][ubi] and use it to install
 `pgxn_meta` and many other tools.
 
 ``` sh
-ubi --project pgxn/meta --in ~/bin
+ubi --project pgxn/meta --exe pgxn_meta --in ~/bin
 ```
 
 ### Binary Releases
