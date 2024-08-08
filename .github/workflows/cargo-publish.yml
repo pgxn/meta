@@ -19,6 +19,8 @@ jobs:
       - name: Package
         run: cargo publish --dry-run
       - name: Publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
           v="v$(grep "^version" Cargo.toml | sed -r 's/version[^"]+"([^"]+).*/\1/')"
           if [ "$v" != "$GITHUB_REF_NAME" ]; then
