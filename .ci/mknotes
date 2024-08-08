@@ -105,7 +105,7 @@ sub finish_list {
 
 	# Emit a footer line with a link to the diff for this version.
     print {$out} sprintf(
-		"---\n\n🆚 For more detail compare [changes since %s](%s/compare/%s...v%s).\n",
+		"\n---\n\n🆚 For more detail compare [changes since %s](%s/compare/%s...v%s).\n",
 		$prev, $self->{repo}, $prev, $self->{version},
 	);
 
