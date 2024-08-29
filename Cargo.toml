@@ -17,7 +17,8 @@ exclude = [ ".github", ".vscode", ".gitignore", ".ci", ".pre-*.yaml"]
 [dependencies]
 boon = "0.6"
 lexopt = "0.3.0"
-relative-path = "1.9.3"
+relative-path = { version = "1.9", features = ["serde"] }
+semver = { version = "1.0", features = ["std", "serde"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
 spdx = "0.10.6"

@@ -43,3 +43,5 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: pgxn/meta
           files: target/cover/coveralls
+      - name: Clear Badge Cache
+        uses: kevincobain2000/action-camo-purge@v1

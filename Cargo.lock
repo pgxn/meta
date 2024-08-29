@@ -201,6 +201,7 @@ dependencies = [
  "boon",
  "lexopt",
  "relative-path",
+ "semver",
  "serde",
  "serde_json",
  "spdx",
@@ -268,6 +269,9 @@ name = "relative-path"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba39f3699c378cd8970968dcbff9c43159ea4cfbd88d43c00b22f2ef10a435d2"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "ryu"
@@ -282,6 +286,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "semver"
+version = "1.0.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61697e0a1c7e512e84a621326239844a24d8207b4669b41bc18b32ea5cbf988b"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

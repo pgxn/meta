@@ -61,8 +61,9 @@ impl Validator {
     /// Validates a PGXN Meta document.
     ///
     /// Load a `META.json` file into a serde_json::value::Value and pass it
-    /// for validation. Returns a validation error on failure.
-    pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<(), Box<dyn Error + '_>> {
+    /// for validation. Returns a the Meta spec version on success and a
+    /// validation error on failure.
+    pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<u8, Box<dyn Error + '_>> {
         let map = meta.as_object().ok_or(ValidationError::UnknownSpec)?;
         let version = map
             .get("meta-spec")
@@ -86,7 +87,7 @@ impl Validator {
         let idx = compiler.compile(&id, schemas)?;
         schemas.validate(meta, idx)?;
 
-        Ok(())
+        Ok(v)
     }
 }
 

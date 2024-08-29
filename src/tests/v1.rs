@@ -533,8 +533,12 @@ fn test_v1_meta_spec() -> Result<(), Box<dyn Error>> {
         ("x key", json!({"version": "1.0.99", "x_y": true})),
         ("X key", json!({"version": "1.0.99", "X_x": true})),
         (
-            "version plus URL",
+            "version plus https URL",
             json!({"version": "1.0.0", "url": "https://pgxn.org/meta/spec.txt"}),
+        ),
+        (
+            "version plus http URL",
+            json!({"version": "1.0.0", "url": "http://pgxn.org/meta/spec.txt"}),
         ),
     ] {
         if let Err(e) = schemas.validate(&valid_meta_spec.1, idx) {

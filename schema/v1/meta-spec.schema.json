@@ -12,7 +12,10 @@
     },
     "url": {
       "type": "string",
-      "const": "https://pgxn.org/meta/spec.txt",
+      "enum": [
+        "https://pgxn.org/meta/spec.txt",
+        "http://pgxn.org/meta/spec.txt"
+      ],
       "description": "The URI of the metadata specification document corresponding to the given version. This is strictly for human-consumption and should not impact the interpretation of the document."
     }
   },
