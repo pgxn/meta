@@ -16,6 +16,7 @@ exclude = [ ".github", ".vscode", ".gitignore", ".ci", ".pre-*.yaml"]
 
 [dependencies]
 boon = "0.6"
+email_address = "0.2.9"
 lexopt = "0.3.0"
 relative-path = { version = "1.9", features = ["serde"] }
 semver = { version = "1.0", features = ["std", "serde"] }

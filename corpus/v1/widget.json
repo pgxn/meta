@@ -24,6 +24,10 @@
       "version": "0.2.5"
     }
   },
+  "no_index": {
+    "file": ["src/file.sql"],
+    "directory": ["src/private"]
+  },
   "resources": {
     "homepage": "http://widget.example.org/"
   },

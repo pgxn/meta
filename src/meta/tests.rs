@@ -5,7 +5,7 @@ use wax::Glob;
 
 #[test]
 fn test_corpus() -> Result<(), Box<dyn Error>> {
-    for v_dir in ["v2"] {
+    for v_dir in ["v1", "v2"] {
         let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", v_dir]
             .iter()
             .collect();
