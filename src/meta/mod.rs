@@ -8,23 +8,21 @@ use serde_json::Value;
 mod v1;
 mod v2;
 
-fn meta_url() -> String {
-    "https://rfcs.pgxn.org/0003-meta-spec-v2.html".to_string()
-}
-
 /// Represents the `meta-spec` object in [`Meta`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Spec {
     version: String,
-    #[serde(default = "meta_url")]
-    url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    url: Option<String>,
 }
 
 /// Maintainer represents an object in the list of `maintainers` in [`Meta`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Maintainer {
     name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     email: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<String>,
 }
 
@@ -33,9 +31,12 @@ pub struct Maintainer {
 pub struct Extension {
     control: RelativePathBuf,
     #[serde(rename = "abstract")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     abs_tract: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     tle: Option<bool>,
     sql: RelativePathBuf,
+    #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<RelativePathBuf>,
 }
 
@@ -65,30 +66,42 @@ pub struct Module {
     #[serde(rename = "type")]
     kind: ModuleType,
     #[serde(rename = "abstract")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     abs_tract: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     preload: Option<Preload>,
     lib: RelativePathBuf,
+    #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<RelativePathBuf>,
 }
 
 /// Represents an app under `apps` in [`Contents`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct App {
+    #[serde(skip_serializing_if = "Option::is_none")]
     lang: Option<String>,
     #[serde(rename = "abstract")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     abs_tract: Option<String>,
     bin: RelativePathBuf,
+    #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<RelativePathBuf>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     lib: Option<RelativePathBuf>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     man: Option<RelativePathBuf>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     html: Option<RelativePathBuf>,
 }
 
 /// Represents the contents of a distribution, under `contents` in [`Meta`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Contents {
+    #[serde(skip_serializing_if = "Option::is_none")]
     extensions: Option<HashMap<String, Extension>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     modules: Option<HashMap<String, Module>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     apps: Option<HashMap<String, App>>,
 }
 
@@ -96,7 +109,9 @@ pub struct Contents {
 /// in [`Meta`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Classifications {
+    #[serde(skip_serializing_if = "Option::is_none")]
     tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     categories: Option<Vec<String>>,
 }
 
@@ -104,6 +119,7 @@ pub struct Classifications {
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Postgres {
     version: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     with: Option<Vec<String>>,
 }
 
@@ -141,9 +157,13 @@ pub enum VersionRange {
 /// Defines the relationships for a build phase in [`Packages`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Phase {
+    #[serde(skip_serializing_if = "Option::is_none")]
     requires: Option<HashMap<String, VersionRange>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     recommends: Option<HashMap<String, VersionRange>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     suggests: Option<HashMap<String, VersionRange>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     conflicts: Option<HashMap<String, VersionRange>>,
 }
 
@@ -151,10 +171,15 @@ pub struct Phase {
 /// [`Dependencies`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Packages {
+    #[serde(skip_serializing_if = "Option::is_none")]
     configure: Option<Phase>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     build: Option<Phase>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     test: Option<Phase>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     run: Option<Phase>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     develop: Option<Phase>,
 }
 
@@ -169,21 +194,42 @@ pub struct Variations {
 /// Defines the distribution dependencies under `dependencies` in [`Meta`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Dependencies {
+    #[serde(skip_serializing_if = "Option::is_none")]
     platforms: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     postgres: Option<Postgres>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pipeline: Option<Pipeline>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     packages: Option<Packages>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     variations: Option<Vec<Variations>>,
+}
+
+/// Defines the badges under `badges` in [`Resources`].
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
+pub struct Badge {
+    src: String,
+    alt: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    url: Option<String>,
 }
 
 /// Defines the resources under `resources` in [`Meta`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Resources {
+    #[serde(skip_serializing_if = "Option::is_none")]
     homepage: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     issues: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     repository: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     docs: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     support: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    badges: Option<Vec<Badge>>,
 }
 
 /// Defines the artifacts in the array under `artifacts` in [`Meta`].
@@ -192,8 +238,11 @@ pub struct Artifact {
     url: String,
     #[serde(rename = "type")]
     kind: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     platform: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     sha256: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     sha512: Option<String>,
 }
 
@@ -204,17 +253,24 @@ pub struct Meta {
     version: Version,
     #[serde(rename = "abstract")]
     abs_tract: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     producer: Option<String>,
     license: String, // use spdx::Expression.
     #[serde(rename = "meta-spec")]
     spec: Spec,
     maintainers: Vec<Maintainer>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     classifications: Option<Classifications>,
     contents: Contents,
+    #[serde(skip_serializing_if = "Option::is_none")]
     ignore: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     dependencies: Option<Dependencies>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     resources: Option<Resources>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     artifacts: Option<Vec<Artifact>>,
 }
 
@@ -241,6 +297,14 @@ impl TryFrom<Value> for Meta {
     }
 }
 
+impl TryFrom<Meta> for Value {
+    type Error = Box<dyn Error>;
+    fn try_from(meta: Meta) -> Result<Self, Self::Error> {
+        let val = serde_json::to_value(meta)?;
+        Ok(val)
+    }
+}
+
 impl TryFrom<&PathBuf> for Meta {
     type Error = Box<dyn Error>;
     fn try_from(file: &PathBuf) -> Result<Self, Self::Error> {
@@ -254,6 +318,14 @@ impl TryFrom<&String> for Meta {
     fn try_from(str: &String) -> Result<Self, Self::Error> {
         let meta: Value = serde_json::from_str(str)?;
         Meta::try_from(meta)
+    }
+}
+
+impl TryFrom<Meta> for String {
+    type Error = Box<dyn Error>;
+    fn try_from(meta: Meta) -> Result<Self, Self::Error> {
+        let val = serde_json::to_string(&meta)?;
+        Ok(val)
     }
 }
 

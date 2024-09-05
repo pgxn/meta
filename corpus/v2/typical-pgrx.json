@@ -19,7 +19,6 @@
       "jsonschema": {
         "abstract": "JSON Schema validation functions for PostgreSQL",
         "doc": "doc/jsonschema.md",
-        "x_comment": "Paths non-deterministic until pgrx ",
         "sql": "target/release/**/jsonschema--0.1.1.sql",
         "control": "target/release/**/jsonschema.control"
       }

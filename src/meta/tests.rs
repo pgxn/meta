@@ -13,6 +13,7 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
 
         for path in glob.walk(dir) {
             let path = path?.into_path();
+            let contents: Value = serde_json::from_reader(File::open(&path)?)?;
 
             // Test try_from path.
             if let Err(e) = Meta::try_from(&path) {
@@ -21,14 +22,38 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
 
             // Test try_from str.
             let str: String = fs::read_to_string(&path)?;
-            if let Err(e) = Meta::try_from(&str) {
-                panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap());
+            match Meta::try_from(&str) {
+                Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
+                Ok(m) => {
+                    if v_dir == "v2" {
+                        // Make sure round-trip produces the same JSON.
+                        let output: Result<Value, Box<dyn Error>> = m.try_into();
+                        match output {
+                            Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
+                            Ok(val) => {
+                                assert_json_diff::assert_json_eq!(&contents, &val);
+                            }
+                        };
+                    }
+                }
             }
 
             // Test try_from value.
-            let meta: Value = serde_json::from_reader(File::open(&path)?)?;
-            if let Err(e) = Meta::try_from(meta) {
-                panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap());
+            match Meta::try_from(contents.clone()) {
+                Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
+                Ok(m) => {
+                    if v_dir == "v2" {
+                        // Make sure value round-trip produces the same JSON.
+                        let output: Result<String, Box<dyn Error>> = m.try_into();
+                        match output {
+                            Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
+                            Ok(val) => {
+                                let val: Value = serde_json::from_str(&val)?;
+                                assert_json_diff::assert_json_eq!(&contents, &val);
+                            }
+                        };
+                    }
+                }
             }
 
             println!("Example {v_dir}/{:?} ok", path.file_name().unwrap());

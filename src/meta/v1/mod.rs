@@ -97,7 +97,7 @@ fn v1_to_v2_maintainers(v1: &Value) -> Result<Value, Box<dyn Error>> {
 /// Otherwise the string will be saved as the maintainer `name` and the `url`
 /// set to either the `homepage` in the `resources` object in `v1`, or else
 /// `https://pgxn.org`.
-fn parse_v1_maintainers(v1: &Value, list: &Vec<Value>) -> Result<Value, Box<dyn Error>> {
+fn parse_v1_maintainers(v1: &Value, list: &[Value]) -> Result<Value, Box<dyn Error>> {
     let mut new_list: Vec<Value> = Vec::with_capacity(list.len());
     for v in list {
         if let Some(str) = v.as_str() {
