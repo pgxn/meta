@@ -2,7 +2,7 @@ use std::{collections::HashMap, error::Error, fs::File, path::PathBuf};
 
 use relative_path::RelativePathBuf;
 use semver::Version;
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeMap, Deserialize, Deserializer, Serialize, Serializer};
 use serde_json::Value;
 
 mod v1;
@@ -24,6 +24,10 @@ pub struct Maintainer {
     email: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<String>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Describes an extension in under `extensions` in [`Contents`].
@@ -38,6 +42,10 @@ pub struct Extension {
     sql: RelativePathBuf,
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<RelativePathBuf>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines a type of module in [`Module`].
@@ -73,6 +81,10 @@ pub struct Module {
     lib: RelativePathBuf,
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<RelativePathBuf>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents an app under `apps` in [`Contents`].
@@ -92,6 +104,10 @@ pub struct App {
     man: Option<RelativePathBuf>,
     #[serde(skip_serializing_if = "Option::is_none")]
     html: Option<RelativePathBuf>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents the contents of a distribution, under `contents` in [`Meta`].
@@ -103,6 +119,10 @@ pub struct Contents {
     modules: Option<HashMap<String, Module>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     apps: Option<HashMap<String, App>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents the classifications of a distribution, under `classifications`
@@ -113,6 +133,10 @@ pub struct Classifications {
     tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     categories: Option<Vec<String>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents Postgres requirements under `postgres` in [`Dependencies`].
@@ -121,6 +145,10 @@ pub struct Postgres {
     version: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     with: Option<Vec<String>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents the name of a build pipeline under `pipeline` in
@@ -165,6 +193,10 @@ pub struct Phase {
     suggests: Option<HashMap<String, VersionRange>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     conflicts: Option<HashMap<String, VersionRange>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines package dependencies for build phases under `packages` in
@@ -181,6 +213,10 @@ pub struct Packages {
     run: Option<Phase>,
     #[serde(skip_serializing_if = "Option::is_none")]
     develop: Option<Phase>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines dependency variations under `variations`in  [`Dependencies`].
@@ -189,6 +225,10 @@ pub struct Variations {
     #[serde(rename = "where")]
     wheres: Box<Dependencies>,
     dependencies: Box<Dependencies>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines the distribution dependencies under `dependencies` in [`Meta`].
@@ -204,6 +244,10 @@ pub struct Dependencies {
     packages: Option<Packages>,
     #[serde(skip_serializing_if = "Option::is_none")]
     variations: Option<Vec<Variations>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines the badges under `badges` in [`Resources`].
@@ -213,6 +257,10 @@ pub struct Badge {
     alt: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<String>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines the resources under `resources` in [`Meta`].
@@ -230,6 +278,10 @@ pub struct Resources {
     support: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     badges: Option<Vec<Badge>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Defines the artifacts in the array under `artifacts` in [`Meta`].
@@ -244,6 +296,10 @@ pub struct Artifact {
     sha256: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     sha512: Option<String>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Represents a complete PGXN Meta definition.
@@ -272,6 +328,51 @@ pub struct Meta {
     resources: Option<Resources>,
     #[serde(skip_serializing_if = "Option::is_none")]
     artifacts: Option<Vec<Artifact>>,
+    #[serde(flatten)]
+    #[serde(serialize_with = "serialize_custom_properties")]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
+}
+
+/// Deserializes extra fields starting with `X_` or `x_` into the `custom_properties` HashMap.
+pub fn deserialize_custom_properties<'de, D>(
+    deserializer: D,
+) -> Result<HashMap<String, Value>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let map: HashMap<String, Value> = HashMap::deserialize(deserializer)?;
+
+    Ok(map
+        .into_iter()
+        .filter_map(|(key, value)| {
+            key.strip_prefix("x_")
+                .or(key.strip_prefix("X_"))
+                .map(|key| (key.to_string(), value))
+        })
+        .collect())
+}
+
+/// Serializes the `custom_properties` HashMap into fields starting with `X_` or `x_`
+pub fn serialize_custom_properties<S>(
+    custom_props: &HashMap<String, Value>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut map = serializer.serialize_map(Some(custom_props.len()))?;
+    for (key, value) in custom_props {
+        let is_uppercase = key.chars().next().map(char::is_uppercase).unwrap_or(false);
+
+        if is_uppercase {
+            map.serialize_entry(&format_args!("X_{key}"), value)?;
+        } else {
+            map.serialize_entry(&format_args!("x_{key}"), value)?;
+        }
+    }
+
+    map.end()
 }
 
 impl Meta {
