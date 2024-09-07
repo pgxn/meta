@@ -15,9 +15,9 @@ exclude = [ ".github", ".vscode", ".gitignore", ".ci", ".pre-*.yaml"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-assert-json-diff = "2.0.2"
 boon = "0.6"
 email_address = "0.2.9"
+json-patch = "2.0.0"
 lexopt = "0.3.0"
 relative-path = { version = "1.9", features = ["serde"] }
 semver = { version = "1.0", features = ["std", "serde"] }
@@ -31,3 +31,4 @@ wax = "0.6.0"
 serde_json = "1.0"
 
 [dev-dependencies]
+assert-json-diff = "2.0.2"

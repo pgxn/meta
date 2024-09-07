@@ -1,5 +1,6 @@
 use std::{collections::HashMap, error::Error, fs::File, path::PathBuf};
 
+use crate::util;
 use relative_path::RelativePathBuf;
 use semver::Version;
 use serde::{Deserialize, Serialize};
@@ -294,6 +295,42 @@ impl TryFrom<Value> for Meta {
             Ok(v) => v,
         };
         Meta::from_version(version, meta)
+    }
+}
+
+impl TryFrom<&[&Value]> for Meta {
+    type Error = Box<dyn Error>;
+    // Merge multiple spec values into a single Meta object. The first value
+    // in `meta` should be the primary metadata, generally included in a
+    // distribution. Subsequent values will be merged into that first value
+    // via the [RFC 7396] merge pattern.
+    //
+    // [RFC 7396]: https://www.rfc-editor.org/rfc/rfc7396.html
+    fn try_from(meta: &[&Value]) -> Result<Self, Self::Error> {
+        if meta.is_empty() {
+            return Err(Box::from("meta contains no values"));
+        }
+
+        // Find the version of the first doc.
+        let version =
+            util::get_version(meta[0]).ok_or("No spec version found in first meta value")?;
+
+        // Convert the first doc to v2 if necessary.
+        let mut v2 = match version {
+            1 => v1::to_v2(meta[0])?,
+            2 => meta[0].clone(),
+            _ => unreachable!(),
+        };
+
+        // Merge them.
+        for patch in meta[1..].iter() {
+            json_patch::merge(&mut v2, patch)
+        }
+
+        // Validate the patched doc and return.
+        let mut validator = crate::valid::Validator::new();
+        validator.validate(&v2).map_err(|e| e.to_string())?;
+        Meta::from_version(2, v2)
     }
 }
 

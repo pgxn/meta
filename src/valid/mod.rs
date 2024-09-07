@@ -4,6 +4,8 @@ use std::{error::Error, fmt};
 use boon::{Compiler, Schemas};
 use serde_json::Value;
 
+use crate::util;
+
 // Export compiler publicly only for tests.
 #[cfg(test)]
 pub mod compiler;
@@ -64,22 +66,7 @@ impl Validator {
     /// for validation. Returns a the Meta spec version on success and a
     /// validation error on failure.
     pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<u8, Box<dyn Error + '_>> {
-        let map = meta.as_object().ok_or(ValidationError::UnknownSpec)?;
-        let version = map
-            .get("meta-spec")
-            .ok_or(ValidationError::UnknownSpec)?
-            .as_object()
-            .ok_or(ValidationError::UnknownSpec)?
-            .get("version")
-            .ok_or(ValidationError::UnknownSpec)?
-            .as_str()
-            .ok_or(ValidationError::UnknownSpec)?;
-
-        let v = match &version[0..2] {
-            "1." => 1,
-            "2." => 2,
-            _ => return Err(Box::new(ValidationError::UnknownSpec)),
-        };
+        let v = util::get_version(meta).ok_or(ValidationError::UnknownSpec)?;
         let id = format!("{SCHEMA_BASE}{v}/distribution.schema.json");
 
         let compiler = &mut self.compiler;

@@ -40,6 +40,7 @@ assert!(validator.validate(&meta).is_ok());
 
 */
 
+mod util;
 mod valid;
 pub use valid::{ValidationError, Validator};
 mod meta;
