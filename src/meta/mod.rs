@@ -1,3 +1,13 @@
+/*!
+PGXN Metadata management.
+
+This module provides interfaces to load, validate, and manipulate PGXN Meta
+Spec `META.json` files. It supports both the [v1] and [v2] specs.
+
+  [v1]: https://rfcs.pgxn.org/0001-meta-spec-v1.html
+  [v2]: https://github.com/pgxn/rfcs/pull/3
+
+*/
 use std::{collections::HashMap, error::Error, fs::File, path::PathBuf};
 
 use crate::util;
@@ -247,7 +257,9 @@ pub struct Artifact {
     sha512: Option<String>,
 }
 
-/// Represents a complete PGXN Meta definition.
+/**
+Represents a complete PGXN Meta definition.
+*/
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Meta {
     name: String,
@@ -276,6 +288,8 @@ pub struct Meta {
 }
 
 impl Meta {
+    /// Deserializes `meta`, which contains PGXN `version` metadata, into a
+    /// [`Meta`].
     fn from_version(version: u8, meta: Value) -> Result<Self, Box<dyn Error>> {
         match version {
             1 => v1::from_value(meta),
@@ -283,10 +297,48 @@ impl Meta {
             _ => Err(Box::from(format!("Unknown meta version {version}"))),
         }
     }
+
+    /// Returns the license string.
+    pub fn license(&self) -> &str {
+        self.license.as_str()
+    }
 }
 
 impl TryFrom<Value> for Meta {
     type Error = Box<dyn Error>;
+    /// Converts the PGXN `META.json` data from `meta` into a [`Meta`].
+    /// Returns an error if `meta` is invalid.
+    ///
+    /// # Example
+    ///
+    /// ``` rust
+    /// # use std::error::Error;
+    /// use serde_json::json;
+    /// use pgxn_meta::meta::*;
+    ///
+    /// let meta_json = json!({
+    ///   "name": "pair",
+    ///   "abstract": "A key/value pair data type",
+    ///   "version": "0.1.8",
+    ///   "maintainers": [
+    ///     { "name": "Barrack Obama",  "email": "pogus@example.com" }
+    ///   ],
+    ///   "license": "PostgreSQL",
+    ///   "contents": {
+    ///     "extensions": {
+    ///       "pair": {
+    ///         "sql": "sql/pair.sql",
+    ///         "control": "pair.control"
+    ///       }
+    ///     }
+    ///   },
+    ///   "meta-spec": { "version": "2.0.0" }
+    /// });
+    ///
+    ///
+    /// let meta = Meta::try_from(meta_json);
+    /// assert!(meta.is_ok());
+    /// ```
     fn try_from(meta: Value) -> Result<Self, Self::Error> {
         // Make sure it's valid.
         let mut validator = crate::valid::Validator::new();
@@ -300,12 +352,48 @@ impl TryFrom<Value> for Meta {
 
 impl TryFrom<&[&Value]> for Meta {
     type Error = Box<dyn Error>;
-    // Merge multiple spec values into a single Meta object. The first value
-    // in `meta` should be the primary metadata, generally included in a
-    // distribution. Subsequent values will be merged into that first value
-    // via the [RFC 7396] merge pattern.
-    //
-    // [RFC 7396]: https://www.rfc-editor.org/rfc/rfc7396.html
+    /// Merge multiple PGXN `META.json` data from `meta` into a [`Meta`].
+    /// Returns an error if `meta` is invalid.
+    ///
+    /// The first value in `meta` should be the primary metadata, generally
+    /// included in a distribution. Subsequent values will be merged into that
+    /// first value via the [RFC 7396] merge pattern.
+    ///
+    /// # Example
+    ///
+    /// ``` rust
+    /// # use std::error::Error;
+    /// use serde_json::json;
+    /// use pgxn_meta::meta::*;
+    ///
+    /// let meta_json = json!({
+    ///   "name": "pair",
+    ///   "abstract": "A key/value pair data type",
+    ///   "version": "0.1.8",
+    ///   "maintainers": [
+    ///     { "name": "Barrack Obama",  "email": "pogus@example.com" }
+    ///   ],
+    ///   "license": "PostgreSQL",
+    ///   "contents": {
+    ///     "extensions": {
+    ///       "pair": {
+    ///         "sql": "sql/pair.sql",
+    ///         "control": "pair.control"
+    ///       }
+    ///     }
+    ///   },
+    ///   "meta-spec": { "version": "2.0.0" }
+    /// });
+    ///
+    /// let patch = json!({"license": "MIT"});
+    /// let all_meta = [&meta_json, &patch];
+    ///
+    /// let meta = Meta::try_from(&all_meta[..]);
+    /// assert!(meta.is_ok());
+    /// assert_eq!("MIT", meta.unwrap().license());
+    /// ```
+    ///
+    /// [RFC 7396]: https:///www.rfc-editor.org/rfc/rfc7396.html
     fn try_from(meta: &[&Value]) -> Result<Self, Self::Error> {
         if meta.is_empty() {
             return Err(Box::from("meta contains no values"));
@@ -336,6 +424,40 @@ impl TryFrom<&[&Value]> for Meta {
 
 impl TryFrom<Meta> for Value {
     type Error = Box<dyn Error>;
+    /// Converts `meta` into a [serde_json::Value].
+    ///
+    /// # Example
+    ///
+    /// ``` rust
+    /// # use std::error::Error;
+    /// use serde_json::{json, Value};
+    /// use pgxn_meta::meta::*;
+    ///
+    /// let meta_json = json!({
+    ///   "name": "pair",
+    ///   "abstract": "A key/value pair data type",
+    ///   "version": "0.1.8",
+    ///   "maintainers": [
+    ///     { "name": "Barrack Obama",  "email": "pogus@example.com" }
+    ///   ],
+    ///   "license": "PostgreSQL",
+    ///   "contents": {
+    ///     "extensions": {
+    ///       "pair": {
+    ///         "sql": "sql/pair.sql",
+    ///         "control": "pair.control"
+    ///       }
+    ///     }
+    ///   },
+    ///   "meta-spec": { "version": "2.0.0" }
+    /// });
+    ///
+    ///
+    /// let meta = Meta::try_from(meta_json);
+    /// assert!(meta.is_ok());
+    /// let val: Result<Value, Box<dyn Error>> = meta.unwrap().try_into();
+    /// assert!(val.is_ok());
+    /// ```
     fn try_from(meta: Meta) -> Result<Self, Self::Error> {
         let val = serde_json::to_value(meta)?;
         Ok(val)
@@ -344,6 +466,9 @@ impl TryFrom<Meta> for Value {
 
 impl TryFrom<&PathBuf> for Meta {
     type Error = Box<dyn Error>;
+    /// Reads the `META.json` data from `file` then converts into a [`Meta`].
+    /// Returns an error on file error or if the content of `file` is not
+    /// valid PGXN `META.json` data.
     fn try_from(file: &PathBuf) -> Result<Self, Self::Error> {
         let meta: Value = serde_json::from_reader(File::open(file)?)?;
         Meta::try_from(meta)
@@ -352,6 +477,8 @@ impl TryFrom<&PathBuf> for Meta {
 
 impl TryFrom<&String> for Meta {
     type Error = Box<dyn Error>;
+    /// Converts `str` into JSON and then into  a [`Meta`]. Returns an error
+    /// if the content of `str` is not valid PGXN `META.json` data.
     fn try_from(str: &String) -> Result<Self, Self::Error> {
         let meta: Value = serde_json::from_str(str)?;
         Meta::try_from(meta)
@@ -360,6 +487,7 @@ impl TryFrom<&String> for Meta {
 
 impl TryFrom<Meta> for String {
     type Error = Box<dyn Error>;
+    /// Converts `meta` into a JSON String.
     fn try_from(meta: Meta) -> Result<Self, Self::Error> {
         let val = serde_json::to_string(&meta)?;
         Ok(val)

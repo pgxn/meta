@@ -7,8 +7,32 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
-## [Unreleased] — Date TBD
+## [v0.2.0] — Date TBD
 
+### ⚡ Improvements
+
+*   Added the [meta module], which loads v1 and v2 spec files, converts v1
+    metadata to v2, and merges multiple files.
+
+### 🪲 Bug Fixes
+
+*   Changed the v1 validator to allow `http` as well as `https` in the
+    `meta-spec` object's `url` field, as a lot of older `META.json` files use
+    it.
+
+### 📔 Notes
+
+*   Moved the validation functionality to the [valid module].
+
+### 📚 Documentation
+
+*   Updated the `v2` link in all docs to point to the [pull request], since it
+    hasn't been merged and published yet.
+
+  [v0.2.0]: https://github.com/pgxn/meta/compare/v0.1.0...v0.2.0
+  [meta module]: https://docs.rs/pgxn_meta/meta/
+  [valid module]: https://docs.rs/pgxn_meta/meta/
+  [pull request]: https://github.com/pgxn/rfcs/pull/3 "pgxn/rfcs#3 Meta Spec v2"
 
 ## [v0.1.0] — 2024-08-08
 

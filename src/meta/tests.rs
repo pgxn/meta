@@ -26,6 +26,7 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
                 Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
                 Ok(m) => {
                     if v_dir == "v2" {
+                        assert_eq!(contents.get("license").unwrap(), m.license());
                         // Make sure round-trip produces the same JSON.
                         let output: Result<Value, Box<dyn Error>> = m.try_into();
                         match output {

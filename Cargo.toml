@@ -1,6 +1,6 @@
 [package]
 name = "pgxn_meta"
-version = "0.1.0"
+version = "0.2.0"
 description = "The PGXN distribution metadata specification"
 repository = "https://github.com/pgxn/pgxn-meta-spec"
 documentation = "https://docs.rs/pgxn_meta/"

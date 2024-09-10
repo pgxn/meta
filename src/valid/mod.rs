@@ -1,4 +1,42 @@
-//! The valid module provides pgxn_meta validation.
+/*!
+PGXN Metadata validation.
+
+This module uses JSON Schema to validate PGXN Meta Spec `META.json` files.
+It supports both the [v1] and [v2] specs.
+
+# Example
+
+``` rust
+# use std::error::Error;
+use serde_json::json;
+use pgxn_meta::valid::*;
+
+let meta = json!({
+  "name": "pair",
+  "abstract": "A key/value pair data type",
+  "version": "0.1.8",
+  "maintainers": [{ "name": "theory", "email": "theory@pgxn.org" }],
+  "license": "PostgreSQL",
+  "contents": {
+    "extensions": {
+      "pair": {
+        "sql": "sql/pair.sql",
+        "control": "pair.control"
+      }
+    }
+  },
+  "meta-spec": { "version": "2.0.0" }
+});
+
+let mut validator = Validator::new();
+assert!(validator.validate(&meta).is_ok());
+# Ok::<(), Box<dyn Error>>(())
+```
+
+  [v1]: https://rfcs.pgxn.org/0001-meta-spec-v1.html
+  [v2]: https://github.com/pgxn/rfcs/pull/3
+
+*/
 use std::{error::Error, fmt};
 
 use boon::{Compiler, Schemas};
@@ -40,6 +78,8 @@ impl fmt::Display for ValidationError {
         }
     }
 }
+
+/// The base URL for all JSON schemas.
 const SCHEMA_BASE: &str = "https://pgxn.org/meta/v";
 
 impl Default for Validator {
@@ -53,6 +93,11 @@ impl Validator {
     ///
     /// new creates and returns a new Validator with the schemas loaded from
     /// `dir`.
+    ///
+    /// ``` rust
+    /// use pgxn_meta::valid::*;
+    /// let validator = Validator::new();
+    /// ```
     pub fn new() -> Validator {
         Validator {
             compiler: compiler::new(),
@@ -65,6 +110,8 @@ impl Validator {
     /// Load a `META.json` file into a serde_json::value::Value and pass it
     /// for validation. Returns a the Meta spec version on success and a
     /// validation error on failure.
+    ///
+    /// See the [module docs](crate::valid) for an example.
     pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<u8, Box<dyn Error + '_>> {
         let v = util::get_version(meta).ok_or(ValidationError::UnknownSpec)?;
         let id = format!("{SCHEMA_BASE}{v}/distribution.schema.json");

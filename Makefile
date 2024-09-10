@@ -21,5 +21,7 @@ docs: target/doc/pgxn_meta/index.html
 target/doc/pgxn_meta/index.html: $(shell find . -name \*.rs)
 	cargo doc
 
-target/release-notes.md: CHANGELOG.md .ci/mknotes Cargo.toml
-	@./.ci/mknotes -f $< -r https://github.com/$(or $(GITHUB_REPOSITORY),pgxn/meta) -o $@
+VERSION = $(shell perl -nE '/^version\s*=\s*"([^"]+)/ && do { say $$1; exit }' Cargo.toml)
+.PHONY: release-notes # Show release notes for current version (must have `mknotes` in PATH).
+release-notes: CHANGELOG.md
+	mknotes -v v$(VERSION) -f $< -r https://github.com/$(or $(GITHUB_REPOSITORY),pgxn/meta)
