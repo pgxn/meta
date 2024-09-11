@@ -39,12 +39,11 @@ assert!(validator.validate(&meta).is_ok());
 */
 use std::{error::Error, fmt};
 
+use crate::util;
 use boon::{Compiler, Schemas};
 use serde_json::Value;
 
-use crate::util;
-
-// Export compiler publicly only for tests.
+/// Export compiler publicly only for tests.
 #[cfg(test)]
 pub mod compiler;
 
@@ -112,7 +111,7 @@ impl Validator {
     /// validation error on failure.
     ///
     /// See the [module docs](crate::valid) for an example.
-    pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<u8, Box<dyn Error + '_>> {
+    pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<u8, Box<dyn Error + 'a>> {
         let v = util::get_version(meta).ok_or(ValidationError::UnknownSpec)?;
         let id = format!("{SCHEMA_BASE}{v}/distribution.schema.json");
 

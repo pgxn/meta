@@ -20,7 +20,8 @@
         "abstract": "JSON Schema validation functions for PostgreSQL",
         "doc": "doc/jsonschema.md",
         "sql": "target/release/**/jsonschema--0.1.1.sql",
-        "control": "target/release/**/jsonschema.control"
+        "control": "target/release/**/jsonschema.control",
+        "x_commit_hash": "4ba6b23"
       }
     },
     "modules": {

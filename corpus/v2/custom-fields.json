@@ -1,0 +1,91 @@
+{
+  "name": "widget",
+  "abstract": "Widget for PostgreSQL",
+  "description": "¿A widget is just thing thing, yoŭ know?",
+  "version": "0.2.5",
+  "maintainers": [
+    {
+      "name": "David E. Wheeler",
+      "email": "david@justatheory.com",
+      "x_looking_for_jobs": false
+    }
+  ],
+  "license": "PostgreSQL",
+  "contents": {
+    "extensions": {
+      "pair": {
+        "sql": "sql/widget.sql",
+        "control": "widget.control"
+      }
+    },
+    "modules": {
+      "examples": {
+        "type": "extension",
+        "lib": "target/release/example",
+        "preload": "server",
+        "x_is_c_only": false
+      }
+    },
+    "x_contains_shared_objects": true
+  },
+  "resources": {
+    "homepage": "http://widget.example.org/",
+    "x_support_email": "widget@example.org",
+    "badges": [
+      {
+        "alt": "CI Status",
+        "src": "https://github.com/example/pg-widget/actions/workflows/ci.yml/badge.svg",
+        "url": "https://github.com/example/pg-widget/actions/workflows/ci.yml",
+        "x_updated_every": "1h"
+      }
+    ]
+  },
+  "dependencies": {
+    "postgres": {
+      "version": "14.0",
+      "X_RELEASE": "REL_14_BETA3"
+    },
+    "x_forbid_unsafe": true,
+    "packages": {
+      "run": {
+        "requires": {
+          "pkg:generic/python": "2.0",
+          "pkg:pypi/psycopg2": 0
+        },
+        "recommends": {
+          "pkg:pgxn/pg_jobmon": "1.4.1"
+        }
+      },
+      "x_requires_python": true
+    },
+    "variations": [
+      {
+        "where": {
+          "platforms": ["linux"]
+        },
+        "dependencies": {
+          "packages": {
+            "build": {
+              "x_early": true,
+              "requires": {
+                "pkg:generic/awk": 0,
+                "pkg:generic/perl": "5.20"
+              }
+            },
+            "run": {
+              "recommends": {
+                "pkg:pypi/widgets": 0
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "classifications": {
+    "categories": ["Data and Transformations"],
+    "tags": ["variadic function"],
+    "x_ui_related": true
+  },
+  "meta-spec": { "version": "2.0.0" }
+}
