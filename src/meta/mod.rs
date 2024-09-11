@@ -1,5 +1,16 @@
+/*!
+PGXN Metadata management.
+
+This module provides interfaces to load, validate, and manipulate PGXN Meta
+Spec `META.json` files. It supports both the [v1] and [v2] specs.
+
+  [v1]: https://rfcs.pgxn.org/0001-meta-spec-v1.html
+  [v2]: https://github.com/pgxn/rfcs/pull/3
+
+*/
 use std::{collections::HashMap, error::Error, fs::File, path::PathBuf};
 
+use crate::util;
 use relative_path::RelativePathBuf;
 use semver::Version;
 use serde::{ser::SerializeMap, Deserialize, Deserializer, Serialize, Serializer};
@@ -25,7 +36,6 @@ pub struct Maintainer {
     #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<String>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -43,7 +53,6 @@ pub struct Extension {
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<RelativePathBuf>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -82,7 +91,6 @@ pub struct Module {
     #[serde(skip_serializing_if = "Option::is_none")]
     doc: Option<RelativePathBuf>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -105,7 +113,6 @@ pub struct App {
     #[serde(skip_serializing_if = "Option::is_none")]
     html: Option<RelativePathBuf>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -120,7 +127,6 @@ pub struct Contents {
     #[serde(skip_serializing_if = "Option::is_none")]
     apps: Option<HashMap<String, App>>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -134,7 +140,6 @@ pub struct Classifications {
     #[serde(skip_serializing_if = "Option::is_none")]
     categories: Option<Vec<String>>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -146,7 +151,6 @@ pub struct Postgres {
     #[serde(skip_serializing_if = "Option::is_none")]
     with: Option<Vec<String>>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -194,7 +198,6 @@ pub struct Phase {
     #[serde(skip_serializing_if = "Option::is_none")]
     conflicts: Option<HashMap<String, VersionRange>>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -214,7 +217,6 @@ pub struct Packages {
     #[serde(skip_serializing_if = "Option::is_none")]
     develop: Option<Phase>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -226,7 +228,6 @@ pub struct Variations {
     wheres: Box<Dependencies>,
     dependencies: Box<Dependencies>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -245,7 +246,6 @@ pub struct Dependencies {
     #[serde(skip_serializing_if = "Option::is_none")]
     variations: Option<Vec<Variations>>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -258,7 +258,6 @@ pub struct Badge {
     #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<String>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -279,7 +278,6 @@ pub struct Resources {
     #[serde(skip_serializing_if = "Option::is_none")]
     badges: Option<Vec<Badge>>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -297,12 +295,13 @@ pub struct Artifact {
     #[serde(skip_serializing_if = "Option::is_none")]
     sha512: Option<String>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
 
-/// Represents a complete PGXN Meta definition.
+/**
+Represents a complete PGXN Meta definition.
+*/
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Meta {
     name: String,
@@ -329,7 +328,6 @@ pub struct Meta {
     #[serde(skip_serializing_if = "Option::is_none")]
     artifacts: Option<Vec<Artifact>>,
     #[serde(flatten)]
-    #[serde(serialize_with = "serialize_custom_properties")]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
 }
@@ -345,37 +343,13 @@ where
 
     Ok(map
         .into_iter()
-        .filter_map(|(key, value)| {
-            key.strip_prefix("x_")
-                .or(key.strip_prefix("X_"))
-                .map(|key| (key.to_string(), value))
-        })
+        .filter(|(key, _value)| key.starts_with("x_") || key.starts_with("X_"))
         .collect())
 }
 
-/// Serializes the `custom_properties` HashMap into fields starting with `X_` or `x_`
-pub fn serialize_custom_properties<S>(
-    custom_props: &HashMap<String, Value>,
-    serializer: S,
-) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let mut map = serializer.serialize_map(Some(custom_props.len()))?;
-    for (key, value) in custom_props {
-        let is_uppercase = key.chars().next().map(char::is_uppercase).unwrap_or(false);
-
-        if is_uppercase {
-            map.serialize_entry(&format_args!("X_{key}"), value)?;
-        } else {
-            map.serialize_entry(&format_args!("x_{key}"), value)?;
-        }
-    }
-
-    map.end()
-}
-
 impl Meta {
+    /// Deserializes `meta`, which contains PGXN `version` metadata, into a
+    /// [`Meta`].
     fn from_version(version: u8, meta: Value) -> Result<Self, Box<dyn Error>> {
         match version {
             1 => v1::from_value(meta),
@@ -383,10 +357,48 @@ impl Meta {
             _ => Err(Box::from(format!("Unknown meta version {version}"))),
         }
     }
+
+    /// Returns the license string.
+    pub fn license(&self) -> &str {
+        self.license.as_str()
+    }
 }
 
 impl TryFrom<Value> for Meta {
     type Error = Box<dyn Error>;
+    /// Converts the PGXN `META.json` data from `meta` into a [`Meta`].
+    /// Returns an error if `meta` is invalid.
+    ///
+    /// # Example
+    ///
+    /// ``` rust
+    /// # use std::error::Error;
+    /// use serde_json::json;
+    /// use pgxn_meta::meta::*;
+    ///
+    /// let meta_json = json!({
+    ///   "name": "pair",
+    ///   "abstract": "A key/value pair data type",
+    ///   "version": "0.1.8",
+    ///   "maintainers": [
+    ///     { "name": "Barrack Obama",  "email": "pogus@example.com" }
+    ///   ],
+    ///   "license": "PostgreSQL",
+    ///   "contents": {
+    ///     "extensions": {
+    ///       "pair": {
+    ///         "sql": "sql/pair.sql",
+    ///         "control": "pair.control"
+    ///       }
+    ///     }
+    ///   },
+    ///   "meta-spec": { "version": "2.0.0" }
+    /// });
+    ///
+    ///
+    /// let meta = Meta::try_from(meta_json);
+    /// assert!(meta.is_ok());
+    /// ```
     fn try_from(meta: Value) -> Result<Self, Self::Error> {
         // Make sure it's valid.
         let mut validator = crate::valid::Validator::new();
@@ -398,8 +410,114 @@ impl TryFrom<Value> for Meta {
     }
 }
 
+impl TryFrom<&[&Value]> for Meta {
+    type Error = Box<dyn Error>;
+    /// Merge multiple PGXN `META.json` data from `meta` into a [`Meta`].
+    /// Returns an error if `meta` is invalid.
+    ///
+    /// The first value in `meta` should be the primary metadata, generally
+    /// included in a distribution. Subsequent values will be merged into that
+    /// first value via the [RFC 7396] merge pattern.
+    ///
+    /// # Example
+    ///
+    /// ``` rust
+    /// # use std::error::Error;
+    /// use serde_json::json;
+    /// use pgxn_meta::meta::*;
+    ///
+    /// let meta_json = json!({
+    ///   "name": "pair",
+    ///   "abstract": "A key/value pair data type",
+    ///   "version": "0.1.8",
+    ///   "maintainers": [
+    ///     { "name": "Barrack Obama",  "email": "pogus@example.com" }
+    ///   ],
+    ///   "license": "PostgreSQL",
+    ///   "contents": {
+    ///     "extensions": {
+    ///       "pair": {
+    ///         "sql": "sql/pair.sql",
+    ///         "control": "pair.control"
+    ///       }
+    ///     }
+    ///   },
+    ///   "meta-spec": { "version": "2.0.0" }
+    /// });
+    ///
+    /// let patch = json!({"license": "MIT"});
+    /// let all_meta = [&meta_json, &patch];
+    ///
+    /// let meta = Meta::try_from(&all_meta[..]);
+    /// assert!(meta.is_ok());
+    /// assert_eq!("MIT", meta.unwrap().license());
+    /// ```
+    ///
+    /// [RFC 7396]: https:///www.rfc-editor.org/rfc/rfc7396.html
+    fn try_from(meta: &[&Value]) -> Result<Self, Self::Error> {
+        if meta.is_empty() {
+            return Err(Box::from("meta contains no values"));
+        }
+
+        // Find the version of the first doc.
+        let version =
+            util::get_version(meta[0]).ok_or("No spec version found in first meta value")?;
+
+        // Convert the first doc to v2 if necessary.
+        let mut v2 = match version {
+            1 => v1::to_v2(meta[0])?,
+            2 => meta[0].clone(),
+            _ => unreachable!(),
+        };
+
+        // Merge them.
+        for patch in meta[1..].iter() {
+            json_patch::merge(&mut v2, patch)
+        }
+
+        // Validate the patched doc and return.
+        let mut validator = crate::valid::Validator::new();
+        validator.validate(&v2).map_err(|e| e.to_string())?;
+        Meta::from_version(2, v2)
+    }
+}
+
 impl TryFrom<Meta> for Value {
     type Error = Box<dyn Error>;
+    /// Converts `meta` into a [serde_json::Value].
+    ///
+    /// # Example
+    ///
+    /// ``` rust
+    /// # use std::error::Error;
+    /// use serde_json::{json, Value};
+    /// use pgxn_meta::meta::*;
+    ///
+    /// let meta_json = json!({
+    ///   "name": "pair",
+    ///   "abstract": "A key/value pair data type",
+    ///   "version": "0.1.8",
+    ///   "maintainers": [
+    ///     { "name": "Barrack Obama",  "email": "pogus@example.com" }
+    ///   ],
+    ///   "license": "PostgreSQL",
+    ///   "contents": {
+    ///     "extensions": {
+    ///       "pair": {
+    ///         "sql": "sql/pair.sql",
+    ///         "control": "pair.control"
+    ///       }
+    ///     }
+    ///   },
+    ///   "meta-spec": { "version": "2.0.0" }
+    /// });
+    ///
+    ///
+    /// let meta = Meta::try_from(meta_json);
+    /// assert!(meta.is_ok());
+    /// let val: Result<Value, Box<dyn Error>> = meta.unwrap().try_into();
+    /// assert!(val.is_ok());
+    /// ```
     fn try_from(meta: Meta) -> Result<Self, Self::Error> {
         let val = serde_json::to_value(meta)?;
         Ok(val)
@@ -408,6 +526,9 @@ impl TryFrom<Meta> for Value {
 
 impl TryFrom<&PathBuf> for Meta {
     type Error = Box<dyn Error>;
+    /// Reads the `META.json` data from `file` then converts into a [`Meta`].
+    /// Returns an error on file error or if the content of `file` is not
+    /// valid PGXN `META.json` data.
     fn try_from(file: &PathBuf) -> Result<Self, Self::Error> {
         let meta: Value = serde_json::from_reader(File::open(file)?)?;
         Meta::try_from(meta)
@@ -416,6 +537,8 @@ impl TryFrom<&PathBuf> for Meta {
 
 impl TryFrom<&String> for Meta {
     type Error = Box<dyn Error>;
+    /// Converts `str` into JSON and then into  a [`Meta`]. Returns an error
+    /// if the content of `str` is not valid PGXN `META.json` data.
     fn try_from(str: &String) -> Result<Self, Self::Error> {
         let meta: Value = serde_json::from_str(str)?;
         Meta::try_from(meta)
@@ -424,6 +547,7 @@ impl TryFrom<&String> for Meta {
 
 impl TryFrom<Meta> for String {
     type Error = Box<dyn Error>;
+    /// Converts `meta` into a JSON String.
     fn try_from(meta: Meta) -> Result<Self, Self::Error> {
         let val = serde_json::to_string(&meta)?;
         Ok(val)

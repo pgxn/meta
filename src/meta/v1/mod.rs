@@ -4,42 +4,48 @@ use email_address::EmailAddress;
 use serde_json::{json, Map, Value};
 use std::{error::Error, str::FromStr};
 
-/// from_value parses v1, which contains PGXN v1 metadata, into a Meta object
+/// to_v2 parses v1, which contains PGXN v1 metadata, into a JSON object
 /// containing valid PGXN v2 metadata.
-pub fn from_value(v1: Value) -> Result<Meta, Box<dyn Error>> {
+pub fn to_v2(v1: &Value) -> Result<Value, Box<dyn Error>> {
     // Copy common fields.
-    let mut v2 = v1_to_v2_common(&v1);
+    let mut v2 = v1_to_v2_common(v1);
 
     // Convert maintainer.
-    v2.insert("maintainers".to_string(), v1_to_v2_maintainers(&v1)?);
+    v2.insert("maintainers".to_string(), v1_to_v2_maintainers(v1)?);
 
     // Convert license.
-    v2.insert("license".to_string(), v1_to_v2_license(&v1)?);
+    v2.insert("license".to_string(), v1_to_v2_license(v1)?);
 
     // Convert provides to contents.
-    v2.insert("contents".to_string(), v1_to_v2_contents(&v1)?);
+    v2.insert("contents".to_string(), v1_to_v2_contents(v1)?);
 
     // Convert tags to classifications.
-    if let Some(val) = v1_to_v2_classifications(&v1) {
+    if let Some(val) = v1_to_v2_classifications(v1) {
         v2.insert("classifications".to_string(), val);
     }
 
     // Convert no_index to ignore.
-    if let Some(val) = v1_to_v2_ignore(&v1) {
+    if let Some(val) = v1_to_v2_ignore(v1) {
         v2.insert("ignore".to_string(), val);
     }
 
     // Convert prereqs to dependencies.
-    if let Some(val) = v1_to_v2_dependencies(&v1) {
+    if let Some(val) = v1_to_v2_dependencies(v1) {
         v2.insert("dependencies".to_string(), val);
     }
 
     // resources
-    if let Some(val) = v1_to_v2_resources(&v1) {
+    if let Some(val) = v1_to_v2_resources(v1) {
         v2.insert("resources".to_string(), val);
     }
 
-    Meta::try_from(Value::Object(v2))
+    Ok(Value::Object(v2))
+}
+
+/// from_value parses v1, which contains PGXN v1 metadata, into a Meta object
+/// containing valid PGXN v2 metadata.
+pub fn from_value(v1: Value) -> Result<Meta, Box<dyn Error>> {
+    Meta::try_from(to_v2(&v1)?)
 }
 
 /// v1_to_v2_common sets up a new v2 map with compatible fields copied from v1

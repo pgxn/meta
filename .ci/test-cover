@@ -18,6 +18,7 @@ grcov "${DESTDIR}" \
     --ignore '**/tests/**' \
     --ignore 'build.rs' \
     --excl-start '#(\[cfg\(test\)\]|\[test\])' \
+    --excl-line 'unreachable\!\(\)' \
     --llvm \
     --binary-path "target/debug/" \
     -s . \

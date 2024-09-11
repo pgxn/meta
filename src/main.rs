@@ -7,7 +7,7 @@ use std::{
     process::ExitCode,
 };
 
-use pgxn_meta::Validator;
+use pgxn_meta::valid::Validator;
 use serde_json::Value;
 
 // Minimal main function; logical is all in run.
