@@ -36,7 +36,7 @@
         "alt": "CI Status",
         "src": "https://github.com/example/pg-widget/actions/workflows/ci.yml/badge.svg",
         "url": "https://github.com/example/pg-widget/actions/workflows/ci.yml",
-        "x_updated_every": "1h"
+        "x_updated_every": { "1h": true, "1w": false }
       }
     ]
   },
@@ -87,5 +87,8 @@
     "tags": ["variadic function"],
     "x_ui_related": true
   },
-  "meta-spec": { "version": "2.0.0" }
+  "meta-spec": {
+    "version": "2.0.0",
+    "x_hello": [1, 2, 3]
+  }
 }

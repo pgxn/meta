@@ -13,7 +13,7 @@ use std::{collections::HashMap, error::Error, fs::File, path::PathBuf};
 use crate::util;
 use relative_path::RelativePathBuf;
 use semver::Version;
-use serde::{ser::SerializeMap, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 
 mod v1;
@@ -25,6 +25,9 @@ pub struct Spec {
     version: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<String>,
+    #[serde(flatten)]
+    #[serde(deserialize_with = "deserialize_custom_properties")]
+    custom_props: HashMap<String, Value>,
 }
 
 /// Maintainer represents an object in the list of `maintainers` in [`Meta`].
