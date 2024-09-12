@@ -10,8 +10,8 @@ fn test_v1_v2_common() {
     for (name, input, expect) in [
         (
             "basics",
-            json!({"name": "pair", "version": "1.2.3", "abstract": "this and that", "description": "Howdy"}),
-            json!({"name": "pair", "version": "1.2.3", "abstract": "this and that", "description": "Howdy", "meta-spec": meta}),
+            json!({"name": "pair", "version": "1.2.3", "abstract": "this and that", "description": "Howdy", "x_foo": true}),
+            json!({"name": "pair", "version": "1.2.3", "abstract": "this and that", "description": "Howdy", "x_foo": true, "meta-spec": meta}),
         ),
         (
             "name only",
@@ -22,6 +22,16 @@ fn test_v1_v2_common() {
             "name and version",
             json!({"name": "pair", "version": "1.2.3"}),
             json!({"name": "pair", "version": "1.2.3", "meta-spec": meta}),
+        ),
+        (
+            "meta spec custom props",
+            json!({"meta-spec": {"x_foo": 1, "X_y": true}}),
+            json!({"meta-spec": {
+              "version": "2.0.0",
+              "url": "https://rfcs.pgxn.org/0003-meta-spec-v2.html",
+              "x_foo": 1,
+              "X_y": true
+            }}),
         ),
         (
             "renamed fields",
@@ -286,13 +296,15 @@ fn test_v1_v2_contents() {
                 "abstract": "A key/value pair data type",
                 "file": "sql/pair.sql",
                 "docfile": "doc/pair.md",
-                "version": "0.1.0"
+                "version": "0.1.0",
+                "x_foo": "hi",
             }}),
             json!({"pair": {
                 "control": "pair.control",
                 "sql": "sql/pair.sql",
                 "abstract": "A key/value pair data type",
                 "doc": "doc/pair.md",
+                "x_foo": "hi",
             }}),
         ),
         (
@@ -406,8 +418,8 @@ fn test_v1_v2_dependencies() {
     for (name, input, expect) in [
         (
             "runtime requires",
-            json!({"prereqs": {"runtime": {"requires": {"v8": "1.2.0"}}}}),
-            Some(json!({"packages": {"run": {"requires": {"pkg:pgxn/v8": "1.2.0"}}}})),
+            json!({"prereqs": {"runtime": {"requires": {"v8": "1.2.0"}}, "x_foo": 1}}),
+            Some(json!({"packages": {"run": {"requires": {"pkg:pgxn/v8": "1.2.0"}}, "x_foo": 1}})),
         ),
         (
             "build core and pgxn",
@@ -423,7 +435,7 @@ fn test_v1_v2_dependencies() {
             Some(json!({"postgres": {"version": "12.0.0"}})),
         ),
         (
-            "dvelop conflicts",
+            "develop conflicts",
             json!({"prereqs": {"develop": {"conflicts": {"v8": "1.2.0"}}}}),
             Some(json!({"packages": {"develop": {"conflicts": {"pkg:pgxn/v8": "1.2.0"}}}})),
         ),
@@ -452,6 +464,7 @@ fn test_v1_v2_dependencies() {
                         "pgTAP": 0
                     }
                 },
+                "x_go_time": "now",
             }}),
             Some(json!({
                 "postgres": {"version": "8.0.0"},
@@ -465,7 +478,8 @@ fn test_v1_v2_dependencies() {
                     },
                     "test": {
                         "recommends": {"pkg:pgxn/pgtap": 0},
-                    }
+                    },
+                    "x_go_time": "now",
                 }
             })),
         ),
@@ -645,6 +659,17 @@ fn test_v1_v2_resources() {
                 "url": "git@github.com:pgxn/meta.git",
             }}}),
             Some(json!({"repository": "git@github.com:pgxn/meta.git"})),
+        ),
+        (
+            "repo url plus custom",
+            json!({"resources": {
+                "repository": { "url": "git@github.com:pgxn/meta.git", },
+                "x_foo": true,
+            }}),
+            Some(json!({
+                "repository": "git@github.com:pgxn/meta.git",
+                "x_foo": true,
+            })),
         ),
     ] {
         assert_eq!(expect, v1_to_v2_resources(&input), "{name}")

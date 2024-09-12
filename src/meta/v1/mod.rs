@@ -66,16 +66,39 @@ fn v1_to_v2_common(v1: &Value) -> Map<String, Value> {
         }
     }
 
+    // Copy custom properties.
+    v1_value_to_v2_custom_props(v1, &mut v2);
+
     // Set the meta-spec.
-    v2.insert(
-        "meta-spec".to_string(),
-        json!({
-          "version": "2.0.0",
-          "url": "https://rfcs.pgxn.org/0003-meta-spec-v2.html"
-        }),
+    let mut spec = Map::new();
+    spec.insert("version".to_string(), json!("2.0.0"));
+    spec.insert(
+        "url".to_string(),
+        json!("https://rfcs.pgxn.org/0003-meta-spec-v2.html"),
     );
+    if let Some(v1_spec) = v1.get("meta-spec") {
+        v1_value_to_v2_custom_props(v1_spec, &mut spec);
+    }
+    v2.insert("meta-spec".to_string(), Value::Object(spec));
 
     v2
+}
+
+// v1_value_to_v2_custom_props copies all custom properties from v1 to v2.
+fn v1_value_to_v2_custom_props(v1: &Value, v2: &mut Map<String, Value>) {
+    if let Some(obj) = v1.as_object() {
+        v1_to_v2_custom_props(obj, v2);
+    }
+}
+
+// v1_to_v2_custom_props copies all custom properties from v1 to v2.
+fn v1_to_v2_custom_props(v1: &Map<String, Value>, v2: &mut Map<String, Value>) {
+    for (k, v) in v1
+        .into_iter()
+        .filter(|(key, _)| key.starts_with("x_") || key.starts_with("X_"))
+    {
+        v2.insert(k.to_string(), v.clone());
+    }
 }
 
 /// v1_to_v2_maintainers clones maintainer data in v1 into the v2 format. It
@@ -282,6 +305,10 @@ fn v1_to_v2_contents(v1: &Value) -> Result<Value, Box<dyn Error>> {
                                 v2_spec.insert(v2.to_string(), obj[v1].clone());
                             }
                         }
+
+                        // Copy extension custom properties.
+                        v1_to_v2_custom_props(obj, &mut v2_spec);
+
                         extensions.insert(ext.to_string(), Value::Object(v2_spec));
                     }
                     _ => {
@@ -397,6 +424,9 @@ fn v1_to_v2_dependencies(v1: &Value) -> Option<Value> {
                         }
                     }
 
+                    // Copy phase custom properties to the phase.
+                    v1_to_v2_custom_props(relation, &mut phase);
+
                     if !phase.is_empty() {
                         packages.insert(phase2.to_string(), Value::Object(phase));
                     }
@@ -407,6 +437,9 @@ fn v1_to_v2_dependencies(v1: &Value) -> Option<Value> {
             if pg_version < max_version {
                 dependencies.insert("postgres".to_string(), json!({"version": pg_version}));
             }
+
+            // Copy prereqs custom properties to the packages.
+            v1_to_v2_custom_props(prereqs, &mut packages);
 
             // If we have extensions, add them.
             if !packages.is_empty() {
@@ -538,6 +571,9 @@ fn v1_to_v2_resources(v1: &Value) -> Option<Value> {
                     ret.insert("repository".to_string(), json!(url));
                 }
             }
+
+            // Copy any custom fields.
+            v1_to_v2_custom_props(resources, &mut ret);
 
             // Return the resources if we have any.
             if ret.is_empty() {
