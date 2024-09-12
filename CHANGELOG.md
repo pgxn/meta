@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
-## [v0.2.0] — Date TBD
+## [v0.2.0] — 2024-09-12
 
 ### ⚡ Improvements
 
@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file. It uses the
 
 *   Updated the `v2` link in all docs to point to the [pull request], since it
     hasn't been merged and published yet.
+*   Updated the README example to use the [meta module] to load an object.
 
   [v0.2.0]: https://github.com/pgxn/meta/compare/v0.1.0...v0.2.0
   [meta module]: https://docs.rs/pgxn_meta/meta/
