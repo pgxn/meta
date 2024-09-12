@@ -45,3 +45,4 @@ jobs:
           files: target/cover/coveralls
       - name: Clear Badge Cache
         uses: kevincobain2000/action-camo-purge@v1
+        if: github.ref_name == 'main'

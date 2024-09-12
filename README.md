@@ -15,7 +15,7 @@ Crate Usage
 -----------
 
 <details>
-<summary>Click to show `Cargo.toml`.</summary>
+<summary>Click to show <code>Cargo.toml</code>.</summary>
 
 ```toml
 [dependencies]

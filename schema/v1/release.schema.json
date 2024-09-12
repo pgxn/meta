@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/release.schema.json",
+  "title": "Release",
+  "description": "Distribution release metadata",
+  "type": "object",
+  "unevaluatedProperties": false,
+  "allOf": [
+    { "$ref": "base.schema.json" },
+    {
+      "properties": {
+        "user": {
+          "$ref": "term.schema.json",
+          "description": "The PGXN username for the user who released the distribution to PGXN.",
+          "examples": ["theory", "michaelpq"]
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp for when the release was made.",
+          "examples": ["2024-09-12T19:56:49Z"]
+        },
+        "sha1": {
+          "description": "The SHA-1 hash digest for the release, in hex.",
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{40}$",
+          "examples": ["58065c7c27ea9906abaee8759f2047f27bb066cc"]
+        }
+      },
+      "required": ["user", "date", "sha1"]
+    }
+  ]
+}

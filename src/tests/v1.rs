@@ -2041,3 +2041,306 @@ fn test_v1_distribution() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+
+#[test]
+fn test_v1_release() -> Result<(), Box<dyn Error>> {
+    // Load the schemas and compile the distribution schema.
+    let mut compiler = new_compiler("schema/v1")?;
+    let mut schemas = Schemas::new();
+    let release_id = id_for(SCHEMA_VERSION, "release");
+    let release_idx = compiler.compile(&release_id, &mut schemas)?;
+    let dist_id = id_for(SCHEMA_VERSION, "distribution");
+    let dist_idx = compiler.compile(&dist_id, &mut schemas)?;
+
+    // Now try it with various release metadata.
+    for (name, release_meta) in [
+        (
+            "all release fields",
+            json!({
+              "user": "theory",
+              "date": "2024-09-12T20:39:11Z",
+              "sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46",
+            }),
+        ),
+        (
+            "different release fields",
+            json!({
+              "user": "okbob",
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b",
+            }),
+        ),
+    ] {
+        // Merge the release metadata; the release schema should validate it.
+        let mut meta = valid_distribution();
+        json_patch::merge(&mut meta, &release_meta);
+        if let Err(e) = schemas.validate(&meta, release_idx) {
+            panic!("{name} with release meta failed: {e}");
+        }
+
+        // But it should fail on just distribution metadata.
+        if schemas.validate(&meta, dist_idx).is_ok() {
+            panic!("{name} unexpectedly validated by distribution schema");
+        }
+    }
+
+    // Now try invalid cases.
+    for (name, release_meta, err) in [
+        (
+            "no release_fields",
+            json!({}),
+            "missing properties 'user', 'date', 'sha1'",
+        ),
+        (
+            "missing user",
+            json!({
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "missing properties 'user'",
+        ),
+        (
+            "user empty",
+            json!({
+              "user": "",
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/user': length must be >=2, but got 0",
+        ),
+        (
+            "user too short",
+            json!({
+              "user": "x",
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/user': length must be >=2, but got 1",
+        ),
+        (
+            "user number",
+            json!({
+              "user": 42,
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/user': want string, but got number",
+        ),
+        (
+            "user bool",
+            json!({
+              "user": true,
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/user': want string, but got boolean",
+        ),
+        (
+            "user null",
+            json!({
+              "user": null,
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "missing properties 'user'",
+        ),
+        (
+            "user array",
+            json!({
+              "user": ["hi"],
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/user': want string, but got array",
+        ),
+        (
+            "user object",
+            json!({
+              "user": {"hi": 42},
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/user': want string, but got object",
+        ),
+        (
+            "missing date",
+            json!({
+                "user": "hi",
+                "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "missing properties 'date'",
+        ),
+        (
+            "invalid date",
+            json!({
+              "user": "hi",
+              "date": "2019-09-23T27:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/date': '2019-09-23T27:16:45Z' is not valid date-time",
+        ),
+        (
+            "date empty",
+            json!({
+              "user": "hi",
+              "date": "",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/date': '' is not valid date-time",
+        ),
+        (
+            "date number",
+            json!({
+              "user": "hi",
+              "date": 98.6,
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/date': want string, but got number",
+        ),
+        (
+            "date bool",
+            json!({
+              "user": "hi",
+              "date": false,
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/date': want string, but got boolean",
+        ),
+        (
+            "date null",
+            json!({
+              "user": "hi",
+              "date": null,
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "missing properties 'date'",
+        ),
+        (
+            "date array",
+            json!({
+              "user": "hi",
+              "date": ["2024-09-12T20:39:11Z"],
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/date': want string, but got array",
+        ),
+        (
+            "date array",
+            json!({
+              "user": "hi",
+              "date": {"x": "2024-09-12T20:39:11Z"},
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b"
+            }),
+            "'/date': want string, but got object",
+        ),
+        (
+            "missing sha1",
+            json!({
+                "user": "hi",
+                "date": "2019-09-23T17:16:45Z",
+            }),
+            "missing properties 'sha1'",
+        ),
+        (
+            "null sha1",
+            json!({
+                "user": "hi",
+                "date": "2019-09-23T17:16:45Z",
+                "sha1": null,
+            }),
+            "missing properties 'sha1'",
+        ),
+        (
+            "empty sha1",
+            json!({
+                "user": "hi",
+                "date": "2019-09-23T17:16:45Z",
+                "sha1": "",
+            }),
+            "'/sha1': '' does not match pattern",
+        ),
+        (
+            "short sha1",
+            json!({
+              "user": "hi",
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8"
+            }),
+            "'/sha1': '0389be689af6992b4da520ec510d147bae411e8' does not match pattern",
+        ),
+        (
+            "long sha1",
+            json!({
+              "user": "hi",
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b1"
+            }),
+            "'/sha1': '0389be689af6992b4da520ec510d147bae411e8b1' does not match pattern",
+        ),
+        (
+            "invalid sha1 hex",
+            json!({
+              "user": "hi",
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8g"
+            }),
+            "'/sha1': '0389be689af6992b4da520ec510d147bae411e8g' does not match pattern",
+        ),
+        (
+            "sha1 bool",
+            json!({
+                "user": "hi",
+                "date": "2019-09-23T17:16:45Z",
+                "sha1": true,
+            }),
+            "'/sha1': want string, but got boolean",
+        ),
+        (
+            "sha1 number",
+            json!({
+                "user": "hi",
+                "date": "2019-09-23T17:16:45Z",
+                "sha1": 42,
+            }),
+            "'/sha1': want string, but got number",
+        ),
+        (
+            "sha1 array",
+            json!({
+                "user": "hi",
+                "date": "2019-09-23T17:16:45Z",
+                "sha1": ["0389be689af6992b4da520ec510d147bae411e8b"],
+            }),
+            "'/sha1': want string, but got array",
+        ),
+        (
+            "sha1 object",
+            json!({
+                "user": "hi",
+                "date": "2019-09-23T17:16:45Z",
+                "sha1": {"0389be689af6992b4da520ec510d147bae411e8b": true},
+            }),
+            "'/sha1': want string, but got object",
+        ),
+        (
+            "missing required distribution field",
+            json!({
+              "user": "okbob",
+              "date": "2019-09-23T17:16:45Z",
+              "sha1": "0389be689af6992b4da520ec510d147bae411e8b",
+              "version": null,
+            }),
+            "missing properties 'version'",
+        ),
+    ] {
+        // Merge the release metadata; the release schema should validate it.
+        let mut meta = valid_distribution();
+        json_patch::merge(&mut meta, &release_meta);
+        match schemas.validate(&meta, release_idx) {
+            Err(e) => assert!(e.to_string().contains(err), "{name} Error: {e}"),
+            Ok(_) => panic!("{name} unexpectedly succeeded"),
+        }
+    }
+
+    Ok(())
+}
