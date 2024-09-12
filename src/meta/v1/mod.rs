@@ -42,10 +42,10 @@ pub fn to_v2(v1: &Value) -> Result<Value, Box<dyn Error>> {
     Ok(Value::Object(v2))
 }
 
-/// from_value parses v1, which contains PGXN v1 metadata, into a Meta object
-/// containing valid PGXN v2 metadata.
-pub fn from_value(v1: Value) -> Result<Meta, Box<dyn Error>> {
-    Meta::try_from(to_v2(&v1)?)
+/// from_value parses v1, which contains PGXN v1 metadata, into a
+/// [`Distribution`] object containing valid PGXN v2 metadata.
+pub fn from_value(v1: Value) -> Result<Distribution, Box<dyn Error>> {
+    Distribution::try_from(to_v2(&v1)?)
 }
 
 /// v1_to_v2_common sets up a new v2 map with compatible fields copied from v1

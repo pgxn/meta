@@ -1,14 +1,14 @@
-# PGXN Meta
+# PGXN Distribution Metadata
 
-[![license-badge]][license] [![crates-badge]][crates] [![docs-badge]][docs] [![ci-badge]][ci] [![cov-badge]][cov] [![deps-badge]][deps]
+[![license-badge]][license] [![crates-badge]][crates] [![release-badge]][release] [![ci-badge]][ci] [![cov-badge]][cov] [![docs-badge]][docs] [![deps-badge]][deps]
 
 
-**The pgxn_meta crate provides [PGXN Meta Spec] validation**
+**The pgxn_meta crate provides PGXN Meta [v1] and [v2] validation and management**
 
 ---
 
-The [PGXN Meta Spec] defines the requirements for the metadata file
-(`META.json`) file for [PGXN] source distribution packages. This project
+The PGXN Meta [v1] and [v2] specs define the requirements for the metadata
+file (`META.json`) file for [PGXN] source distribution packages. This project
 provides Rust a crates for working with spec `META.json` files.
 
 Crate Usage
@@ -20,16 +20,16 @@ Crate Usage
 ```toml
 [dependencies]
 serde_json = "1.0"
-pgxn_meta = "0.1"
+pgxn_meta = "0.2"
 ```
 </details>
 
 ``` rust
 use serde_json::json;
-use pgxn_meta::*;
+use pgxn_meta::meta::Distribution;
 
 func main() {
-    // Parse the contents of a META.json file into a serde_json Value
+    // Load the contents of a META.json file into a serde_json::Value.
     let meta = json!({
       "name": "pair",
       "abstract": "A key/value pair data type",
@@ -45,10 +45,10 @@ func main() {
       "meta-spec": { "version": "1.0.0" }
     });
 
-    // Validate the META.json contents.
-    let mut validator = Validator::new();
-    if let Err(e) = validator.validate(&meta) {
-        panic!("Validation failed: {e}");
+    // Validate and load the META.json contents.
+    match Distribution::try_from(meta) {
+        Err(e) => panic!("Validation failed: {e}"),
+        Ok(dist) => println!("Loaded {} {}", dist.name(), dist.version()),
     };
 }
 ```
@@ -114,19 +114,22 @@ License
 
 This project is distributed under the [PostgreSQL License][license].
 
-  [license-badge]: https://img.shields.io/badge/License-PostgreSQL-blue.svg
+  [license-badge]: https://img.shields.io/badge/License-PostgreSQL-blue.svg "⚖️ PostgreSQL License"
   [license]: https://opensource.org/licenses/PostgreSQL "⚖️ PostgreSQL License"
-  [crates-badge]: https://img.shields.io/crates/v/pgxn_meta.svg
-  [crates]: https://crates.io/crates/pgxn_meta
-  [docs-badge]: https://docs.rs/pgxn_meta/badge.svg
-  [docs]: https://docs.rs/pgxn_meta
-  [ci-badge]: https://github.com/pgxn/meta/actions/workflows/test-and-lint.yml/badge.svg
+  [crates-badge]: https://img.shields.io/crates/v/pgxn_meta.svg "📦 Crate"
+  [crates]: https://crates.io/crates/pgxn_meta "📦 Crate"
+  [docs-badge]: https://docs.rs/pgxn_meta/badge.svg "📚 Docs Status"
+  [docs]: https://docs.rs/pgxn_meta "📚 Docs Status"
+  [ci-badge]: https://github.com/pgxn/meta/actions/workflows/test-and-lint.yml/badge.svg "🧪 Test and Lint"
   [ci]: https://github.com/pgxn/meta/actions/workflows/test-and-lint "🧪 Test and Lint"
-  [cov-badge]: https://codecov.io/gh/pgxn/meta/graph/badge.svg?token=5DOLLPIHEO
+  [cov-badge]: https://codecov.io/gh/pgxn/meta/graph/badge.svg?token=5DOLLPIHEO "📊 Code Coverage"
   [cov]: https://codecov.io/gh/pgxn/meta "📊 Code Coverage"
-  [deps-badge]: https://deps.rs/repo/github/pgxn/meta/status.svg
-  [deps]: https://deps.rs/repo/github/pgxn/meta "📦 Dependency Status"
-  [PGXN Meta Spec]: https://rfcs.pgxn.org/0001-meta-spec-v1.html
+  [deps-badge]: https://deps.rs/repo/github/pgxn/meta/status.svg "⬆️ Dependency Status"
+  [deps]: https://deps.rs/repo/github/pgxn/meta "⬆️ Dependency Status"
+  [release-badge]: https://img.shields.io/github/release/pgxn/meta.svg  "🚀 Latest Release"
+  [release]: https://github.com/pgxn/meta/releases/latest "🚀 Latest Release"
+  [v1]: https://rfcs.pgxn.org/0001-meta-spec-v1.html
+  [v2]: https://github.com/pgxn/rfcs/pull/3
   [PGXN]: https://pgxn.org "PGXN: PostgreSQL Extension Network"
   [`pgxn_meta` docs on docs.rs]: https://docs.rs/ubi/latest/pgxn_meta/
   [ubi]: https://github.com/houseabsolute/ubi

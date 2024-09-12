@@ -11,8 +11,8 @@ All notable changes to this project will be documented in this file. It uses the
 
 ### ⚡ Improvements
 
-*   Added the [meta module], which loads v1 and v2 spec files, converts v1
-    metadata to v2, and merges multiple files.
+*   Added the [meta module], which loads v1 and v2 spec files into read-only
+    data structures, converts v1 metadata to v2, and merges multiple files.
 
 ### 🪲 Bug Fixes
 

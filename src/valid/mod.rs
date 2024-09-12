@@ -1,7 +1,7 @@
 /*!
-PGXN Metadata validation.
+PGXN Distribution Metadata validation.
 
-This module uses JSON Schema to validate PGXN Meta Spec `META.json` files.
+This module uses JSON Schema to validate PGXN `META.json` files.
 It supports both the [v1] and [v2] specs.
 
 # Example
@@ -104,11 +104,11 @@ impl Validator {
         }
     }
 
-    /// Validates a PGXN Meta document.
+    /// Validates PGXN Distribution metadata.
     ///
     /// Load a `META.json` file into a serde_json::value::Value and pass it
-    /// for validation. Returns a the Meta spec version on success and a
-    /// validation error on failure.
+    /// for validation. Returns the Meta spec version (1 or 2) on success and
+    /// a validation error on failure.
     ///
     /// See the [module docs](crate::valid) for an example.
     pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<u8, Box<dyn Error + 'a>> {

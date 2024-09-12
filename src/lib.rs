@@ -1,9 +1,9 @@
 #![deny(missing_docs)]
 #![deny(rustdoc::missing_crate_level_docs)]
 /*!
-PGXN Metadata validation.
+PGXN `META.json` validation and management.
 
-This crate uses JSON Schema to validate and inspect the PGXN `META.json`
+This crate uses JSON Schema to validate and inspect PGXN `META.json`
 files. It supports both the [v1] and [v2] specs.
 
 [v1]: https://rfcs.pgxn.org/0001-meta-spec-v1.html

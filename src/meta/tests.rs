@@ -20,19 +20,19 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
             let contents: Value = serde_json::from_reader(File::open(&path)?)?;
 
             // Test try_from path.
-            if let Err(e) = Meta::try_from(&path) {
+            if let Err(e) = Distribution::try_from(&path) {
                 panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap());
             }
 
             // Test try_from str.
             let str: String = fs::read_to_string(&path)?;
-            match Meta::try_from(&str) {
+            match Distribution::try_from(&str) {
                 Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
-                Ok(m) => {
+                Ok(dist) => {
                     if v_dir == "v2" {
-                        assert_eq!(contents.get("license").unwrap(), m.license());
+                        assert_eq!(contents.get("license").unwrap(), dist.license());
                         // Make sure round-trip produces the same JSON.
-                        let output: Result<Value, Box<dyn Error>> = m.try_into();
+                        let output: Result<Value, Box<dyn Error>> = dist.try_into();
                         match output {
                             Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
                             Ok(val) => {
@@ -44,12 +44,12 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
             }
 
             // Test try_from value.
-            match Meta::try_from(contents.clone()) {
+            match Distribution::try_from(contents.clone()) {
                 Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
-                Ok(m) => {
+                Ok(dist) => {
                     if v_dir == "v2" {
                         // Make sure value round-trip produces the same JSON.
-                        let output: Result<String, Box<dyn Error>> = m.try_into();
+                        let output: Result<String, Box<dyn Error>> = dist.try_into();
                         match output {
                             Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
                             Ok(val) => {
@@ -75,7 +75,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
     let mut meta: Value = serde_json::from_reader(File::open(&file)?)?;
 
     // Make sure we catch the validation failure.
-    match Meta::try_from(meta.clone()) {
+    match Distribution::try_from(meta.clone()) {
         Ok(_) => panic!(
             "Should have failed on {:?} but did not",
             file.file_name().unwrap()
@@ -84,7 +84,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
     }
 
     // Make sure we fail on invalid version.
-    match Meta::from_version(99, meta.clone()) {
+    match Distribution::from_version(99, meta.clone()) {
         Ok(_) => panic!(
             "Should have failed on {:?} but did not",
             file.file_name().unwrap()
@@ -94,7 +94,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
 
     // Should fail when no meta-spec.
     meta.as_object_mut().unwrap().remove("meta-spec");
-    match Meta::try_from(meta.clone()) {
+    match Distribution::try_from(meta.clone()) {
         Ok(_) => panic!(
             "Should have failed on {:?} but did not",
             file.file_name().unwrap()
@@ -102,7 +102,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
         Err(e) => assert_eq!("Cannot determine meta-spec version", e.to_string()),
     }
 
-    // Make sure we catch a failure parsing into a Meta struct.
+    // Make sure we catch a failure parsing into a Distribution struct.
     match v2::from_value(json!({"invalid": true})) {
         Ok(_) => panic!("Should have failed on invalid meta contents but did not",),
         Err(e) => assert_eq!("missing field `name`", e.to_string()),
@@ -219,11 +219,11 @@ fn run_merge_case(
     for p in patches {
         meta.push(p);
     }
-    match Meta::try_from(meta.as_slice()) {
+    match Distribution::try_from(meta.as_slice()) {
         Err(e) => panic!("patching {name} failed: {e}"),
-        Ok(m) => {
-            // Convert the Meta object to JSON.
-            let output: Result<Value, Box<dyn Error>> = m.try_into();
+        Ok(dist) => {
+            // Convert the Distribution object to JSON.
+            let output: Result<Value, Box<dyn Error>> = dist.try_into();
             match output {
                 Err(e) => panic!("{name} serialization failed: {e}"),
                 Ok(val) => {
@@ -267,7 +267,7 @@ fn test_try_merge_err() -> Result<(), Box<dyn Error>> {
             "jsonschema validation failed with https://pgxn.org/meta/v2/distribution.schema.json#\n- at '': missing properties 'version'",
         ),
     ] {
-        match Meta::try_from(arg.as_slice()) {
+        match Distribution::try_from(arg.as_slice()) {
             Ok(_) => panic!("patching {name} unexpectedly succeeded"),
             Err(e) => assert_eq!(err, e.to_string(), "{name}"),
         }
@@ -406,11 +406,11 @@ fn test_try_merge_partman() -> Result<(), Box<dyn Error>> {
 
     // Apply the patch.
     let meta = [&original_meta, &patch];
-    match Meta::try_from(&meta[..]) {
+    match Distribution::try_from(&meta[..]) {
         Err(e) => panic!("patching part man failed: {e}"),
-        Ok(m) => {
-            // Convert the Meta object to JSON.
-            let output: Result<Value, Box<dyn Error>> = m.try_into();
+        Ok(dist) => {
+            // Convert the Distributions object to JSON.
+            let output: Result<Value, Box<dyn Error>> = dist.try_into();
             match output {
                 Err(e) => panic!("partman serialization failed: {e}"),
                 Ok(val) => {
@@ -1347,7 +1347,7 @@ fn test_distribution() -> Result<(), Box<dyn Error>> {
         let name = path.as_path().to_str().unwrap();
         let contents: Value = serde_json::from_reader(File::open(&path)?)?;
 
-        match Meta::try_from(&path) {
+        match Distribution::try_from(&path) {
             Err(e) => panic!("{name} failed: {e}"),
             Ok(dist) => {
                 // Required fields.
