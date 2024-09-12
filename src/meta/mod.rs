@@ -8,10 +8,10 @@ Spec `META.json` files. It supports both the [v1] and [v2] specs.
   [v2]: https://github.com/pgxn/rfcs/pull/3
 
 */
-use std::{collections::HashMap, error::Error, fs::File, path::PathBuf};
+use std::{borrow::Borrow, collections::HashMap, error::Error, fs::File, path::PathBuf};
 
 use crate::util;
-use relative_path::RelativePathBuf;
+use relative_path::{RelativePath, RelativePathBuf};
 use semver::Version;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
@@ -22,12 +22,24 @@ mod v2;
 /// Represents the `meta-spec` object in [`Meta`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Spec {
-    version: String,
+    version: Version,
     #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<String>,
     #[serde(flatten)]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
+}
+
+impl Spec {
+    /// Borrows the Spec version.
+    pub fn version(&self) -> &Version {
+        self.version.borrow()
+    }
+
+    /// Borrows the Spec URL.
+    pub fn url(&self) -> Option<&str> {
+        self.url.as_deref()
+    }
 }
 
 /// Maintainer represents an object in the list of `maintainers` in [`Meta`].
@@ -41,6 +53,29 @@ pub struct Maintainer {
     #[serde(flatten)]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
+}
+
+impl Maintainer {
+    /// Borrows the Maintainer name.
+    pub fn name(&self) -> &str {
+        self.name.as_str()
+    }
+
+    /// Borrows the Maintainer email.
+    pub fn email(&self) -> Option<&str> {
+        self.email.as_deref()
+    }
+
+    /// Borrows the Maintainer URL.
+    pub fn url(&self) -> Option<&str> {
+        self.url.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
 }
 
 /// Describes an extension in under `extensions` in [`Contents`].
@@ -60,24 +95,86 @@ pub struct Extension {
     custom_props: HashMap<String, Value>,
 }
 
+impl Extension {
+    /// Borrows the Extension control file location.
+    pub fn control(&self) -> &RelativePathBuf {
+        self.control.borrow()
+    }
+
+    /// Borrows the Extension abstract.
+    pub fn abs_tract(&self) -> Option<&str> {
+        self.abs_tract.as_deref()
+    }
+
+    /// Returns true if the Extension is marked as a trusted language
+    /// extension.
+    pub fn tle(&self) -> bool {
+        self.tle.unwrap_or(false)
+    }
+
+    /// Borrows the Extension sql file location.
+    pub fn sql(&self) -> &RelativePathBuf {
+        self.sql.borrow()
+    }
+
+    /// Borrows the Extension doc file location.
+    pub fn doc(&self) -> Option<&RelativePath> {
+        self.doc.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
+}
+
 /// Defines a type of module in [`Module`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-enum ModuleType {
+pub enum ModuleType {
+    /// Indicates an extension shared library module.
     #[serde(rename = "extension")]
     Extension,
+    /// Indicates a hook shared library module.
     #[serde(rename = "hook")]
     Hook,
+    /// Indicates a background worker shared library module.
     #[serde(rename = "bgw")]
     Bgw,
 }
 
+impl std::fmt::Display for ModuleType {
+    /// fmt writes the sting representation of the ModuleType to f.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ModuleType::Extension => write!(f, "extension"),
+            ModuleType::Hook => write!(f, "hook"),
+            ModuleType::Bgw => write!(f, "bgw"),
+        }
+    }
+}
+
 /// Defines the values for the `preload` value in [`Module`]s.
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-enum Preload {
+pub enum Preload {
+    /// Indicates a module that should be included in
+    /// `shared_preload_libraries` and requires a service restart.
     #[serde(rename = "server")]
     Server,
+    /// Indicates a module that can be loaded in a session via
+    /// `session_preload_libraries` or `local_preload_libraries`.
     #[serde(rename = "session")]
     Session,
+}
+
+impl std::fmt::Display for Preload {
+    /// fmt writes the sting representation of the ModuleType to f.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Preload::Server => write!(f, "server"),
+            Preload::Session => write!(f, "session"),
+        }
+    }
 }
 
 /// Represents a loadable module under `modules` in [`Contents`].
@@ -96,6 +193,39 @@ pub struct Module {
     #[serde(flatten)]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
+}
+
+impl Module {
+    /// Borrows the Module type.
+    pub fn kind(&self) -> &ModuleType {
+        self.kind.borrow()
+    }
+
+    /// Borrows the Module abstract.
+    pub fn abs_tract(&self) -> Option<&str> {
+        self.abs_tract.as_deref()
+    }
+
+    /// Borrows the Module preload value.
+    pub fn preload(&self) -> Option<&Preload> {
+        self.preload.as_ref()
+    }
+
+    /// Borrows the Module library file location.
+    pub fn lib(&self) -> &RelativePathBuf {
+        self.lib.borrow()
+    }
+
+    /// Borrows the Module doc file location.
+    pub fn doc(&self) -> Option<&RelativePath> {
+        self.doc.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
 }
 
 /// Represents an app under `apps` in [`Contents`].
@@ -120,6 +250,49 @@ pub struct App {
     custom_props: HashMap<String, Value>,
 }
 
+impl App {
+    /// Borrows the App lang field.
+    pub fn lang(&self) -> Option<&str> {
+        self.lang.as_deref()
+    }
+
+    /// Borrows the App abstract.
+    pub fn abs_tract(&self) -> Option<&str> {
+        self.abs_tract.as_deref()
+    }
+
+    /// Borrows the App binary file location.
+    pub fn bin(&self) -> &RelativePathBuf {
+        self.bin.borrow()
+    }
+
+    /// Borrows the App library file location.
+    pub fn lib(&self) -> Option<&RelativePath> {
+        self.lib.as_deref()
+    }
+
+    /// Borrows the App doc file location.
+    pub fn doc(&self) -> Option<&RelativePath> {
+        self.doc.as_deref()
+    }
+
+    /// Borrows the App manual file location.
+    pub fn man(&self) -> Option<&RelativePath> {
+        self.man.as_deref()
+    }
+
+    /// Borrows the App HTML file location.
+    pub fn html(&self) -> Option<&RelativePath> {
+        self.html.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
+}
+
 /// Represents the contents of a distribution, under `contents` in [`Meta`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Contents {
@@ -132,6 +305,29 @@ pub struct Contents {
     #[serde(flatten)]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
+}
+
+impl Contents {
+    /// Borrows the Contents extensions object.
+    pub fn extensions(&self) -> Option<&HashMap<String, Extension>> {
+        self.extensions.as_ref()
+    }
+
+    /// Borrows the Contents modules object.
+    pub fn modules(&self) -> Option<&HashMap<String, Module>> {
+        self.modules.as_ref()
+    }
+
+    /// Borrows the Contents apps object.
+    pub fn apps(&self) -> Option<&HashMap<String, App>> {
+        self.apps.as_ref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
 }
 
 /// Represents the classifications of a distribution, under `classifications`
@@ -147,6 +343,24 @@ pub struct Classifications {
     custom_props: HashMap<String, Value>,
 }
 
+impl Classifications {
+    /// Borrows the Classifications tags.
+    pub fn tags(&self) -> Option<&[String]> {
+        self.tags.as_deref()
+    }
+
+    /// Borrows the Classifications categories.
+    pub fn categories(&self) -> Option<&[String]> {
+        self.categories.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
+}
+
 /// Represents Postgres requirements under `postgres` in [`Dependencies`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Postgres {
@@ -158,6 +372,24 @@ pub struct Postgres {
     custom_props: HashMap<String, Value>,
 }
 
+impl Postgres {
+    /// Borrows the Postgres version.
+    pub fn version(&self) -> &str {
+        self.version.as_str()
+    }
+
+    /// Borrows the Postgres with field.
+    pub fn with(&self) -> Option<&[String]> {
+        self.with.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
+}
+
 /// Represents the name of a build pipeline under `pipeline` in
 /// [`Dependencies`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -165,11 +397,11 @@ pub enum Pipeline {
     /// PGXS
     #[serde(rename = "pgxs")]
     Pgxs,
-    #[serde(rename = "meson")]
     /// Meson
+    #[serde(rename = "meson")]
     Meson,
-    #[serde(rename = "pgrx")]
     /// pgrx
+    #[serde(rename = "pgrx")]
     Pgrx,
     /// Autoconf
     #[serde(rename = "autoconf")]
@@ -177,6 +409,19 @@ pub enum Pipeline {
     /// cmake
     #[serde(rename = "cmake")]
     Cmake,
+}
+
+impl std::fmt::Display for Pipeline {
+    /// fmt writes the sting representation of the Pipeline to f.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Pipeline::Pgxs => write!(f, "pgxs"),
+            Pipeline::Meson => write!(f, "meson"),
+            Pipeline::Pgrx => write!(f, "pgrx"),
+            Pipeline::Autoconf => write!(f, "autoconf"),
+            Pipeline::Cmake => write!(f, "cmake"),
+        }
+    }
 }
 
 /// Defines a version range for [`Phase`] dependencies.
@@ -187,6 +432,16 @@ pub enum VersionRange {
     Integer(u8),
     /// Represents a string defining a version range.
     String(String),
+}
+
+impl std::fmt::Display for VersionRange {
+    /// fmt writes the sting representation of the Pipeline to f.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            VersionRange::Integer(int) => write!(f, "{int}"),
+            VersionRange::String(str) => write!(f, "{str}"),
+        }
+    }
 }
 
 /// Defines the relationships for a build phase in [`Packages`].
@@ -203,6 +458,34 @@ pub struct Phase {
     #[serde(flatten)]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
+}
+
+impl Phase {
+    /// Borrows the Phase requires object.
+    pub fn requires(&self) -> Option<&HashMap<String, VersionRange>> {
+        self.requires.as_ref()
+    }
+
+    /// Borrows the Phase recommends object.
+    pub fn recommends(&self) -> Option<&HashMap<String, VersionRange>> {
+        self.recommends.as_ref()
+    }
+
+    /// Borrows the Phase suggests object.
+    pub fn suggests(&self) -> Option<&HashMap<String, VersionRange>> {
+        self.suggests.as_ref()
+    }
+
+    /// Borrows the Phase conflicts object.
+    pub fn conflicts(&self) -> Option<&HashMap<String, VersionRange>> {
+        self.conflicts.as_ref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
 }
 
 /// Defines package dependencies for build phases under `packages` in
@@ -224,15 +507,66 @@ pub struct Packages {
     custom_props: HashMap<String, Value>,
 }
 
+impl Packages {
+    /// Borrows the Packages configure object.
+    pub fn configure(&self) -> Option<&Phase> {
+        self.configure.as_ref()
+    }
+
+    /// Borrows the Packages build object.
+    pub fn build(&self) -> Option<&Phase> {
+        self.build.as_ref()
+    }
+
+    /// Borrows the Packages test object.
+    pub fn test(&self) -> Option<&Phase> {
+        self.test.as_ref()
+    }
+
+    /// Borrows the Packages run object.
+    pub fn run(&self) -> Option<&Phase> {
+        self.run.as_ref()
+    }
+
+    /// Borrows the Packages develop object.
+    pub fn develop(&self) -> Option<&Phase> {
+        self.develop.as_ref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
+}
+
 /// Defines dependency variations under `variations`in  [`Dependencies`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Variations {
     #[serde(rename = "where")]
-    wheres: Box<Dependencies>,
-    dependencies: Box<Dependencies>,
+    wheres: Dependencies,
+    dependencies: Dependencies,
     #[serde(flatten)]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
+}
+
+impl Variations {
+    /// Borrows the Variations wheres field.
+    pub fn wheres(&self) -> &Dependencies {
+        self.wheres.borrow()
+    }
+
+    /// Borrows the Variations dependencies field.
+    pub fn dependencies(&self) -> &Dependencies {
+        self.dependencies.borrow()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
 }
 
 /// Defines the distribution dependencies under `dependencies` in [`Meta`].
@@ -253,6 +587,39 @@ pub struct Dependencies {
     custom_props: HashMap<String, Value>,
 }
 
+impl Dependencies {
+    /// Borrows the Dependencies platforms object.
+    pub fn platforms(&self) -> Option<&[String]> {
+        self.platforms.as_deref()
+    }
+
+    /// Borrows the Dependencies postgres object.
+    pub fn postgres(&self) -> Option<&Postgres> {
+        self.postgres.as_ref()
+    }
+
+    /// Borrows the Dependencies pipeline value.
+    pub fn pipeline(&self) -> Option<&Pipeline> {
+        self.pipeline.as_ref()
+    }
+
+    /// Borrows the Dependencies packages object.
+    pub fn packages(&self) -> Option<&Packages> {
+        self.packages.as_ref()
+    }
+
+    /// Borrows the Dependencies variations collection.
+    pub fn variations(&self) -> Option<&[Variations]> {
+        self.variations.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
+}
+
 /// Defines the badges under `badges` in [`Resources`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Badge {
@@ -263,6 +630,29 @@ pub struct Badge {
     #[serde(flatten)]
     #[serde(deserialize_with = "deserialize_custom_properties")]
     custom_props: HashMap<String, Value>,
+}
+
+impl Badge {
+    /// Borrows the Badge src URL
+    pub fn src(&self) -> &str {
+        self.src.as_str()
+    }
+
+    /// Borrows the Badge alt text.
+    pub fn alt(&self) -> &str {
+        self.alt.as_str()
+    }
+
+    /// Borrows the Badge link URL.
+    pub fn url(&self) -> Option<&str> {
+        self.url.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
 }
 
 /// Defines the resources under `resources` in [`Meta`].
@@ -285,6 +675,44 @@ pub struct Resources {
     custom_props: HashMap<String, Value>,
 }
 
+impl Resources {
+    /// Borrows the Resources homepage URL.
+    pub fn homepage(&self) -> Option<&str> {
+        self.homepage.as_deref()
+    }
+
+    /// Borrows the Resources issues URL.
+    pub fn issues(&self) -> Option<&str> {
+        self.issues.as_deref()
+    }
+
+    /// Borrows the Resources repository URL.
+    pub fn repository(&self) -> Option<&str> {
+        self.repository.as_deref()
+    }
+
+    /// Borrows the Resources docs URL.
+    pub fn docs(&self) -> Option<&str> {
+        self.docs.as_deref()
+    }
+
+    /// Borrows the Resources support URL.
+    pub fn support(&self) -> Option<&str> {
+        self.support.as_deref()
+    }
+
+    /// Borrows the Resources badges objects.
+    pub fn badges(&self) -> Option<&[Badge]> {
+        self.badges.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
+}
+
 /// Defines the artifacts in the array under `artifacts` in [`Meta`].
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Artifact {
@@ -302,8 +730,53 @@ pub struct Artifact {
     custom_props: HashMap<String, Value>,
 }
 
+impl Artifact {
+    /// Borrows the Artifact URL.
+    pub fn url(&self) -> &str {
+        self.url.as_str()
+    }
+
+    /// Borrows the Artifact type.
+    pub fn kind(&self) -> &str {
+        self.kind.as_str()
+    }
+
+    /// Borrows the Artifact platform property.
+    pub fn platform(&self) -> Option<&str> {
+        self.platform.as_deref()
+    }
+
+    /// Borrows the Artifact sha256 property.
+    pub fn sha256(&self) -> Option<&str> {
+        self.sha256.as_deref()
+    }
+
+    /// Borrows the Artifact sha512 property.
+    pub fn sha512(&self) -> Option<&str> {
+        self.sha512.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
+    }
+}
+
 /**
-Represents a complete PGXN Meta definition.
+Represents the `META.json` data from a PGXN distribution.
+
+Use the [TryFrom] traits to load a Meta object from a file, string, or
+[serde_json::Value]. These constructors validate the `META.json` data against
+a JSON schema, provided by the [crate::valid] package. Once loaded, the data
+should never need to be modified; hence the read-only accessors to its
+contents.
+
+For cases where PGXN `META.json` data does need to be modified, use the
+[`TryFrom<&[&Value]>`](#impl-TryFrom%3C%26%5B%26Value%5D%3E-for-Meta) trait to
+merge merge one or more [RFC 7396] patches.
+
+  [RFC 7396]: https://www.rfc-editor.org/rfc/rfc7396.html
 */
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Meta {
@@ -335,7 +808,7 @@ pub struct Meta {
     custom_props: HashMap<String, Value>,
 }
 
-/// Deserializes extra fields starting with `X_` or `x_` into the `custom_properties` HashMap.
+/// Deserializes fields starting with `X_` or `x_` into a HashMap.
 pub fn deserialize_custom_properties<'de, D>(
     deserializer: D,
 ) -> Result<HashMap<String, Value>, D::Error>
@@ -361,9 +834,80 @@ impl Meta {
         }
     }
 
-    /// Returns the license string.
+    /// Borrows the Distribution name.
+    pub fn name(&self) -> &str {
+        self.name.as_str()
+    }
+
+    /// Borrows the Distribution version.
+    pub fn version(&self) -> &Version {
+        self.version.borrow()
+    }
+
+    /// Borrows the Distribution abstract.
+    pub fn abs_tract(&self) -> &str {
+        self.abs_tract.as_str()
+    }
+
+    /// Borrows the Distribution description.
+    pub fn description(&self) -> Option<&str> {
+        self.description.as_deref()
+    }
+
+    /// Borrows the Distribution producer.
+    pub fn producer(&self) -> Option<&str> {
+        self.producer.as_deref()
+    }
+
+    /// Borrows the Distribution license string.
     pub fn license(&self) -> &str {
         self.license.as_str()
+    }
+
+    /// Borrows the Distribution meta spec object.
+    pub fn spec(&self) -> &Spec {
+        self.spec.borrow()
+    }
+
+    /// Borrows the Distribution maintainers collection.
+    pub fn maintainers(&self) -> &[Maintainer] {
+        self.maintainers.borrow()
+    }
+
+    /// Borrows the Dependencies classifications object.
+    pub fn classifications(&self) -> Option<&Classifications> {
+        self.classifications.as_ref()
+    }
+
+    /// Borrows the Distribution contents object.
+    pub fn contents(&self) -> &Contents {
+        self.contents.borrow()
+    }
+
+    /// Borrows the Distribution ignore list.
+    pub fn ignore(&self) -> Option<&[String]> {
+        self.ignore.as_deref()
+    }
+
+    /// Borrows the Distribution meta dependencies object.
+    pub fn dependencies(&self) -> Option<&Dependencies> {
+        self.dependencies.as_ref()
+    }
+
+    /// Borrows the Distribution meta resources object.
+    pub fn resources(&self) -> Option<&Resources> {
+        self.resources.as_ref()
+    }
+
+    /// Borrows the Distribution artifacts list.
+    pub fn artifacts(&self) -> Option<&[Artifact]> {
+        self.artifacts.as_deref()
+    }
+
+    /// Borrows the custom_props object, which holds any `x_` or `X_`
+    /// properties
+    pub fn custom_props(&self) -> &HashMap<String, Value> {
+        self.custom_props.borrow()
     }
 }
 
