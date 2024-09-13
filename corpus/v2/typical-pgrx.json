@@ -79,7 +79,7 @@
     {
       "type": "source",
       "url": "https://github.com/tembo-io/pg-jsonschema-boon/releases/download/v0.1.1/jsonschema-0.1.1.zip",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "sha512": "cfd9447575acb764aba6eb01c9c8ce75a5975c3be103d330a6a22b1a5ff85af8392fd348569b0eefd2d033232c0a5bffead3309d9c39759788889b51d79dd6ef"
     }
   ]
 }

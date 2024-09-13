@@ -136,12 +136,12 @@
     {
       "type": "source",
       "url": "https://github.com/postgresml/postgresml/archive/refs/tags/v2.8.2.zip",
-      "sha256": "2b9d2416096d2930be51e5332b70bcd97846947777a93e4a3d65fe1b5fd7b004"
+      "sha512": "1218fdc10f1fe935e207307665dad62af3093a60c3fd483940a23420942a44044c7d820cf69b19449f439e1f498006563ba13d35f106fc168994a0590242ff0e"
     },
     {
       "type": "source",
       "url": "https://github.com/postgresml/postgresml/archive/refs/tags/v2.8.2.tar.gz",
-      "sha256": "845f28339c6159ac32daccea1cd17b386ea083c3e60bb8d58fb737725afe7eb5"
+      "sha512": "d7f3312717e60dac31312544f1735335844bac61a56240376e26e2b3e017e893ea6f7933a80a768b42e0d1d6e09fc95fdbd170ddd73609fe4e269bfb4f94740a"
     }
   ]
 }

@@ -55,7 +55,7 @@
     {
       "type": "source",
       "url": "https://github.com/theory/pg-envvar/releases/download/v1.0.0/envvar-1.0.0.zip",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "sha512": "4eb99f3a53d31828fe04e098efe4354066b102e5cecaaa2fb638654cf85665b806b4727e40e4c8fd179a942df1658723ee48c805b73fd75cccfb6c9aa15fc58f"
     }
   ]
 }

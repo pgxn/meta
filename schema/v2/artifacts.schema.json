@@ -23,21 +23,13 @@
         "$ref": "platform.schema.json",
         "description": "Identifies the platform the artifact was built for. **RECOMMENDED** for packages compiled for a specific platform, such as a C extension compiled for `linux-arm64`."
       },
-      "sha256": {
-        "type": "string",
-        "pattern": "^[0-9a-fA-F]{64}$",
-        "description": "The SHA-256 checksum for the artifact in hex format."
-      },
       "sha512": {
         "type": "string",
         "pattern": "^[0-9a-fA-F]{128}$",
         "description": "The SHA-512 checksum for the artifact in hex format."
       }
     },
-    "anyOf": [
-      { "required": ["url", "type", "sha256"] },
-      { "required": ["url", "type", "sha512"] }
-    ],
+    "required": ["url", "type", "sha512"],
     "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
     "additionalProperties": false
   },
@@ -46,12 +38,12 @@
       {
         "type": "source",
         "url": "https://github.com/theory/pg-pair/releases/download/v1.1.0/pair-1.1.0.zip",
-        "sha256": "2b9d2416096d2930be51e5332b70bcd97846947777a93e4a3d65fe1b5fd7b004"
+        "sha512": "55570a7de3f0dcf714c25f5d7f1eaf2f00c9a093e02e113d65f479368f30e93b5a2475c3452d63df89b5f612ac99be538acc08c2eb82a9d536f27562dca9482f"
       },
       {
         "type": "binary",
         "url": "https://github.com/theory/pg-pair/releases/download/v1.1.0/pair-1.1.0-linux-amd64.tar.gz",
-        "sha256": "ec33656ba693c01be2b2b500c639846fb0ede7f7f8ee1f4c157bc9cab53c8500"
+        "sha512": "f140129b1b3ed7b4ef123e18abe695acc32167e9d452afd0265ed2f2781777f813c614482e7516bbeb1c92d9ed2f62e7b1b4296102cd5c3a22049a3b2d51c3bd"
       },
       {
         "type": "binary",

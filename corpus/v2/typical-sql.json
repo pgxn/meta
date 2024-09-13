@@ -56,7 +56,7 @@
     {
       "type": "source",
       "url": "https://github.com/theory/kv-pair/releases/download/v0.1.7/pair-0.1.7.zip",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
     }
   ]
 }

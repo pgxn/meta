@@ -2452,7 +2452,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             json!([{
                 "url": "x:y",
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "22e06f682a7fec79f814f06b5dcea0b06133890775ddc624de744cd5d4e8d5fe29863ba5e77c6d3690b610dbcdf7d79a973561fdfbd8454508998446af8f2c58",
             }]),
         ),
         (
@@ -2461,7 +2461,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
                 {
                     "url": "x:y",
                     "type": "bin",
-                    "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                    "sha512": "8002967263d2c9e8fed6600795f051d1ead470cfb022cd9a8fd4ee5f2a5147aa8a8814c43714401a8754c70aef01fd39060690dfd3e4a09acdb5a2c5586ffaf3",
                 },
                 {
                     "url": "a:b",
@@ -2477,7 +2477,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
                     "url": "x:y",
                     "type": "bin",
                     "platform": "linux",
-                    "sha256": "0B68EE2CE5B2C0641C6C429ED2CE17E2ED76DDD58BF9A16E698C5069D60AA34E",
+                    "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 },
                 {
                     "url": "a:b",
@@ -2492,7 +2492,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             json!([{
                 "url": "x:y",
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "x_y": 1,
             }]),
         ),
@@ -2501,7 +2501,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             json!([{
                 "url": "x:y",
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "X_y": true,
             }]),
         ),
@@ -2526,7 +2526,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             json!([{
                 "url": "x:y",
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "x_": 1,
             }]),
         ),
@@ -2535,7 +2535,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             json!([{
                 "url": "x:y",
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "X_": 1,
             }]),
         ),
@@ -2544,7 +2544,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             json!([{
                 "url": "x:y",
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "foo": 1,
             }]),
         ),
@@ -2553,7 +2553,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "url array",
             json!([{
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "url": [],
             }]),
         ),
@@ -2561,7 +2561,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "url object",
             json!([{
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "url": {},
             }]),
         ),
@@ -2569,7 +2569,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "url empty",
             json!([{
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "url": "",
             }]),
         ),
@@ -2577,7 +2577,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "url bool",
             json!([{
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "url": false,
             }]),
         ),
@@ -2585,7 +2585,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "url number",
             json!([{
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "url": 42,
             }]),
         ),
@@ -2593,7 +2593,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "url null",
             json!([{
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "url": null,
             }]),
         ),
@@ -2601,7 +2601,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "url invalid",
             json!([{
                 "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "url": "not a uri",
             }]),
         ),
@@ -2610,7 +2610,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "type array",
             json!([{
                 "url": "x:y",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "type": [],
             }]),
         ),
@@ -2618,7 +2618,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "type object",
             json!([{
                 "url": "x:y",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "type": {},
             }]),
         ),
@@ -2626,7 +2626,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "type empty",
             json!([{
                 "url": "x:y",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "type": "",
             }]),
         ),
@@ -2634,7 +2634,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "type bool",
             json!([{
                 "url": "x:y",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "type": false,
             }]),
         ),
@@ -2642,7 +2642,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "type number",
             json!([{
                 "url": "x:y",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "type": 42,
             }]),
         ),
@@ -2650,7 +2650,7 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "type null",
             json!([{
                 "url": "x:y",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "type": null,
             }]),
         ),
@@ -2658,81 +2658,8 @@ fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
             "type too short",
             json!([{
                 "url": "x:y",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+                "sha512": "297fd4fcd863b31768e8da9900bbef5095f25707585e0aa67ca992e491468e9109dc9d3921eb13499003cc6ebe48fde62162ffb5bbcc4a1c5762c911cdc9efcd",
                 "type": "x",
-            }]),
-        ),
-        // sha256
-        (
-            "sha256 array",
-            json!([{
-                "url": "x:y",
-                "type": "bin",
-                "sha256": [],
-            }]),
-        ),
-        (
-            "sha256 object",
-            json!([{
-                "url": "x:y",
-                "type": "bin",
-                "sha256": {},
-            }]),
-        ),
-        (
-            "sha256 empty",
-            json!([{
-                "url": "x:y",
-                "type": "bin",
-                "sha256": "",
-            }]),
-        ),
-        (
-            "sha256 bool",
-            json!([{
-                "url": "x:y",
-                "type": "bin",
-                "sha256": false,
-            }]),
-        ),
-        (
-            "sha256 number",
-            json!([{
-                "url": "x:y",
-                "type": "bin",
-                "sha256": 42,
-            }]),
-        ),
-        (
-            "sha256 null",
-            json!([{
-                "url": "x:y",
-                "type": "bin",
-                "sha256": null,
-            }]),
-        ),
-        (
-            "sha256 not hex",
-            json!([{
-                "url": "x:y",
-                "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34x",
-            }]),
-        ),
-        (
-            "sha256 too long",
-            json!([{
-                "url": "x:y",
-                "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34ee",
-            }]),
-        ),
-        (
-            "sha256 too short",
-            json!([{
-                "url": "x:y",
-                "type": "bin",
-                "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34",
             }]),
         ),
         // sha512
@@ -3034,7 +2961,7 @@ fn test_v2_distribution() -> Result<(), Box<dyn Error>> {
                 json!([{
                     "type": "source",
                     "url": "https://github.com/theory/pg-pair/releases/download/v1.1.0/pair-1.1.0.zip",
-                    "sha256": "2b9d2416096d2930be51e5332b70bcd97846947777a93e4a3d65fe1b5fd7b004"
+                    "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
                 }]),
             );
         }),
