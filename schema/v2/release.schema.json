@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/release.schema.json",
+  "title": "Release",
+  "description": "Extends the distribution schema to add signed PGXN release metadata.",
+  "type": "object",
+  "unevaluatedProperties": false,
+  "allOf": [
+    { "$ref": "base.schema.json" },
+    {
+      "properties": {
+        "release": { "$ref": "pgxn-jws.schema.json" }
+      },
+      "required": ["release"]
+    }
+  ]
+}

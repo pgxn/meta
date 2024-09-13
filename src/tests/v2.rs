@@ -3261,3 +3261,1184 @@ fn test_v2_distribution() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+
+#[test]
+fn test_v2_digests() -> Result<(), Box<dyn Error>> {
+    // Load the schemas and compile the maintainer schema.
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "digests");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        (
+            "lc sha1",
+            json!({"sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46"}),
+        ),
+        (
+            "uc sha1",
+            json!({"sha1": "D833511C7EBB9C1875426CA8A93EDCACD0787C46"}),
+        ),
+        (
+            "lc sha256",
+            json!({"sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e"}),
+        ),
+        (
+            "uc sha256",
+            json!({"sha256": "0B68EE2CE5B2C0641C6C429ED2CE17E2ED76DDD58BF9A16E698C5069D60AA34E"}),
+        ),
+        (
+            "lc sha512",
+            json!({"sha512": "22e06f682a7fec79f814f06b5dcea0b06133890775ddc624de744cd5d4e8d5fe29863ba5e77c6d3690b610dbcdf7d79a973561fdfbd8454508998446af8f2c58"}),
+        ),
+        (
+            "uc sha512",
+            json!({"sha512": "22E06F682A7FEC79F814F06B5DCEA0B06133890775DDC624DE744CD5D4E8D5FE29863BA5E77C6D3690B610DBCDF7D79A973561FDFBD8454508998446AF8F2C58"}),
+        ),
+        (
+            "all shas",
+            json!({
+              "sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46",
+              "sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e",
+              "sha512": "22e06f682a7fec79f814f06b5dcea0b06133890775ddc624de744cd5d4e8d5fe29863ba5e77c6d3690b610dbcdf7d79a973561fdfbd8454508998446af8f2c58",
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("no shas", json!({})),
+        ("array", json!([])),
+        ("string", json!("2.0.0")),
+        ("empty string", json!("")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        (
+            "unknown field",
+            json!({
+              "sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46",
+              "foo": "hi",
+            }),
+        ),
+        (
+            "custom field x_",
+            json!({
+              "sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46",
+              "x_foo": "hi",
+            }),
+        ),
+        (
+            "custom field X_",
+            json!({
+              "sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46",
+              "x_foo": "hi",
+            }),
+        ),
+        // sha1
+        (
+            "short sha1",
+            json!({"sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c4"}),
+        ),
+        (
+            "long sha1",
+            json!({"sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46a"}),
+        ),
+        (
+            "invalid sha1 hex",
+            json!({"sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46g"}),
+        ),
+        ("empty sha1", json!({"sha1": ""})),
+        ("bool sha1", json!({"sha1": true})),
+        ("number sha1", json!({"sha1": 42})),
+        ("null sha1", json!({"sha1": null})),
+        (
+            "array sha1",
+            json!({"sha1": ["d833511c7ebb9c1875426ca8a93edcacd0787c46"]}),
+        ),
+        (
+            "object sha1",
+            json!({"sha1": {"d833511c7ebb9c1875426ca8a93edcacd0787c46": 1}}),
+        ),
+        // sha256
+        (
+            "short sha256",
+            json!({"sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34"}),
+        ),
+        (
+            "long sha256",
+            json!({"sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34ea"}),
+        ),
+        (
+            "invalid sha256 hex",
+            json!({"sha256": "0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34g"}),
+        ),
+        ("empty sha256", json!({"sha256": ""})),
+        ("bool sha256", json!({"sha256": true})),
+        ("number sha256", json!({"sha256": 42})),
+        ("null sha256", json!({"sha256": null})),
+        (
+            "array sha256",
+            json!({"sha256": ["0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e"]}),
+        ),
+        (
+            "object sha256",
+            json!({"sha256": {"0b68ee2ce5b2c0641c6c429ed2ce17e2ed76ddd58bf9a16e698c5069d60aa34e": 1}}),
+        ),
+        // sha512
+        (
+            "short sha512",
+            json!({"sha512": "22e06f682a7fec79f814f06b5dcea0b06133890775ddc624de744cd5d4e8d5fe29863ba5e77c6d3690b610dbcdf7d79a973561fdfbd8454508998446af8f2c5"}),
+        ),
+        (
+            "long sha512",
+            json!({"sha512": "22e06f682a7fec79f814f06b5dcea0b06133890775ddc624de744cd5d4e8d5fe29863ba5e77c6d3690b610dbcdf7d79a973561fdfbd8454508998446af8f2c58a"}),
+        ),
+        (
+            "invalid sha512 hex",
+            json!({"sha512": "22e06f682a7fec79f814f06b5dcea0b06133890775ddc624de744cd5d4e8d5fe29863ba5e77c6d3690b610dbcdf7d79a973561fdfbd8454508998446af8f2c5g"}),
+        ),
+        ("empty sha512", json!({"sha512": ""})),
+        ("bool sha512", json!({"sha512": true})),
+        ("number sha512", json!({"sha512": 42})),
+        ("null sha512", json!({"sha512": null})),
+        (
+            "array sha512",
+            json!({"sha512": ["22e06f682a7fec79f814f06b5dcea0b06133890775ddc624de744cd5d4e8d5fe29863ba5e77c6d3690b610dbcdf7d79a973561fdfbd8454508998446af8f2c58"]}),
+        ),
+        (
+            "object sha512",
+            json!({"sha512": {"22e06f682a7fec79f814f06b5dcea0b06133890775ddc624de744cd5d4e8d5fe29863ba5e77c6d3690b610dbcdf7d79a973561fdfbd8454508998446af8f2c58": 1}}),
+        ),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
+    // Load the schemas and compile the maintainer schema.
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "pgxn-jws");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        (
+            "basic",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              }
+            }),
+        ),
+        (
+            "multi signature",
+            json!({
+              "headers": ["eyJhbGciOiJSUzI1NiJ9", "eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [
+                "cC4hiUPoj9Eetdgtv3hF80EGrhuB__dzERat0XF9g2VtQgr9PJbu3XOiZj5RZmh7AAuHIm4Bh-0Qc_lF5YKt_O8W2Fp5jujGbds9uJdbF9CUAr7t1dnZcAcQjbKBYNX4BAynRFdiuB--f_nZLgrnbyTyWzO75vRK5h6xBArLIARNPvkSjtQBMHlb1L07Qe7K0GarZRmB_eSN9383LcOLn6_dO--xi12jzDwusC-eOkHWEsqtFZESc6BfI7noOPqvhJ1phCnvWh6IeYI2w9QOYEUipUTI8np6LbgGY9Fs98rqVt5AXLIhWkWywlVmtVrBp0igcN_IoypGlUPQGe77Rw",
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": {
+                "user": "theory",
+                "date": "2024-09-13T17:32:55Z",
+                "uri": "/dist/pair/0.1.7/pair-0.1.7.zip",
+                "digests": {
+                  "sha256": "257b71aa57a28d62ddbb301333b3521ea3dc56f17551fa0e4516b03998abb089",
+                  "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
+                }
+              }
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    let payload = json!({
+      "user": "theory",
+      "date": "2024-07-20T20:34:34Z",
+      "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+      "digests": {
+        "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+      }
+    });
+
+    for (name, json) in [
+        ("no data", json!({})),
+        ("array", json!([])),
+        ("string", json!("2.0.0")),
+        ("empty string", json!("")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        (
+            "unknown field",
+            json!({
+              "sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46",
+              "foo": "hi",
+            }),
+        ),
+        (
+            "custom field x_",
+            json!({
+              "sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46",
+              "x_foo": "hi",
+            }),
+        ),
+        (
+            "custom field X_",
+            json!({
+              "sha1": "d833511c7ebb9c1875426ca8a93edcacd0787c46",
+              "x_foo": "hi",
+            }),
+        ),
+        // headers
+        (
+            "no headers",
+            json!({
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "empty headers",
+            json!({
+              "headers": [],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "null headers",
+            json!({
+              "headers": null,
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "number headers",
+            json!({
+              "headers": 42,
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "string headers",
+            json!({
+              "headers": "eyJhbGciOiJFUzI1NiJ9",
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "bool headers",
+            json!({
+              "headers": true,
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "object headers",
+            json!({
+              "headers": {"x": "eyJhbGciOiJFUzI1NiJ9"},
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "invalid header base64",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9;"],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "header not starting with {",
+            json!({
+              "headers": ["eyLhbGciOiJFUzI1NiJ9"],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "short header",
+            json!({
+              "headers": ["eyJhbGciOiJFUz"],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "empty header",
+            json!({
+              "headers": [""],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "number header",
+            json!({
+              "headers": [42],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "bool header",
+            json!({
+              "headers": [true],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "null header",
+            json!({
+              "headers": [null],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "array header",
+            json!({
+              "headers": [["eyJhbGciOiJFUzI1NiJ9"]],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        (
+            "object header",
+            json!({
+              "headers": [{"x": "eyJhbGciOiJFUzI1NiJ9"}],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": payload,
+            }),
+        ),
+        // signatures
+        (
+            "no signatures",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "payload": payload,
+            }),
+        ),
+        (
+            "empty signatures",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [],
+              "payload": payload,
+            }),
+        ),
+        (
+            "number signatures",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": 42,
+              "payload": payload,
+            }),
+        ),
+        (
+            "bool signatures",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": false,
+              "payload": payload,
+            }),
+        ),
+        (
+            "null signatures",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": null,
+              "payload": payload,
+            }),
+        ),
+        (
+            "string signatures",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-",
+              "payload": payload,
+            }),
+        ),
+        (
+            "object signatures",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": {"x": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"},
+              "payload": payload,
+            }),
+        ),
+        (
+            "null signature",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [null],
+              "payload": payload,
+            }),
+        ),
+        (
+            "bool signature",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [true],
+              "payload": payload,
+            }),
+        ),
+        (
+            "number signature",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [42],
+              "payload": payload,
+            }),
+        ),
+        (
+            "array signature",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"]],
+              "payload": payload,
+            }),
+        ),
+        (
+            "object signature",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [{"x": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"}],
+              "payload": payload,
+            }),
+        ),
+        (
+            "short signature",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx"],
+              "payload": payload,
+            }),
+        ),
+        (
+            "invalid signature base64",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-;"],
+              "payload": payload,
+            }),
+        ),
+        // payload
+        (
+            "no payload",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+            }),
+        ),
+        (
+            "null payload",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": null,
+            }),
+        ),
+        (
+            "number payload",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": 42,
+            }),
+        ),
+        (
+            "string payload",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": "hi",
+            }),
+        ),
+        (
+            "bool payload",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": true,
+            }),
+        ),
+        (
+            "payload array",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": [],
+            }),
+        ),
+        (
+            "empty payload",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {},
+            }),
+        ),
+        // payload user
+        (
+            "payload missing user",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload user empty",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload user number",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": 42,
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload user null",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": null,
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload user bool",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": true,
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload user array",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": ["theory"],
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload user object",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": {"x": "hi"},
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload user too short",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "x",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        // payload date
+        (
+            "payload missing date",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload date null",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": null,
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload date bool",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": true,
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload date number",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": 42,
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload date array",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": ["2024-07-20T20:34:34Z"],
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload date object",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": {"x": "2024-07-20T20:34:34Z"},
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "invalid payload date",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": ["2024-07-20T27:34:34Z"],
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        // payload url
+        (
+            "payload missing uri",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload uri null",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": null,
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload uri number",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": 42,
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload uri bool",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": true,
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload uri empty",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload uri array",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": ["/dist/semver/0.40.0/semver-0.40.0.zip"],
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "payload uri object",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": {"x": "/dist/semver/0.40.0/semver-0.40.0.zip"},
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "invalid payload uri",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "not a URI",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        (
+            "bad payload start",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              },
+            }),
+        ),
+        // payload digests
+        (
+            "payload missing digests",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip"
+              },
+            }),
+        ),
+        (
+            "payload empty digests",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {},
+              },
+            }),
+        ),
+        (
+            "payload invalid digest",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": { "sha1": "nope" },
+              },
+            }),
+        ),
+        (
+            "payload null digests",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": null,
+              },
+            }),
+        ),
+        (
+            "payload number digests",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": 42,
+              },
+            }),
+        ),
+        (
+            "payload string digests",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": "fe8c013f991b5f537c39fb0c0b04bc955457675a",
+              },
+            }),
+        ),
+        (
+            "payload array digests",
+            json!({
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": ["fe8c013f991b5f537c39fb0c0b04bc955457675a"],
+              },
+            }),
+        ),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_v2_release() -> Result<(), Box<dyn Error>> {
+    // Load the schemas and compile the distribution schema.
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let release_id = id_for(SCHEMA_VERSION, "release");
+    let release_idx = compiler.compile(&release_id, &mut schemas)?;
+    let dist_id = id_for(SCHEMA_VERSION, "distribution");
+    let dist_idx = compiler.compile(&dist_id, &mut schemas)?;
+
+    for (name, release_meta) in [
+        (
+            "basic",
+            json!({"release": {
+              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": {
+                "user": "theory",
+                "date": "2024-07-20T20:34:34Z",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "digests": {
+                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                }
+              }
+            }}),
+        ),
+        (
+            "multi signature",
+            json!({"release": {
+              "headers": ["eyJhbGciOiJSUzI1NiJ9", "eyJhbGciOiJFUzI1NiJ9"],
+              "signatures": [
+                "cC4hiUPoj9Eetdgtv3hF80EGrhuB__dzERat0XF9g2VtQgr9PJbu3XOiZj5RZmh7AAuHIm4Bh-0Qc_lF5YKt_O8W2Fp5jujGbds9uJdbF9CUAr7t1dnZcAcQjbKBYNX4BAynRFdiuB--f_nZLgrnbyTyWzO75vRK5h6xBArLIARNPvkSjtQBMHlb1L07Qe7K0GarZRmB_eSN9383LcOLn6_dO--xi12jzDwusC-eOkHWEsqtFZESc6BfI7noOPqvhJ1phCnvWh6IeYI2w9QOYEUipUTI8np6LbgGY9Fs98rqVt5AXLIhWkWywlVmtVrBp0igcN_IoypGlUPQGe77Rw",
+                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+              ],
+              "payload": {
+                "user": "theory",
+                "date": "2024-09-13T17:32:55Z",
+                "uri": "/dist/pair/0.1.7/pair-0.1.7.zip",
+                "digests": {
+                  "sha256": "257b71aa57a28d62ddbb301333b3521ea3dc56f17551fa0e4516b03998abb089",
+                  "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
+                }
+              }
+            }}),
+        ),
+    ] {
+        // Merge the release metadata; the release schema should validate it.
+        let mut meta = valid_v2_distribution();
+        json_patch::merge(&mut meta, &release_meta);
+        if let Err(e) = schemas.validate(&meta, release_idx) {
+            panic!("{name} with release meta failed: {e}");
+        }
+
+        // But it should fail on just distribution metadata.
+        if schemas.validate(&meta, dist_idx).is_ok() {
+            panic!("{name} unexpectedly validated by distribution schema");
+        }
+
+        // Now try invalid cases.
+        for (name, release_meta, err) in [
+            (
+                "no release field",
+                json!({}),
+                "missing properties 'release'",
+            ),
+            (
+                "null release",
+                json!({"release": null}),
+                "missing properties 'release'",
+            ),
+            (
+                "bool release",
+                json!({"release": true}),
+                "'/release': want object, but got boolean",
+            ),
+            (
+                "number release",
+                json!({"release": 42}),
+                "'/release': want object, but got number",
+            ),
+            (
+                "string release",
+                json!({"release": "hi"}),
+                "'/release': want object, but got string",
+            ),
+            (
+                "bool array",
+                json!({"release": [true]}),
+                "'/release': want object, but got array",
+            ),
+            (
+                "empty",
+                json!({"release": {}}),
+                "'/release': missing properties 'headers', 'signatures', 'payload'",
+            ),
+            (
+                "missing headers",
+                json!({"release": {
+                  "signatures": [
+                    "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+                  ],
+                  "payload": {
+                    "user": "theory",
+                    "date": "2024-07-20T20:34:34Z",
+                    "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                    "digests": {
+                      "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                    }
+                  }
+                }}),
+                "'/release': missing properties 'headers'",
+            ),
+            (
+                "missing user",
+                json!({"release": {
+                  "headers": ["eyJhbGciOiJFUzI1NiJ9"],
+                  "signatures": [
+                    "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+                  ],
+                  "payload": {
+                    "date": "2024-07-20T20:34:34Z",
+                    "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                    "digests": {
+                      "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                    }
+                  }
+                }}),
+                "missing properties 'user'",
+            ),
+        ] {
+            // Merge the release metadata; the release schema should validate it.
+            let mut meta = valid_v2_distribution();
+            json_patch::merge(&mut meta, &release_meta);
+            match schemas.validate(&meta, release_idx) {
+                Err(e) => assert!(e.to_string().contains(err), "{name} Error: {e}"),
+                Ok(_) => panic!("{name} unexpectedly succeeded"),
+            }
+        }
+    }
+    Ok(())
+}

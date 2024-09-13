@@ -2087,7 +2087,7 @@ fn test_v1_release() -> Result<(), Box<dyn Error>> {
     // Now try invalid cases.
     for (name, release_meta, err) in [
         (
-            "no release_fields",
+            "no release fields",
             json!({}),
             "missing properties 'user', 'date', 'sha1'",
         ),

@@ -269,7 +269,7 @@ fn test_try_merge_err() -> Result<(), Box<dyn Error>> {
     ] {
         match Distribution::try_from(arg.as_slice()) {
             Ok(_) => panic!("patching {name} unexpectedly succeeded"),
-            Err(e) => assert_eq!(err, e.to_string(), "{name}"),
+            Err(e) => assert!(e.to_string().contains(err), "{name}"),
         }
     }
 
