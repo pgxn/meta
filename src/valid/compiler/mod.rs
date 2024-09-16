@@ -9,17 +9,19 @@ use serde_json::Value;
 /// new returns a new boon::Compiler with the schema files loaded from `dir`
 /// and configured to validate `path` and `license` formats.
 pub fn new() -> Compiler {
-    let schema_v1 = include_str!(concat!(env!("OUT_DIR"), "/pgxn-meta-v1.schema.json"));
-    let schema_v2 = include_str!(concat!(env!("OUT_DIR"), "/pgxn-meta-v2.schema.json"));
+    let schema_v1 = include_str!(concat!(env!("OUT_DIR"), "/pgxn-meta-v1.schemas.json"));
+    let schema_v2 = include_str!(concat!(env!("OUT_DIR"), "/pgxn-meta-v2.schemas.json"));
     let mut compiler = spec_compiler();
 
     for str in [schema_v1, schema_v2] {
-        let schema: Value = serde_json::from_str(str).unwrap();
-        let id = &schema["$id"]
-            .as_str()
-            .ok_or(super::ValidationError::UnknownID)
-            .unwrap();
-        compiler.add_resource(id, schema.to_owned()).unwrap();
+        for line in str.lines() {
+            let schema: Value = serde_json::from_str(line).unwrap();
+            let id = &schema["$id"]
+                .as_str()
+                .ok_or(super::ValidationError::UnknownID)
+                .unwrap();
+            compiler.add_resource(id, schema.to_owned()).unwrap();
+        }
     }
 
     compiler
