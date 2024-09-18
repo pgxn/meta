@@ -14,7 +14,7 @@ fn release_meta() -> Value {
       "payload": {
         "user": "theory",
         "date": "2024-07-20T20:34:34Z",
-        "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+        "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
         "digests": {
           "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
         }
@@ -39,11 +39,6 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
         ),
         (2, release_meta()),
     ] {
-        // Skip version 1 for now.
-        if version == 1 {
-            continue;
-        }
-
         let v_dir = format!("v{version}");
         let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", &v_dir]
             .iter()
@@ -200,6 +195,56 @@ fn test_try_merge_v2() -> Result<(), Box<dyn Error>> {
             json!({"/contents/extensions/pair": {
                 "sql": "sql/pair.sql",
                 "control": "pair.control",
+                "tle": true,
+            }}),
+        ),
+        (
+            "multiple patches",
+            vec![
+                json!({"license": "MIT"}),
+                json!({"classifications": {"categories": ["Analytics", "Connectors"]}}),
+            ],
+            json!({
+                "/license": "MIT",
+                "/classifications/categories": ["Analytics", "Connectors"],
+            }),
+        ),
+    ] {
+        run_merge_case(name, &contents, patches.as_slice(), &expect)?;
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_try_merge_v1() -> Result<(), Box<dyn Error>> {
+    // Load a v1 META file.
+    let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
+    let widget_file = dir.join("v1").join("widget.json");
+    let mut contents: Value = serde_json::from_reader(File::open(&widget_file)?)?;
+
+    // Insert release metadata.
+    let obj = contents.as_object_mut().unwrap();
+    obj.insert("user".to_string(), json!("omar"));
+    obj.insert("date".to_string(), json!("2023-07-23T08:54:32.386"));
+    obj.insert(
+        "sha1".to_string(),
+        json!("ca8716f3b0c65ec10207acbe93e09dadbecfbf92"),
+    );
+
+    // expect maps a JSON pointer to an expected value.
+    for (name, patches, expect) in [
+        (
+            "license",
+            vec![json!({"license": "MIT"})],
+            json!({"/license": "MIT"}),
+        ),
+        (
+            "tle",
+            vec![json!({"contents": {"extensions": {"widget": {"tle": true}}}})],
+            json!({"/contents/extensions/widget": {
+                "sql": "sql/widget.sql.in",
+                "control": "widget.control",
                 "tle": true,
             }}),
         ),

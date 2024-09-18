@@ -3441,7 +3441,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3459,7 +3459,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-09-13T17:32:55Z",
-                "uri": "/dist/pair/0.1.7/pair-0.1.7.zip",
+                "uri": "dist/pair/0.1.7/pair-0.1.7.zip",
                 "digests": {
                   "sha256": "257b71aa57a28d62ddbb301333b3521ea3dc56f17551fa0e4516b03998abb089",
                   "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
@@ -3476,7 +3476,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
     let payload = json!({
       "user": "theory",
       "date": "2024-07-20T20:34:34Z",
-      "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+      "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
       "digests": {
         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
       }
@@ -3847,7 +3847,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
               "payload": {
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3862,7 +3862,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3877,7 +3877,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": 42,
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3892,7 +3892,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": null,
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3907,7 +3907,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": true,
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3922,7 +3922,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": ["theory"],
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3937,7 +3937,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": {"x": "hi"},
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3952,7 +3952,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "x",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3967,7 +3967,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "signatures": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"],
               "payload": {
                 "user": "theory",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3982,7 +3982,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": null,
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -3997,7 +3997,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": true,
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -4012,7 +4012,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": 42,
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -4027,7 +4027,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": ["2024-07-20T20:34:34Z"],
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -4042,7 +4042,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": {"x": "2024-07-20T20:34:34Z"},
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -4057,7 +4057,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": ["2024-07-20T27:34:34Z"],
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -4192,7 +4192,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -4208,7 +4208,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip"
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip"
               },
             }),
         ),
@@ -4220,7 +4220,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {},
               },
             }),
@@ -4233,7 +4233,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": { "sha1": "nope" },
               },
             }),
@@ -4246,7 +4246,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": null,
               },
             }),
@@ -4259,7 +4259,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": 42,
               },
             }),
@@ -4272,7 +4272,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": "fe8c013f991b5f537c39fb0c0b04bc955457675a",
               },
             }),
@@ -4285,7 +4285,7 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": ["fe8c013f991b5f537c39fb0c0b04bc955457675a"],
               },
             }),
@@ -4320,7 +4320,7 @@ fn test_v2_release() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-07-20T20:34:34Z",
-                "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                 "digests": {
                   "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                 }
@@ -4338,7 +4338,7 @@ fn test_v2_release() -> Result<(), Box<dyn Error>> {
               "payload": {
                 "user": "theory",
                 "date": "2024-09-13T17:32:55Z",
-                "uri": "/dist/pair/0.1.7/pair-0.1.7.zip",
+                "uri": "dist/pair/0.1.7/pair-0.1.7.zip",
                 "digests": {
                   "sha256": "257b71aa57a28d62ddbb301333b3521ea3dc56f17551fa0e4516b03998abb089",
                   "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
@@ -4405,7 +4405,7 @@ fn test_v2_release() -> Result<(), Box<dyn Error>> {
                   "payload": {
                     "user": "theory",
                     "date": "2024-07-20T20:34:34Z",
-                    "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                     "digests": {
                       "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                     }
@@ -4422,7 +4422,7 @@ fn test_v2_release() -> Result<(), Box<dyn Error>> {
                   ],
                   "payload": {
                     "date": "2024-07-20T20:34:34Z",
-                    "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                     "digests": {
                       "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                     }

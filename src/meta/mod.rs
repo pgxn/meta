@@ -16,7 +16,7 @@ use semver::Version;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 
-mod v1;
+pub(crate) mod v1;
 mod v2;
 
 /// Represents the `meta-spec` object in [`Distribution`].

@@ -1,5 +1,4 @@
-use super::*;
-
+use super::Distribution;
 use email_address::EmailAddress;
 use serde_json::{json, Map, Value};
 use std::{error::Error, str::FromStr};
@@ -10,7 +9,7 @@ pub fn to_v2(v1: &Value) -> Result<Value, Box<dyn Error>> {
     // Copy common fields.
     let mut v2 = v1_to_v2_common(v1);
 
-    // Convert maintainer.
+    // Convert maintainers.
     v2.insert("maintainers".to_string(), v1_to_v2_maintainers(v1)?);
 
     // Convert license.
@@ -45,7 +44,7 @@ pub fn to_v2(v1: &Value) -> Result<Value, Box<dyn Error>> {
 /// from_value parses v1, which contains PGXN v1 metadata, into a
 /// [`Distribution`] object containing valid PGXN v2 metadata.
 pub fn from_value(v1: Value) -> Result<Distribution, Box<dyn Error>> {
-    Distribution::try_from(to_v2(&v1)?)
+    to_v2(&v1)?.try_into()
 }
 
 /// v1_to_v2_common sets up a new v2 map with compatible fields copied from v1

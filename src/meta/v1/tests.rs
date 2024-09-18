@@ -1,5 +1,5 @@
 use super::*;
-use std::path::PathBuf;
+use std::{fs::File, path::PathBuf};
 
 #[test]
 fn test_v1_v2_common() {

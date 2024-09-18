@@ -178,7 +178,7 @@ mod tests {
                   "payload": {
                     "user": "theory",
                     "date": "2024-07-20T20:34:34Z",
-                    "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                     "digests": {
                       "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                     }
@@ -379,7 +379,7 @@ mod tests {
                   ],
                   "payload": {
                     "date": "2024-07-20T20:34:34Z",
-                    "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                     "digests": {
                       "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                     }
@@ -398,7 +398,7 @@ mod tests {
                   "payload": {
                     "user": "xxx",
                     "date": "2024-07-20T20:34:34Z",
-                    "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
                     "digests": {
                       "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
                     }

@@ -43,11 +43,11 @@
         "uri": {
           "type": "string",
           "format": "uri-reference",
-          "pattern": "^/dist/",
+          "pattern": "^dist/",
           "description": "Path to the release file relative to a PGXN base URL.",
           "examples": [
-            "/dist/pair/0.1.7/pair-0.1.7.zip",
-            "/dist/plv8/3.2.3/plv8-3.2.3.zip"
+            "dist/pair/0.1.7/pair-0.1.7.zip",
+            "dist/plv8/3.2.3/plv8-3.2.3.zip"
           ]
         },
         "digests": {
@@ -60,7 +60,7 @@
         {
           "user": "theory",
           "date": "2024-07-20T20:34:34Z",
-          "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+          "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
           "digests": {
             "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
           }
@@ -68,7 +68,7 @@
         {
           "user": "theory",
           "date": "2024-09-13T17:32:55Z",
-          "uri": "/dist/pair/0.1.7/pair-0.1.7.zip",
+          "uri": "dist/pair/0.1.7/pair-0.1.7.zip",
           "digests": {
             "sha256": "257b71aa57a28d62ddbb301333b3521ea3dc56f17551fa0e4516b03998abb089",
             "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
@@ -88,7 +88,7 @@
       "payload": {
         "user": "theory",
         "date": "2024-07-20T20:34:34Z",
-        "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+        "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
         "digests": {
           "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
         }
@@ -103,7 +103,7 @@
       "payload": {
         "user": "theory",
         "date": "2024-09-13T17:32:55Z",
-        "uri": "/dist/pair/0.1.7/pair-0.1.7.zip",
+        "uri": "dist/pair/0.1.7/pair-0.1.7.zip",
         "digests": {
           "sha256": "257b71aa57a28d62ddbb301333b3521ea3dc56f17551fa0e4516b03998abb089",
           "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"

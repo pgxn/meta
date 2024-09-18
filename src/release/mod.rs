@@ -25,6 +25,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{borrow::Borrow, collections::HashMap, error::Error, fs::File, path::Path};
 
+mod v1;
+mod v2;
+
 /// Digests represents Hash digests for a file that can be used to verify its
 /// integrity.
 #[serde_with::serde_as]
@@ -133,15 +136,12 @@ impl Release {
     // copy/pasting all the Distribution methods, but this will do for now.
     // [delegation]: https://github.com/rust-lang/rfcs/pull/3530
 
-    /// Deserializes `meta`, which contains PGXN disribution release metadata,
-    /// into a [`Release`].
+    /// Deserializes `meta`, which contains PGXN distribution release
+    /// metadata, into a [`Release`].
     fn from_version(version: u8, meta: Value) -> Result<Self, Box<dyn Error>> {
         match version {
-            // 1 => v1::from_value(meta),
-            2 => match serde_json::from_value(meta) {
-                Ok(m) => Ok(m),
-                Err(e) => Err(Box::from(e)),
-            },
+            1 => v1::from_value(meta),
+            2 => v2::from_value(meta),
             _ => Err(Box::from(format!("Unknown meta version {version}"))),
         }
 
@@ -275,7 +275,7 @@ impl TryFrom<Value> for Release {
     ///     "payload": {
     ///       "user": "xxx",
     ///       "date": "2024-07-20T20:34:34Z",
-    ///       "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+    ///       "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
     ///       "digests": {
     ///         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
     ///       }
@@ -339,7 +339,7 @@ impl TryFrom<&[&Value]> for Release {
     ///     "payload": {
     ///       "user": "xxx",
     ///       "date": "2024-07-20T20:34:34Z",
-    ///       "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+    ///       "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
     ///       "digests": {
     ///         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
     ///       }
@@ -367,7 +367,7 @@ impl TryFrom<&[&Value]> for Release {
 
         // Convert the first doc to v2 if necessary.
         let mut v2 = match version {
-            // 1 => v1::to_v2(meta[0])?,
+            1 => v1::to_v2(meta[0])?,
             2 => meta[0].clone(),
             _ => unreachable!(),
         };
@@ -420,7 +420,7 @@ impl TryFrom<Release> for Value {
     ///     "payload": {
     ///       "user": "xxx",
     ///       "date": "2024-07-20T20:34:34Z",
-    ///       "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+    ///       "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
     ///       "digests": {
     ///         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
     ///       }

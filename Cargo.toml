@@ -20,6 +20,7 @@ chrono = { version = "0.4.38", features = ["serde"] }
 email_address = "0.2.9"
 json-patch = "2.0.0"
 lexopt = "0.3.0"
+rand = "0.8.5"
 relative-path = { version = "1.9", features = ["serde"] }
 semver = { version = "1.0", features = ["std", "serde"] }
 serde = { version = "1", features = ["derive"] }
