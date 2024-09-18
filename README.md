@@ -26,7 +26,7 @@ pgxn_meta = "0.2"
 
 ``` rust
 use serde_json::json;
-use pgxn_meta::meta::Distribution;
+use pgxn_meta::dist::Distribution;
 
 func main() {
     // Load the contents of a META.json file into a serde_json::Value.

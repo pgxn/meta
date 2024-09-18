@@ -1,5 +1,5 @@
 use super::Release;
-use crate::meta::v1 as dist;
+use crate::dist::v1 as dist;
 use serde_json::{json, Value};
 use std::error::Error;
 

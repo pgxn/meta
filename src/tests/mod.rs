@@ -4,7 +4,7 @@ mod v2;
 
 #[test]
 fn test_readme_example() {
-    use crate::meta::Distribution;
+    use crate::dist::Distribution;
     use serde_json::json;
 
     // Load the contents of a META.json file into a serde_json::Value.

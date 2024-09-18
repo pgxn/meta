@@ -17,7 +17,7 @@ It supports both the [v1] and [v2] specs.
 
 */
 
-use crate::meta::*;
+use crate::dist::*;
 use crate::util;
 
 use chrono::{DateTime, Utc};

@@ -2,7 +2,7 @@
 PGXN `META.json` validation and management.
 
 This module provides interfaces to load, validate, and manipulate PGXN
-`META.json` files. It supports both the [v1] and [v2] specs.
+distribution `META.json` files. It supports both the [v1] and [v2] specs.
 
   [v1]: https://rfcs.pgxn.org/0001-meta-spec-v1.html
   [v2]: https://github.com/pgxn/rfcs/pull/3
@@ -931,7 +931,7 @@ impl TryFrom<Value> for Distribution {
     /// ``` rust
     /// # use std::error::Error;
     /// use serde_json::json;
-    /// use pgxn_meta::meta::*;
+    /// use pgxn_meta::dist::*;
     ///
     /// let meta_json = json!({
     ///   "name": "pair",
@@ -981,7 +981,7 @@ impl TryFrom<&[&Value]> for Distribution {
     /// ``` rust
     /// # use std::error::Error;
     /// use serde_json::json;
-    /// use pgxn_meta::meta::*;
+    /// use pgxn_meta::dist::*;
     ///
     /// let meta_json = json!({
     ///   "name": "pair",
@@ -1048,7 +1048,7 @@ impl TryFrom<Distribution> for Value {
     /// ``` rust
     /// # use std::error::Error;
     /// use serde_json::{json, Value};
-    /// use pgxn_meta::meta::*;
+    /// use pgxn_meta::dist::*;
     ///
     /// let meta_json = json!({
     ///   "name": "pair",
