@@ -9,7 +9,8 @@
 
 The PGXN Meta [v1] and [v2] specs define the requirements for the metadata
 file (`META.json`) file for [PGXN] source distribution packages. This project
-provides Rust a crates for working with spec `META.json` files.
+provides Rust a crates for working with spec `META.json` files, as well as
+PGXN-generated release `META.json` files.
 
 Crate Usage
 -----------
@@ -58,7 +59,8 @@ See the [`pgxn_meta` docs on docs.rs] for complete details.
 Installation
 ------------
 
-There are several ways to install `pgxn_meta`.
+There are several ways to install the `pgxn_meta` distribution `META.json`
+validation CLI.
 
 ### `ubi`
 

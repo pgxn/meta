@@ -1,5 +1,5 @@
 /*!
-PGXN `META.json` validation and management.
+PGXN distribution `META.json` validation and management.
 
 This module provides interfaces to load, validate, and manipulate PGXN
 distribution `META.json` files. It supports both the [v1] and [v2] specs.

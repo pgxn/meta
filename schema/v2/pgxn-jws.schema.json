@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://pgxn.org/meta/v2/pgxn-jws.schema.json",
   "title": "PGXN Release Metadata",
-  "description": "JSON Web Signature release metadata populated by PGXN. Structure defined by [JWS-JS](https://datatracker.ietf.org/doc/html/draft-jones-json-web-signature-json-serialization-01)",
+  "description": "JSON Web Signature release metadata populated by PGXN. Structure defined by [JWS-JS](https://datatracker.ietf.org/doc/html/draft-jones-json-web-signature-json-serialization-01). Subject to change pending expert review and approval of the [JWS-signing RFC](https://github.com/pgxn/rfcs/pull/5).",
   "type": "object",
   "properties": {
     "headers": {
