@@ -19,8 +19,8 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
             let path = path?.into_path();
             let contents: Value = serde_json::from_reader(File::open(&path)?)?;
 
-            // Test try_from path.
-            if let Err(e) = Distribution::try_from(&path) {
+            // Test load path.
+            if let Err(e) = Distribution::load(&path) {
                 panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap());
             }
 
@@ -1347,7 +1347,7 @@ fn test_distribution() -> Result<(), Box<dyn Error>> {
         let name = path.as_path().to_str().unwrap();
         let contents: Value = serde_json::from_reader(File::open(&path)?)?;
 
-        match Distribution::try_from(&path) {
+        match Distribution::load(&path) {
             Err(e) => panic!("{name} failed: {e}"),
             Ok(dist) => {
                 // Required fields.

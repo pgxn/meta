@@ -8,7 +8,7 @@ This module provides interfaces to load, validate, and manipulate PGXN
   [v2]: https://github.com/pgxn/rfcs/pull/3
 
 */
-use std::{borrow::Borrow, collections::HashMap, error::Error, fs::File, path::PathBuf};
+use std::{borrow::Borrow, collections::HashMap, error::Error, fs::File, path::Path};
 
 use crate::util;
 use relative_path::{RelativePath, RelativePathBuf};
@@ -836,6 +836,14 @@ impl Distribution {
         }
     }
 
+    /// Loads the release `META.json` data from `file` then converts into a
+    /// [`Distribution`]. Returns an error on file error or if the content of
+    /// `file` is not valid PGXN `META.json` data.
+    pub fn load<P: AsRef<Path>>(file: P) -> Result<Self, Box<dyn Error>> {
+        let meta: Value = serde_json::from_reader(File::open(file)?)?;
+        meta.try_into()
+    }
+
     /// Borrows the Distribution name.
     pub fn name(&self) -> &str {
         self.name.as_str()
@@ -1073,24 +1081,13 @@ impl TryFrom<Distribution> for Value {
     }
 }
 
-impl TryFrom<&PathBuf> for Distribution {
-    type Error = Box<dyn Error>;
-    /// Reads the `META.json` data from `file` then converts into a
-    /// [`Distribution`]. Returns an error on file error or if the content of
-    /// `file` is not valid PGXN `META.json` data.
-    fn try_from(file: &PathBuf) -> Result<Self, Self::Error> {
-        let meta: Value = serde_json::from_reader(File::open(file)?)?;
-        Distribution::try_from(meta)
-    }
-}
-
 impl TryFrom<&String> for Distribution {
     type Error = Box<dyn Error>;
     /// Converts `str` into JSON and then into  a [`Distribution`]. Returns an
     /// error if the content of `str` is not valid PGXN `META.json` data.
     fn try_from(str: &String) -> Result<Self, Self::Error> {
         let meta: Value = serde_json::from_str(str)?;
-        Distribution::try_from(meta)
+        meta.try_into()
     }
 }
 
