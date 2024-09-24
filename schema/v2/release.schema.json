@@ -9,9 +9,9 @@
     { "$ref": "base.schema.json" },
     {
       "properties": {
-        "release": { "$ref": "pgxn-jws.schema.json" }
+        "certs": { "$ref": "certs.schema.json" }
       },
-      "required": ["release"]
+      "required": ["certs"]
     }
   ]
 }
