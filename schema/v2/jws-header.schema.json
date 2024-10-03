@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/jws-header.schema.json",
+  "title": "JWS JOSE Header",
+  "description": "[RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515) JSON Web Signature (JWS) [Header](https://datatracker.ietf.org/doc/html/rfc7515#section-4) format, describing the digital signature or MAC applied to the JWS Protected Header and the JWS Payload and optionally additional properties of the JWS.",
+  "type": "object",
+  "properties": {
+    "alg": {
+      "type": "string",
+      "description": "Algorithm: identifies the cryptographic algorithm used to secure the JWS."
+    },
+    "jku": {
+      "type": "string",
+      "format": "uri",
+      "description": "JWK Set URL: a URI that refers to a resource for a set of JSON-encoded public keys, one of which corresponds to the key used to digitally sign the JWS."
+    },
+    "jwk": {
+      "$ref": "jwk.schema.json",
+      "description": "JSON Web Key: the public key that corresponds to the key used to digitally sign the JWS, formatted as a JSON Web Key (JWK)."
+    },
+    "kid": {
+      "type": "string",
+      "description": "Key ID: a hint indicating which key was used to secure the JWS."
+    },
+    "x5u": {
+      "type": "string",
+      "format": "uri",
+      "description": "X.509 URL: a URI that refers to a resource for the X.509 public key certificate or certificate chain corresponding to the key used to digitally sign the JWS."
+    },
+    "x5c": {
+      "type": "array",
+      "description": "X.509 Certificate Chain: the X.509 public key certificate or certificate chain [RFC5280] corresponding to the key used to digitally sign the JWS.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9+/]*={0,2}$",
+        "description": "Base 64-encoded DER PKIX certificate value."
+      }
+    },
+    "x5t": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-_]{12,}$",
+      "description": "X.509 Certificate SHA-1 Thumbprint: Base 64 URL-encoded SHA-1 thumbprint (a.k.a. digest) of the DER encoding of the X.509 certificate corresponding to the key used to digitally sign the JWS."
+    },
+    "x5t#S256": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-_]{12,}$",
+      "description": "X.509 Certificate SHA-256 Thumbprint: Base 64 URL-encoded SHA-256 thumbprint (a.k.a. digest) of the DER encoding of the X.509 certificate corresponding to the key used to digitally sign the JWS."
+    },
+    "typ": {
+      "type": "string",
+      "description": "Type: used by JWS applications to declare the media type of this complete JWS."
+    },
+    "cty": {
+      "type": "string",
+      "description": "Content Type: used by JWS applications to declare the media type [IANA.MediaTypes](https://datatracker.ietf.org/doc/html/rfc7515#ref-IANA.MediaTypes) of the secured content (the payload)."
+    }
+  },
+  "minProperties": 1,
+  "examples": [{ "kid": "2010-12-29" }, { "typ": "JWT", "alg": "HS256" }]
+}

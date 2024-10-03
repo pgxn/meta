@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/jwk.schema.json",
+  "title": "JSON Web Key",
+  "description": "[RFC 7517](https://datatracker.ietf.org/doc/html/rfc7517) JSON Web Key (JWK) format. Supports both the general and flattened syntaxes.",
+  "type": "object",
+  "properties": {
+    "kty": {
+      "type": "string",
+      "description": "Key Type: identifies the cryptographic algorithm family used with the key, such as “RSA”  or “EC”."
+    },
+    "use": {
+      "type": "string",
+      "description": "Public Key Use: identifies the intended use of the public key — encrypting data (“enc”) or verifying the signature on data (“sig”)."
+    },
+    "key_ops": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Key Operations: identifies the operation(s) for which the key is intended to be used, and intended for use cases in which public, private, or symmetric keys may be present."
+    },
+    "alg": {
+      "type": "string",
+      "description": "Algorithm: identifies the algorithm intended for use with the key."
+    },
+    "kid": {
+      "type": "string",
+      "description": "Key ID: used to match a specific key."
+    },
+    "x5u": {
+      "type": "string",
+      "format": "uri",
+      "description": "X.509 URL: a URI  that refers to a resource for an X.509 public key certificate or  certificate chain"
+    },
+    "x5c": {
+      "type": "array",
+      "description": "X.509 Certificate Chain: contains a chain of one or more PKIX certificates",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9+/]*={0,2}$",
+        "description": "Base 64-encoded DER PKIX certificate value."
+      }
+    },
+    "x5t": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-_]{12,}$",
+      "description": "X.509 Certificate SHA-1 Thumbprint: Base 64 URL-encoded SHA-1 thumbprint (a.k.a. digest) of the DER encoding of an X.509 certificate."
+    },
+    "x5t#S256": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-_]{12,}$",
+      "description": "X.509 Certificate SHA-256 Thumbprint: Base 64 URL-encoded SHA-256 thumbprint (a.k.a. digest) of the DER encoding of an X.509 certificate."
+    }
+  },
+  "required": ["kty"],
+  "examples": [
+    {
+      "kty": "EC",
+      "crv": "P-256",
+      "x": "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
+      "y": "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
+      "use": "enc",
+      "kid": "1"
+    },
+    {
+      "kty": "RSA",
+      "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
+      "e": "AQAB",
+      "alg": "RS256",
+      "kid": "2011-04-29"
+    }
+  ]
+}

@@ -16,7 +16,7 @@
             "type": "object",
             "properties": {
               "protected": { "$ref": "#/$defs/protected" },
-              "header": { "$ref": "#/$defs/header" },
+              "header": { "$ref": "jws-header.schema.json" },
               "signature": { "$ref": "#/$defs/signature" }
             },
             "required": ["signature"]
@@ -30,7 +30,7 @@
       "properties": {
         "payload": { "$ref": "#/$defs/payload" },
         "protected": { "$ref": "#/$defs/protected" },
-        "header": { "$ref": "#/$defs/header" },
+        "header": { "$ref": "jws-header.schema.json" },
         "signature": { "$ref": "#/$defs/signature" }
       },
       "required": ["payload", "signature"],
@@ -70,130 +70,6 @@
     }
   ],
   "$defs": {
-    "header": {
-      "type": "object",
-      "properties": {
-        "alg": {
-          "type": "string",
-          "description": "Algorithm: identifies the cryptographic algorithm used to secure the JWS."
-        },
-        "jku": {
-          "type": "string",
-          "format": "uri",
-          "description": "JWK Set URL: a URI that refers to a resource for a set of JSON-encoded public keys, one of which corresponds to the key used to digitally sign the JWS."
-        },
-        "jwk": {
-          "type": "string",
-          "format": "object",
-          "description": "JSON Web Key: the public key that corresponds to the key used to digitally sign the JWS, formatted as a JSON Web Key (JWK).",
-          "properties": {
-            "kty": {
-              "type": "string",
-              "description": "Key Type: identifies the cryptographic algorithm family used with the key, such as “RSA”  or “EC”."
-            },
-            "use": {
-              "type": "string",
-              "description": "Public Key Use: identifies the intended use of the public key — encrypting data (“enc”) or verifying the signature on data (“sig”)."
-            },
-            "key_ops": {
-              "type": "array",
-              "minItems": 1,
-              "items": { "type": "string" },
-              "description": "Key Operations: identifies the operation(s) for which the key is intended to be used, and intended for use cases in which public, private, or symmetric keys may be present."
-            },
-            "alg": {
-              "type": "string",
-              "description": "Algorithm: identifies the algorithm intended for use with the key."
-            },
-            "kid": {
-              "type": "string",
-              "description": "Key ID: used to match a specific key."
-            },
-            "x5u": {
-              "type": "string",
-              "format": "uri",
-              "description": "X.509 URL: a URI  that refers to a resource for an X.509 public key certificate or  certificate chain"
-            },
-            "x5c": {
-              "type": "array",
-              "description": "X.509 Certificate Chain: contains a chain of one or more PKIX certificates",
-              "minItems": 1,
-              "items": {
-                "type": "string",
-                "pattern": "^[A-Za-z0-9+/]*={0,2}$",
-                "description": "Base 64-encoded DER PKIX certificate value."
-              }
-            },
-            "x5t": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9-_]{12,}$",
-              "description": "X.509 Certificate SHA-1 Thumbprint: Base 64 URL-encoded SHA-1 thumbprint (a.k.a. digest) of the DER encoding of an X.509 certificate."
-            },
-            "x5t#S256": {
-              "type": "string",
-              "pattern": "^[A-Za-z0-9-_]{12,}$",
-              "description": "X.509 Certificate SHA-256 Thumbprint: Base 64 URL-encoded SHA-256 thumbprint (a.k.a. digest) of the DER encoding of an X.509 certificate."
-            }
-          },
-          "required": ["kty"],
-          "examples": [
-            {
-              "kty": "EC",
-              "crv": "P-256",
-              "x": "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
-              "y": "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
-              "use": "enc",
-              "kid": "1"
-            },
-            {
-              "kty": "RSA",
-              "n": "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMs tn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw",
-              "e": "AQAB",
-              "alg": "RS256",
-              "kid": "2011-04-29"
-            }
-          ]
-        },
-        "kid": {
-          "type": "string",
-          "description": "Key ID: a hint indicating which key was used to secure the JWS."
-        },
-        "x5u": {
-          "type": "string",
-          "format": "uri",
-          "description": "X.509 URL: a URI that refers to a resource for the X.509 public key certificate or certificate chain corresponding to the key used to digitally sign the JWS."
-        },
-        "x5c": {
-          "type": "array",
-          "description": "X.509 Certificate Chain: the X.509 public key certificate or certificate chain [RFC5280] corresponding to the key used to digitally sign the JWS.",
-          "minItems": 1,
-          "items": {
-            "type": "string",
-            "pattern": "^[A-Za-z0-9+/]*={0,2}$",
-            "description": "Base 64-encoded DER PKIX certificate value."
-          }
-        },
-        "x5t": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9-_]{12,}$",
-          "description": "X.509 Certificate SHA-1 Thumbprint: Base 64 URL-encoded SHA-1 thumbprint (a.k.a. digest) of the DER encoding of the X.509 certificate corresponding to the key used to digitally sign the JWS."
-        },
-        "x5t#S256": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9-_]{12,}$",
-          "description": "X.509 Certificate SHA-256 Thumbprint: Base 64 URL-encoded SHA-256 thumbprint (a.k.a. digest) of the DER encoding of the X.509 certificate corresponding to the key used to digitally sign the JWS."
-        },
-        "typ": {
-          "type": "string",
-          "description": "Type: used by JWS applications to declare the media type of this complete JWS."
-        },
-        "cty": {
-          "type": "string",
-          "description": "Content Type: used by JWS applications to declare the media type [IANA.MediaTypes] of the secured content (the payload)."
-        }
-      },
-      "minProperties": 1
-    },
     "signature": {
       "type": "string",
       "description": "Base 64 URL-encoded signature.",
