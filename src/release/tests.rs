@@ -11,7 +11,9 @@ fn certs() -> Value {
         "pgxn": {
           "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
           "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q",
-        }
+        },
+        "x_yz": true,
+        "x_ab": {"kid": "anna"},
       },
     })
 }
@@ -61,13 +63,17 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
             match Release::try_from(meta.clone()) {
                 Err(e) => panic!("{v_dir}/{bn} failed: {e}"),
                 Ok(release) => {
-                    // Validate that release data was loaded.
+                    // Validate that certs were loaded
                     if version == 2 {
                         assert_eq!(
                             meta.get("license").unwrap(),
                             release.license(),
                             "{v_dir}/{bn} license",
                         );
+                        let certs: HashMap<String, Value> =
+                            serde_json::from_value(meta.get("certs").unwrap().clone()).unwrap();
+                        assert_eq!(&certs, release.certs(), "{v_dir}/{bn} release certs");
+                        // XXX
                         // assert_eq!(
                         //     meta.get("release")
                         //         .unwrap()
@@ -274,8 +280,8 @@ fn run_merge_case(
     patches: &[Value],
     expect: &Value,
 ) -> Result<(), Box<dyn Error>> {
-    let release = certs();
-    let mut meta = vec![orig, &release];
+    let patch = certs();
+    let mut meta = vec![orig, &patch];
     for p in patches {
         meta.push(p);
     }
@@ -421,10 +427,10 @@ fn release() -> Result<(), Box<dyn Error>> {
         match Release::try_from(meta.clone()) {
             Err(e) => panic!("{name} failed: {e}"),
             Ok(rel) => {
-                // Should have the release data.
-                // let jws: ReleaseJws =
-                //     serde_json::from_value(patch.get("release").unwrap().clone())?;
-                // assert_eq!(&jws, rel.release(), "{name} release");
+                // Should have the certs.
+                let certs: HashMap<String, Value> =
+                    serde_json::from_value(patch.get("certs").unwrap().clone())?;
+                assert_eq!(&certs, rel.certs(), "{name} certs");
                 // Required fields.
                 assert_eq!(
                     meta.get("name").unwrap().as_str().unwrap(),

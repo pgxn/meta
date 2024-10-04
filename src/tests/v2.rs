@@ -5188,6 +5188,91 @@ fn test_v2_jws() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
+fn test_v2_certs() -> Result<(), Box<dyn Error>> {
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "certs");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        (
+            "pgxn flattened",
+            json!({"pgxn": {
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }}),
+        ),
+        (
+            "pgxn general",
+            json!({"pgxn": {
+              "payload": "abcdefghijkl",
+              "signatures": [
+                {"signature": "abcdefghijklmnopqrstuvwxyz012345"},
+              ],
+            }}),
+        ),
+        (
+            "pgxn plus additional property x_",
+            json!({
+              "pgxn": {
+                "payload": "abcdefghijkl",
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              },
+              "x_abc": true,
+            }),
+        ),
+        (
+            "pgxn plus additional property X_",
+            json!({
+              "pgxn": {
+                "payload": "abcdefghijkl",
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              },
+              "X_yz": {"kid": "anna"},
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("array", json!(["hi"])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("empty object", json!({})),
+        (
+            "invalid property",
+            json!({
+              "pgxn": {
+                "payload": "abcdefghijkl",
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              },
+              "hi": "there",
+            }),
+        ),
+        ("invalid pgxn", json!({"pgxn": {"payload": "abcdefghijkl"}})),
+        ("pgxn array", json!({"pgxn": ["hi"]})),
+        ("pgxn string", json!({"pgxn": "pgxn hi"})),
+        ("pgxn true", json!({"pgxn": true})),
+        ("pgxn false", json!({"pgxn": false})),
+        ("pgxn null", json!({"pgxn": null})),
+        ("pgxn number", json!({"pgxn": 42})),
+        ("pgxn empty object", json!({"pgxn": {}})),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
 fn test_v2_release() -> Result<(), Box<dyn Error>> {
     // Load the schemas and compile the distribution schema.
     let mut compiler = new_compiler("schema/v2")?;
