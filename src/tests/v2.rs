@@ -4300,6 +4300,180 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
+fn test_v2_jwk() -> Result<(), Box<dyn Error>> {
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "jwk");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        ("kty EC", json!({"kty": "EC"})),
+        ("kty RSA", json!({"kty": "RSA"})),
+        ("kty empty", json!({"kty": ""})),
+        ("use enc", json!({"kty": "EC", "use": "enc"})),
+        ("use sig", json!({"kty": "EC", "use": "sig"})),
+        ("key_ops", json!({"kty": "EC", "key_ops": ["read"]})),
+        (
+            "key_ops 2",
+            json!({"kty": "EC", "key_ops": ["read", "write"]}),
+        ),
+        ("alg", json!({"kty": "EC", "alg": "HS256"})),
+        ("kid", json!({"kty": "EC", "kid": "hi"})),
+        ("x5u", json!({"kty": "EC", "x5u": "https://example.com"})),
+        (
+            "x5c",
+            json!({"kty": "EC", "x5c": ["VGhpcyBpcyBhIHRlc3Q=", "q0V4Ot8L8YlUzZm2BytfHTK0KQLzCyqZrdSpnyAci3E="]}),
+        ),
+        (
+            "x5c 2",
+            json!({"kty": "EC", "x5c": ["VGhpcyBpcyBhIHRlc3Q="]}),
+        ),
+        ("x5t", json!({"kty": "EC", "x5t": "012345678912"})),
+        (
+            "x5t#S256",
+            json!({"kty": "EC", "x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po"}),
+        ),
+        ("other string prop", json!({"kty": "EC", "go": "whatever"})),
+        ("other bool prop", json!({"kty": "EC", "safe": true})),
+        ("custom x_ prop", json!({"kty": "EC", "x_": true})),
+        ("custom X_ prop", json!({"kty": "EC", "X_": true})),
+        (
+            "everything",
+            json!({
+              "kty": "EC",
+              "use": "sig",
+              "key_ops": ["read"],
+              "alg": "HS256",
+              "kid": "42",
+              "x5u": "https://example.com",
+              "x5c": ["VGhpcyBpcyBhIHRlc3Q=", "q0V4Ot8L8YlUzZm2BytfHTK0KQLzCyqZrdSpnyAci3E="],
+              "x5t": "012345678912",
+              "x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po",
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("array", json!(["hi"])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("empty object", json!({})),
+        // kty
+        ("kty array", json!({"kty": ["HS256"]})),
+        ("kty object", json!({"kty": {"HS256": "HS256"}})),
+        ("kty true", json!({"kty": true})),
+        ("kty null", json!({"kty": null})),
+        ("kty number", json!({"kty": 42})),
+        ("no kty", json!({"alg": "HS256"})),
+        // use
+        ("use array", json!({"kty": "EC", "use": ["enc"]})),
+        ("use object", json!({"kty": "EC", "use": {"ecn": true}})),
+        ("use true", json!({"kty": "EC", "use": true})),
+        ("use null", json!({"kty": "EC", "use": null})),
+        ("use number", json!({"kty": "EC", "use": 42})),
+        // key_ops
+        ("key_ops empty array", json!({"kty": "EC", "key_ops": []})),
+        (
+            "key_ops object",
+            json!({"kty": "EC", "key_ops": {"read": true}}),
+        ),
+        ("key_ops true", json!({"kty": "EC", "key_ops": true})),
+        ("key_ops null", json!({"kty": "EC", "key_ops": null})),
+        ("key_ops number", json!({"kty": "EC", "key_ops": 42})),
+        ("key_ops true item", json!({"kty": "EC", "key_ops": [true]})),
+        ("key_ops null item", json!({"kty": "EC", "key_ops": [null]})),
+        ("key_ops number item", json!({"kty": "EC", "key_ops": [42]})),
+        (
+            "key_ops array item",
+            json!({"kty": "EC", "key_ops": [["read"]]}),
+        ),
+        (
+            "key_ops object item",
+            json!({"kty": "EC", "key_ops": [{"read": true}]}),
+        ),
+        // alg
+        ("alg array", json!({"kty": "EC", "alg": ["enc"]})),
+        ("alg object", json!({"kty": "EC", "alg": {"ecn": true}})),
+        ("alg true", json!({"kty": "EC", "alg": true})),
+        ("alg null", json!({"kty": "EC", "alg": null})),
+        ("alg number", json!({"kty": "EC", "alg": 42})),
+        // kid
+        ("kid array", json!({"kty": "EC", "kid": ["enc"]})),
+        ("kid object", json!({"kty": "EC", "kid": {"ecn": true}})),
+        ("kid true", json!({"kty": "EC", "kid": true})),
+        ("kid null", json!({"kty": "EC", "kid": null})),
+        ("kid number", json!({"kty": "EC", "kid": 42})),
+        // x5u
+        ("x5u array", json!({"kty": "EC", "x5u": ["HS256"]})),
+        (
+            "x5u object",
+            json!({"kty": "EC", "x5u": {"HS256": "HS256"}}),
+        ),
+        ("x5u non-uri", json!({"kty": "EC", "x5u": "not a uri"})),
+        ("x5u true", json!({"kty": "EC", "x5u": true})),
+        ("x5u null", json!({"kty": "EC", "x5u": null})),
+        ("x5u number", json!({"kty": "EC", "x5u": 42})),
+        // x5c
+        ("x5c empty array", json!({"kty": "EC", "x5c": []})),
+        ("x5c object", json!({"kty": "EC", "x5c": {"read": true}})),
+        ("x5c true", json!({"kty": "EC", "x5c": true})),
+        ("x5c null", json!({"kty": "EC", "x5c": null})),
+        ("x5c number", json!({"kty": "EC", "x5c": 42})),
+        ("x5c true item", json!({"kty": "EC", "x5c": [true]})),
+        ("x5c null item", json!({"kty": "EC", "x5c": [null]})),
+        ("x5c number item", json!({"kty": "EC", "x5c": [42]})),
+        ("x5c array item", json!({"kty": "EC", "x5c": [["read"]]})),
+        (
+            "x5c object item",
+            json!({"kty": "EC", "x5c": [{"read": true}]}),
+        ),
+        (
+            "x5c not base64",
+            json!({"kty": "EC", "x5c": ["not base64"]}),
+        ),
+        (
+            "x5c base64 URL",
+            json!({"kty": "EC", "x5c": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"]}),
+        ),
+        // x5t
+        ("x5t array", json!({"kty": "EC", "x5t": ["enc"]})),
+        ("x5t object", json!({"kty": "EC", "x5t": {"ecn": true}})),
+        ("x5t true", json!({"kty": "EC", "x5t": true})),
+        ("x5t null", json!({"kty": "EC", "x5t": null})),
+        ("x5t number", json!({"kty": "EC", "x5t": 42})),
+        (
+            "x5t not base64 URL",
+            json!({"kty": "EC", "x5t": "not base64"}),
+        ),
+        // x5t#S256
+        ("x5t#S256 array", json!({"kty": "EC", "x5t#S256": ["enc"]})),
+        (
+            "x5t#S256 object",
+            json!({"kty": "EC", "x5t#S256": {"ecn": true}}),
+        ),
+        ("x5t#S256 true", json!({"kty": "EC", "x5t#S256": true})),
+        ("x5t#S256 null", json!({"kty": "EC", "x5t#S256": null})),
+        ("x5t#S256 number", json!({"kty": "EC", "x5t#S256": 42})),
+        (
+            "x5t#S256 not base64 URL",
+            json!({"kty": "EC", "x5t#S256": "not base64"}),
+        ),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+    Ok(())
+}
+
+#[test]
 fn test_v2_jws_header() -> Result<(), Box<dyn Error>> {
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -4308,8 +4482,27 @@ fn test_v2_jws_header() -> Result<(), Box<dyn Error>> {
 
     for (name, json) in [
         ("alg", json!({"alg": "HS256"})),
-        ("typ", json!({"typ": "MAC"})),
+        ("empty alg", json!({"alg": ""})),
+        ("jku", json!({"jku": "https://example.com"})),
+        ("jwk kty", json!({"jwk": {"kty": "EC"}})),
+        ("jwk kty use", json!({"jwk": {"kty": "EC", "use": "sig"}})),
         ("kid", json!({"kid": "big kid"})),
+        ("empty kid", json!({"kid": ""})),
+        ("x5u", json!({"x5u": "x:y"})),
+        ("x5c", json!({"x5c": ["VGhpcyBpcyBhIHRlc3Q="]})),
+        (
+            "x5c 2",
+            json!({"x5c": ["VGhpcyBpcyBhIHRlc3Q=", "y4MKFQUlW9XrfFXCmZeYXUZkqpc="]}),
+        ),
+        ("x5t", json!({"x5t": "012345678912"})),
+        (
+            "x5t#S256",
+            json!({"x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po"}),
+        ),
+        ("typ", json!({"typ": "extension"})),
+        ("empty typ", json!({"typ": ""})),
+        ("cty", json!({"cty": "text/plain"})),
+        ("empty cty", json!({"cty": ""})),
         (
             "everything",
             json!({
@@ -4322,17 +4515,13 @@ fn test_v2_jws_header() -> Result<(), Box<dyn Error>> {
                 "alg": "HS256",
                 "kid": "99",
                 "x5u": "https://example.com",
-                "x5c": [
-                  "VGhpcyBpcyBhIHRlc3Q="
-                ],
+                "x5c": ["VGhpcyBpcyBhIHRlc3Q="],
                 "x5t": "012345678912",
                 "x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po",
               },
               "kid": "2024-07-01",
               "x5u": "https://example.com",
-              "x5c": [
-                "VGhpcyBpcyBhIHRlc3Q="
-              ],
+              "x5c": ["VGhpcyBpcyBhIHRlc3Q="],
               "x5t": "012345678912",
               "x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po",
               "typ": "extension",
@@ -4351,7 +4540,84 @@ fn test_v2_jws_header() -> Result<(), Box<dyn Error>> {
         ("true", json!(true)),
         ("false", json!(false)),
         ("null", json!(null)),
+        ("number", json!(42)),
         ("empty object", json!({})),
+        // alg
+        ("alg array", json!({"alg": ["HS256"]})),
+        ("alg object", json!({"alg": {"HS256": "HS256"}})),
+        ("alg true", json!({"alg": true})),
+        ("alg null", json!({"alg": null})),
+        ("alg number", json!({"alg": 42})),
+        // jku
+        ("jku array", json!({"jku": ["HS256"]})),
+        ("jku object", json!({"jku": {"HS256": "HS256"}})),
+        ("jku non-uri", json!({"jku": "not a uri"})),
+        ("jku true", json!({"jku": true})),
+        ("jku null", json!({"jku": null})),
+        ("jku number", json!({"jku": 42})),
+        // jwk
+        ("jwk array", json!({"jwk": ["HS256"]})),
+        ("jwk string", json!({"jwk": "hi"})),
+        ("jwk true", json!({"jwk": true})),
+        ("jwk null", json!({"jwk": null})),
+        ("jwk number", json!({"jwk": 42})),
+        ("jwk empty object", json!({"jwk": {}})),
+        ("jwk no kty", json!({"jwk": {"alg": "HS256"}})),
+        // kid
+        ("kid array", json!({"kid": ["HS256"]})),
+        ("kid object", json!({"kid": {"HS256": "HS256"}})),
+        ("kid true", json!({"kid": true})),
+        ("kid null", json!({"kid": null})),
+        ("kid number", json!({"kid": 42})),
+        // x5u
+        ("x5u array", json!({"x5u": ["HS256"]})),
+        ("x5u object", json!({"x5u": {"HS256": "HS256"}})),
+        ("x5u non-uri", json!({"x5u": "not a uri"})),
+        ("x5u true", json!({"x5u": true})),
+        ("x5u null", json!({"x5u": null})),
+        ("x5u number", json!({"x5u": 42})),
+        // x5c
+        ("x5c empty array", json!({"x5c": []})),
+        ("x5c object", json!({"x5c": {"read": true}})),
+        ("x5c true", json!({"x5c": true})),
+        ("x5c null", json!({"x5c": null})),
+        ("x5c number", json!({"x5c": 42})),
+        ("x5c true item", json!({"x5c": [true]})),
+        ("x5c null item", json!({"x5c": [null]})),
+        ("x5c number item", json!({"x5c": [42]})),
+        ("x5c array item", json!({"x5c": [["read"]]})),
+        ("x5c object item", json!({"x5c": [{"read": true}]})),
+        ("x5c not base64", json!({"x5c": ["not base64"]})),
+        (
+            "x5c base64 URL",
+            json!({"x5c": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"]}),
+        ),
+        // x5t
+        ("x5t array", json!({"x5t": ["enc"]})),
+        ("x5t object", json!({"x5t": {"ecn": true}})),
+        ("x5t true", json!({"x5t": true})),
+        ("x5t null", json!({"x5t": null})),
+        ("x5t number", json!({"x5t": 42})),
+        ("x5t not base64 URL", json!({"x5t": "not base64"})),
+        // x5t#S256
+        ("x5t#S256 array", json!({"x5t#S256": ["enc"]})),
+        ("x5t#S256 object", json!({"x5t#S256": {"ecn": true}})),
+        ("x5t#S256 true", json!({"x5t#S256": true})),
+        ("x5t#S256 null", json!({"x5t#S256": null})),
+        ("x5t#S256 number", json!({"x5t#S256": 42})),
+        ("x5t#S256 not base64 URL", json!({"x5t#S256": "not base64"})),
+        // typ
+        ("typ array", json!({"typ": ["extension"]})),
+        ("typ object", json!({"typ": {"extension": "extension"}})),
+        ("typ true", json!({"typ": true})),
+        ("typ null", json!({"typ": null})),
+        ("typ number", json!({"typ": 42})),
+        // cty
+        ("cty array", json!({"cty": ["text/plain"]})),
+        ("cty object", json!({"cty": {"type": "text/plain"}})),
+        ("cty true", json!({"cty": true})),
+        ("cty null", json!({"cty": null})),
+        ("cty number", json!({"cty": 42})),
     ] {
         if schemas.validate(&json, idx).is_ok() {
             panic!("{name} unexpectedly passed!")
@@ -4385,16 +4651,58 @@ fn test_v2_jws() -> Result<(), Box<dyn Error>> {
             }),
         ),
         (
-            "full signature",
+            "full general signature",
             json!({
               "payload": "abcdefghijkl",
               "signatures": [
                 {
                   "signature": "abcdefghijklmnopqrstuvwxyz012345",
                   "protected": "012345678912",
-                  "header": {"kid": "42" },
+                  "header": { "kid": "42" },
                 }
               ]
+            }),
+        ),
+        (
+            "full flattened signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "protected": "012345678912",
+              "header": { "kid": "42" },
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }),
+        ),
+        (
+            "multiple signatures",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [
+                {
+                  "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                  "protected": "012345678912",
+                  "header": { "kid": "42" },
+                },
+                {"signature": "098765432109876543210987654321209"}
+                ]
+            }),
+        ),
+        (
+            "general plus additional properties",
+            json!({
+              "payload": "abcdefghijkl",
+              "hello": "yourself",
+              "signatures": [
+                {"signature": "abcdefghijklmnopqrstuvwxyz012345"}
+              ]
+            }),
+        ),
+        (
+            "flattened plus additional properties",
+            json!({
+              "payload": "abcdefghijkl",
+              "safe": true,
+              "clamp": "u",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
             }),
         ),
     ] {
@@ -4403,9 +4711,478 @@ fn test_v2_jws() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    //   if schemas.validate(&json, idx).is_ok() {
-    //     panic!("{name} unexpectedly passed!")
-    // }
+    for (name, json) in [
+        ("array", json!(["hi"])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("empty object", json!({})),
+        (
+            "no flattened payload",
+            json!({"signature": "abcdefghijklmnopqrstuvwxyz012345"}),
+        ),
+        (
+            "no general payload",
+            json!({"signatures": [{"signature": "abcdefghijklmnopqrstuvwxyz012345"}]}),
+        ),
+        (
+            "no signatures or signature",
+            json!({"payload": "abcdefghijkl"}),
+        ),
+        // payload
+        ("true payload", json!({"payload": true})),
+        ("false payload", json!({"payload": false})),
+        ("null payload", json!({"payload": null})),
+        ("number payload", json!({"payload": 42})),
+        ("array payload", json!({"payload": ["hi"]})),
+        ("object payload", json!({"payload": {}})),
+        ("short payload", json!({"payload": "012345678901"})),
+        ("invalid payload", json!({"payload": "not base64 url"})),
+        // signatures
+        (
+            "true signatures",
+            json!({"payload": "abcdefghijkl", "signatures": true}),
+        ),
+        (
+            "false signatures",
+            json!({"payload": "abcdefghijkl", "signatures": false}),
+        ),
+        (
+            "null signatures",
+            json!({"payload": "abcdefghijkl", "signatures": null}),
+        ),
+        (
+            "string signatures",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": "abcdefghijklmnopqrstuvwxyz012345",
+            }),
+        ),
+        (
+            "number signatures",
+            json!({"payload": "abcdefghijkl", "signatures": 42}),
+        ),
+        (
+            "object signatures",
+            json!({"payload": "abcdefghijkl", "signatures": {
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }}),
+        ),
+        (
+            "empty signatures",
+            json!({"payload": "abcdefghijkl", "signatures": []}),
+        ),
+        // signatures items
+        (
+            "signatures string item",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": ["abcdefghijklmnopqrstuvwxyz012345"],
+            }),
+        ),
+        (
+            "signatures bool item",
+            json!({"payload": "abcdefghijkl", "signatures": [true]}),
+        ),
+        (
+            "signatures null item",
+            json!({"payload": "abcdefghijkl", "signatures": [null]}),
+        ),
+        (
+            "signatures number item",
+            json!({"payload": "abcdefghijkl", "signatures": [42]}),
+        ),
+        (
+            "signatures array item",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [["abcdefghijklmnopqrstuvwxyz012345"]],
+            }),
+        ),
+        (
+            "signatures empty item",
+            json!({"payload": "abcdefghijkl", "signatures": [{}]}),
+        ),
+        // signatures signature
+        (
+            "signatures bool signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": true}],
+            }),
+        ),
+        (
+            "signatures null signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": null}],
+            }),
+        ),
+        (
+            "signatures number signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": 42}],
+            }),
+        ),
+        (
+            "signatures array signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": ["abcdefghijklmnopqrstuvwxyz012345"]}],
+            }),
+        ),
+        (
+            "signatures object signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": {}}],
+            }),
+        ),
+        (
+            "signatures empty string signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": ""}],
+            }),
+        ),
+        (
+            "signatures short signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": "abcdefghijklmnopqrstuvwxyz01234"}],
+            }),
+        ),
+        (
+            "signatures signature not base64",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": "abcdefghijklmnopqrstuvwxyz01234#"}],
+            }),
+        ),
+        // signatures header
+        (
+            "signatures header empty object",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": {},
+              }],
+            }),
+        ),
+        (
+            "signatures header array",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": [],
+              }],
+            }),
+        ),
+        (
+            "signatures header bool",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": true,
+              }],
+            }),
+        ),
+        (
+            "signatures header null",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": null,
+              }],
+            }),
+        ),
+        (
+            "signatures header number",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": 42,
+              }],
+            }),
+        ),
+        (
+            "signatures header invalid",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": {"jku": "not a uri"},
+              }],
+            }),
+        ),
+        // signatures protected
+        (
+            "signatures protected bool",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": true,
+              }],
+            }),
+        ),
+        (
+            "signatures protected null",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": null,
+              }],
+            }),
+        ),
+        (
+            "signatures protected number",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": 42,
+              }],
+            }),
+        ),
+        (
+            "signatures protected array",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": ["012345678912"],
+              }],
+            }),
+        ),
+        (
+            "signatures protected object",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": {"012345678912": true},
+              }],
+            }),
+        ),
+        (
+            "signatures protected empty string",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": "",
+              }],
+            }),
+        ),
+        (
+            "signatures protected too short",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": "01234567891",
+              }],
+            }),
+        ),
+        (
+            "signatures protected not base64",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": "this is not base 64",
+              }],
+            }),
+        ),
+        (
+            "signatures protected not base64 URL",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": "012345678912+",
+              }],
+            }),
+        ),
+        // signature
+        (
+            "true signature",
+            json!({"payload": "abcdefghijkl", "signature": true}),
+        ),
+        (
+            "false signature",
+            json!({"payload": "abcdefghijkl", "signature": false}),
+        ),
+        (
+            "null signature",
+            json!({"payload": "abcdefghijkl", "signature": null}),
+        ),
+        (
+            "number signature",
+            json!({"payload": "abcdefghijkl", "signature": 42}),
+        ),
+        (
+            "array signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": ["abcdefghijklmnopqrstuvwxyz012345"],
+            }),
+        ),
+        (
+            "object signature",
+            json!({"payload": "abcdefghijkl", "signature": {
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }}),
+        ),
+        (
+            "empty signature",
+            json!({"payload": "abcdefghijkl", "signature": ""}),
+        ),
+        (
+            "short signature",
+            json!({"payload": "abcdefghijkl", "signature": "abcdefghijklmnopqrstuvwxyz01234"}),
+        ),
+        (
+            "not base 64 url signature",
+            json!({"payload": "abcdefghijkl", "signature": "abcdefghijklmnopqrstuvwxyz012345+"}),
+        ),
+        // header
+        (
+            "header empty object",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": {},
+            }),
+        ),
+        (
+            "header array",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": [],
+            }),
+        ),
+        (
+            "header bool",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": true,
+            }),
+        ),
+        (
+            "header null",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": null,
+            }),
+        ),
+        (
+            "header number",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": 42,
+            }),
+        ),
+        (
+            "header invalid",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": {"jku": "not a uri"},
+            }),
+        ),
+        // protected
+        (
+            "protected bool",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": true,
+            }),
+        ),
+        (
+            "protected null",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": null,
+            }),
+        ),
+        (
+            "protected number",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": 42,
+            }),
+        ),
+        (
+            "protected array",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": ["012345678912"],
+            }),
+        ),
+        (
+            "protected object",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": {"012345678912": true},
+            }),
+        ),
+        (
+            "protected empty string",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": "",
+            }),
+        ),
+        (
+            "protected too short",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": "01234567891",
+            }),
+        ),
+        (
+            "protected not base64",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": "this is not base 64",
+            }),
+        ),
+        (
+            "protected not base64 URL",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": "012345678912+",
+            }),
+        ),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
 
     Ok(())
 }

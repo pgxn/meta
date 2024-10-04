@@ -2,10 +2,11 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://pgxn.org/meta/v2/jws.schema.json",
   "title": "JWS JSON Serialization",
-  "description": "[RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515) JSON Web Signature (JWS) [JSON Serialization](https://datatracker.ietf.org/doc/html/rfc7515#section-7.2) format. Supports both the general and flattened syntaxes.",
+  "description": "[RFC 7515](https://datatracker.ietf.org/doc/html/rfc7515) JSON Web Signature (JWS) [JSON Serialization](https://datatracker.ietf.org/doc/html/rfc7515#section-7.2). Supports both the general and flattened syntaxes.",
   "type": "object",
   "oneOf": [
     {
+      "$comment": "[General JWS JSON Serialization Syntax](https://datatracker.ietf.org/doc/html/rfc7515#section-7.2.1)",
       "properties": {
         "payload": { "$ref": "#/$defs/payload" },
         "signatures": {
@@ -27,6 +28,7 @@
       "additionalProperties": true
     },
     {
+      "$comment": "[Flattened JWS JSON Serialization Syntax](https://datatracker.ietf.org/doc/html/rfc7515#section-7.2.2)",
       "properties": {
         "payload": { "$ref": "#/$defs/payload" },
         "protected": { "$ref": "#/$defs/protected" },
