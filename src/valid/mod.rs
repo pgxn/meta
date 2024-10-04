@@ -170,18 +170,10 @@ mod tests {
             ),
             (
                 2,
-                json!({"release": {
-                  "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-                  "signatures": [
-                    "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-                  ],
-                  "payload": {
-                    "user": "theory",
-                    "date": "2024-07-20T20:34:34Z",
-                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-                    "digests": {
-                      "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-                    }
+                json!({"certs": {
+                  "pgxn": {
+                    "payload": "abcdefghijkl",
+                    "signature": "abcdefghijklmnopqrstuvwxyz012345",
                   }
                 }}),
             ),
@@ -363,48 +355,30 @@ mod tests {
                 json!({"user": "xxx", "sha1": "0389be689af6992b4da520ec510d147bae411e8b"}),
                 "missing properties 'date'",
             ),
+            ("v2 no certs", &v2, json!({}), "missing properties 'certs'"),
             (
-                "v2 no release",
+                "v2 no pgxn",
                 &v2,
-                json!({}),
-                "missing properties 'release'",
+                json!({"certs": {}}),
+                "'/certs': missing properties 'pgxn'",
             ),
             (
-                "v2 no release user",
+                "v2 no payload",
                 &v2,
-                json!({"release": {
-                  "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-                  "signatures": [
-                    "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-                  ],
-                  "payload": {
-                    "date": "2024-07-20T20:34:34Z",
-                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-                    "digests": {
-                      "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-                    }
-                  }
-                }}),
-                "'/release/payload': missing properties 'user'",
+                json!({"certs": {"pgxn": {"signature": "abcdefghijklmnopqrstuvwxyz012345"}}}),
+                "'/certs/pgxn': missing properties 'payload'",
             ),
             (
-                "v2 no headers",
+                "v2 no signature",
                 &v2,
-                json!({"release": {
-                  "headers": [],
-                  "signatures": [
-                    "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-                  ],
-                  "payload": {
-                    "user": "xxx",
-                    "date": "2024-07-20T20:34:34Z",
-                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-                    "digests": {
-                      "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-                    }
-                  }
-                }}),
-                "'/release/headers': minimum 1 items required, but got 0 items",
+                json!({"certs": {"pgxn": {"payload": "abcdefghijkl"}}}),
+                "'/certs/pgxn': missing properties 'signature'",
+            ),
+            (
+                "v2 no signatures",
+                &v2,
+                json!({"certs": {"pgxn": {"payload": "abcdefghijkl"}}}),
+                "'/certs/pgxn': missing properties 'signatures'",
             ),
         ] {
             let mut meta = meta.clone();
