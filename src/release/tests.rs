@@ -5,21 +5,26 @@ use std::{error::Error, fs::File, io::Write, path::PathBuf};
 use tempfile::NamedTempFile;
 use wax::Glob;
 
-fn release_meta() -> Value {
-    json!({"release": {
-      "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-      "signatures": [
-        "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-      ],
-      "payload": {
-        "user": "theory",
-        "date": "2024-07-20T20:34:34Z",
-        "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-        "digests": {
-          "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+fn certs() -> Value {
+    json!({
+      "certs": {
+        "pgxn": {
+          "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+          "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q",
         }
+      },
+    })
+}
+
+fn payload() -> Value {
+    json!({
+      "user": "theory",
+      "date": "2024-07-20T20:34:34Z",
+      "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+      "digests": {
+        "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
       }
-    }})
+    })
 }
 
 fn release_date() -> DateTime<Utc> {
@@ -28,7 +33,7 @@ fn release_date() -> DateTime<Utc> {
 
 #[test]
 fn test_corpus() -> Result<(), Box<dyn Error>> {
-    for (version, release_patch) in [
+    for (version, patch) in [
         (
             1,
             json!({
@@ -37,7 +42,7 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
               "sha1": "0389be689af6992b4da520ec510d147bae411e8b",
             }),
         ),
-        (2, release_meta()),
+        (2, certs()),
     ] {
         let v_dir = format!("v{version}");
         let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", &v_dir]
@@ -50,7 +55,7 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
             let path = path?.into_path();
             let bn = path.file_name().unwrap().to_str().unwrap();
             let mut meta: Value = serde_json::from_reader(File::open(&path)?)?;
-            json_patch::merge(&mut meta, &release_patch);
+            json_patch::merge(&mut meta, &patch);
 
             // Test try_from value.
             match Release::try_from(meta.clone()) {
@@ -63,16 +68,16 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
                             release.license(),
                             "{v_dir}/{bn} license",
                         );
-                        assert_eq!(
-                            meta.get("release")
-                                .unwrap()
-                                .get("payload")
-                                .unwrap()
-                                .get("user")
-                                .unwrap(),
-                            release.release().payload().user(),
-                            "{v_dir}/{bn} release user",
-                        );
+                        // assert_eq!(
+                        //     meta.get("release")
+                        //         .unwrap()
+                        //         .get("payload")
+                        //         .unwrap()
+                        //         .get("user")
+                        //         .unwrap(),
+                        //     release.release().user(),
+                        //     "{v_dir}/{bn} release user",
+                        // );
 
                         // Make sure round-trip produces the same JSON.
                         let output: Result<Value, Box<dyn Error>> = release.try_into();
@@ -129,7 +134,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
     let mut meta: Value = serde_json::from_reader(File::open(&file)?)?;
 
     // Patch it with release metadata.
-    let patch = release_meta();
+    let patch = certs();
     json_patch::merge(&mut meta, &patch);
 
     // Make sure we catch the validation failure.
@@ -154,22 +159,19 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
         Err(e) => assert_eq!("Cannot determine meta-spec version", e.to_string()),
     }
 
-    // Should fail on missing release object.
+    // Should fail on missing certs object.
     let obj = meta.as_object_mut().unwrap();
     obj.insert("meta-spec".to_string(), json!({"version": "2.0.0"}));
-    obj.remove("release");
+    obj.remove("certs");
     match Release::try_from(meta.clone()) {
-        Ok(_) => panic!("Unexpected success with no release property"),
-        Err(e) => assert!(
-            e.to_string().contains(" missing properties 'release'"),
-            "{e}",
-        ),
+        Ok(_) => panic!("Unexpected success with no certs property"),
+        Err(e) => assert!(e.to_string().contains(" missing properties 'certs'"), "{e}",),
     }
 
     // Make sure we catch a failure parsing into a Release struct.
     match Release::from_version(2, json!({"invalid": true})) {
         Ok(_) => panic!("Unexpected success with invalid schema"),
-        Err(e) => assert_eq!("missing field `release`", e.to_string()),
+        Err(e) => assert_eq!("missing field `certs`", e.to_string()),
     }
 
     Ok(())
@@ -272,7 +274,7 @@ fn run_merge_case(
     patches: &[Value],
     expect: &Value,
 ) -> Result<(), Box<dyn Error>> {
-    let release = release_meta();
+    let release = certs();
     let mut meta = vec![orig, &release];
     for p in patches {
         meta.push(p);
@@ -384,8 +386,7 @@ fn digests() {
 
 #[test]
 fn release_payload() {
-    let release = release_meta();
-    let payload = release.get("release").unwrap().get("payload").unwrap();
+    let payload = payload();
     let date = release_date();
     let sha1 = payload.get("digests").unwrap().get("sha1").unwrap();
     let load: ReleasePayload = serde_json::from_value(payload.clone()).unwrap();
@@ -397,25 +398,6 @@ fn release_payload() {
         hex::encode(load.digests().sha1().unwrap()),
         "payload digests",
     )
-}
-
-#[test]
-fn release_jws() {
-    let release = release_meta();
-    let json = release.get("release").unwrap();
-    let pay: ReleasePayload = serde_json::from_value(json.get("payload").unwrap().clone()).unwrap();
-    let jws: ReleaseJws = serde_json::from_value(json.clone()).unwrap();
-    assert_eq!(
-        json.get("headers").unwrap().as_array().unwrap(),
-        jws.headers(),
-        "headers"
-    );
-    assert_eq!(
-        json.get("signatures").unwrap().as_array().unwrap(),
-        jws.signatures(),
-        "signatures"
-    );
-    assert_eq!(&pay, jws.payload(), "payload");
 }
 
 #[test]
@@ -432,7 +414,7 @@ fn release() -> Result<(), Box<dyn Error>> {
         let mut meta: Value = serde_json::from_reader(File::open(&path)?)?;
 
         // Patch it.
-        let patch = release_meta();
+        let patch = certs();
         json_patch::merge(&mut meta, &patch);
 
         // Load it up.
@@ -440,9 +422,9 @@ fn release() -> Result<(), Box<dyn Error>> {
             Err(e) => panic!("{name} failed: {e}"),
             Ok(rel) => {
                 // Should have the release data.
-                let jws: ReleaseJws =
-                    serde_json::from_value(patch.get("release").unwrap().clone())?;
-                assert_eq!(&jws, rel.release(), "{name} release");
+                // let jws: ReleaseJws =
+                //     serde_json::from_value(patch.get("release").unwrap().clone())?;
+                // assert_eq!(&jws, rel.release(), "{name} release");
                 // Required fields.
                 assert_eq!(
                     meta.get("name").unwrap().as_str().unwrap(),

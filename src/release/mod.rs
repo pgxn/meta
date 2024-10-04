@@ -92,32 +92,6 @@ impl ReleasePayload {
     }
 }
 
-/// ReleaseJws represents JSON Web Signature release metadata populated by
-/// PGXN.
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub struct ReleaseJws {
-    headers: Vec<String>,
-    signatures: Vec<String>,
-    payload: ReleasePayload,
-}
-
-impl ReleaseJws {
-    /// Borrows the signature headers.
-    pub fn headers(&self) -> &[String] {
-        self.headers.as_slice()
-    }
-
-    /// Borrows the signatures.
-    pub fn signatures(&self) -> &[String] {
-        self.signatures.as_slice()
-    }
-
-    /// Borrows the release payload.
-    pub fn payload(&self) -> &ReleasePayload {
-        self.payload.borrow()
-    }
-}
-
 /**
 
 Represents metadata for a PGXN release, which is the same as [`Distribution`]
@@ -128,7 +102,8 @@ plus [`ReleaseJws`] that contains signed metadata about the release to PGXN.
 pub struct Release {
     #[serde(flatten)]
     dist: Distribution,
-    release: ReleaseJws,
+    certs: HashMap<String, Value>,
+    // release: ReleasePayload,
 }
 
 impl Release {
@@ -227,8 +202,13 @@ impl Release {
     }
 
     /// Borrows the Distribution release metadata.
-    pub fn release(&self) -> &ReleaseJws {
-        self.release.borrow()
+    // pub fn release(&self) -> &ReleasePayload {
+    //     self.release.borrow()
+    // }
+
+    /// Borrows the Distribution certifications.
+    pub fn certs(&self) -> &HashMap<String, Value> {
+        self.certs.borrow()
     }
 
     /// Borrows the custom_props object, which holds any `x_` or `X_`
@@ -267,18 +247,10 @@ impl TryFrom<Value> for Release {
     ///     }
     ///   },
     ///   "meta-spec": { "version": "2.0.0" },
-    ///   "release": {
-    ///     "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-    ///     "signatures": [
-    ///       "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-    ///     ],
-    ///     "payload": {
-    ///       "user": "xxx",
-    ///       "date": "2024-07-20T20:34:34Z",
-    ///       "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-    ///       "digests": {
-    ///         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-    ///       }
+    ///   "certs": {
+    ///     "pgxn": {
+    ///       "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+    ///       "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
     ///     }
     ///   }
     /// });
@@ -331,18 +303,10 @@ impl TryFrom<&[&Value]> for Release {
     ///     }
     ///   },
     ///   "meta-spec": { "version": "2.0.0" },
-    ///   "release": {
-    ///     "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-    ///     "signatures": [
-    ///       "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-    ///     ],
-    ///     "payload": {
-    ///       "user": "xxx",
-    ///       "date": "2024-07-20T20:34:34Z",
-    ///       "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-    ///       "digests": {
-    ///         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-    ///       }
+    ///   "certs": {
+    ///     "pgxn": {
+    ///       "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+    ///       "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
     ///     }
     ///   }
     /// });
@@ -412,18 +376,10 @@ impl TryFrom<Release> for Value {
     ///     }
     ///   },
     ///   "meta-spec": { "version": "2.0.0" },
-    ///   "release": {
-    ///     "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-    ///     "signatures": [
-    ///       "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-    ///     ],
-    ///     "payload": {
-    ///       "user": "xxx",
-    ///       "date": "2024-07-20T20:34:34Z",
-    ///       "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-    ///       "digests": {
-    ///         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-    ///       }
+    ///   "certs": {
+    ///     "pgxn": {
+    ///       "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+    ///       "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
     ///     }
     ///   }
     /// });
