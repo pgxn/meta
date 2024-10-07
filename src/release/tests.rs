@@ -35,16 +35,18 @@ fn release_date() -> DateTime<Utc> {
 
 #[test]
 fn test_corpus() -> Result<(), Box<dyn Error>> {
+    let certs = certs();
+    let payload = get_payload(&certs);
     for (version, patch) in [
         (
             1,
             json!({
-              "user": "theory",
-              "date": "2019-09-23T17:16:45Z",
+              "user": payload.user,
+              "date": payload.date,
               "sha1": "0389be689af6992b4da520ec510d147bae411e8b",
             }),
         ),
-        (2, certs()),
+        (2, certs),
     ] {
         let v_dir = format!("v{version}");
         let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", &v_dir]
@@ -73,17 +75,11 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
                         let certs: HashMap<String, Value> =
                             serde_json::from_value(meta.get("certs").unwrap().clone()).unwrap();
                         assert_eq!(&certs, release.certs(), "{v_dir}/{bn} release certs");
-                        // XXX
-                        // assert_eq!(
-                        //     meta.get("release")
-                        //         .unwrap()
-                        //         .get("payload")
-                        //         .unwrap()
-                        //         .get("user")
-                        //         .unwrap(),
-                        //     release.release().user(),
-                        //     "{v_dir}/{bn} release user",
-                        // );
+                        assert_eq!(
+                            payload.user,
+                            release.release().user(),
+                            "{v_dir}/{bn} release user"
+                        );
 
                         // Make sure round-trip produces the same JSON.
                         let output: Result<Value, Box<dyn Error>> = release.try_into();
@@ -128,6 +124,25 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
     }
 
     Ok(())
+}
+
+fn get_payload(meta: &Value) -> ReleasePayload {
+    use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
+    let b64 = meta
+        .get("certs")
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .get("pgxn")
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .get("payload")
+        .unwrap()
+        .as_str()
+        .unwrap();
+    let json = URL_SAFE_NO_PAD.decode(b64).unwrap();
+    serde_json::from_slice(&json).unwrap()
 }
 
 #[test]
@@ -421,6 +436,7 @@ fn release() -> Result<(), Box<dyn Error>> {
 
         // Patch it.
         let patch = certs();
+        let payload = get_payload(&patch);
         json_patch::merge(&mut meta, &patch);
 
         // Load it up.
@@ -431,6 +447,8 @@ fn release() -> Result<(), Box<dyn Error>> {
                 let certs: HashMap<String, Value> =
                     serde_json::from_value(patch.get("certs").unwrap().clone())?;
                 assert_eq!(&certs, rel.certs(), "{name} certs");
+                // Should have the release payload.
+                assert_eq!(&payload, rel.release(), "{name} release");
                 // Required fields.
                 assert_eq!(
                     meta.get("name").unwrap().as_str().unwrap(),
@@ -519,6 +537,49 @@ fn release() -> Result<(), Box<dyn Error>> {
                 }
                 assert_eq!(&exes_from(&meta), rel.custom_props(), "{name} custom_props");
             }
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn release_deserialize_err() -> Result<(), Box<dyn Error>> {
+    // Load a v2 META file.
+    let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
+    let widget_file = dir.join("v2").join("minimal.json");
+    let meta: Value = serde_json::from_reader(File::open(&widget_file)?)?;
+
+    for (name, patch, err) in [
+        ("missing certs", json!({}), "missing field `certs`"),
+        (
+            "missing pgxn",
+            json!({"certs": {}}),
+            "invalid or missing pgxn release data",
+        ),
+        (
+            "missing payload",
+            json!({"certs": {"pgxn": {}}}),
+            "missing or invalid pgxn payload",
+        ),
+        (
+            "invalid base64",
+            json!({"certs": {"pgxn": {"payload": "not base64"}}}),
+            "Invalid symbol 32, offset 3.",
+        ),
+        (
+            "invalid json",
+            json!({"certs": {"pgxn": {"payload": "bm90IGpzb24"}}}),
+            "expected ident at line 1 column 2",
+        ),
+    ] {
+        let mut meta = meta.clone();
+        json_patch::merge(&mut meta, &patch);
+
+        match Release::deserialize(meta.clone()) {
+            Ok(_) => panic!("{name} unexpectedly succeeded"),
+            Err(e) => assert_eq!(err, e.to_string()),
+            // Err(e) => assert!(e.to_string().contains(err), "{name}: {e}"),
         }
     }
 

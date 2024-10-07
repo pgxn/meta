@@ -134,7 +134,7 @@ impl<'de> Deserialize<'de> for Release {
 
         // Now deserialize and validate the pgxn release JWS.
         if let Some(Value::Object(jws)) = rel.certs.get("pgxn") {
-            // XXX Use the jose_jws crate to validate signature here.
+            // XXX Use the= jose_jws crate to validate signature here.
             // Convert the payload from base64-encoded JSON into a ReleasePayload.
             if let Some(Value::String(b64)) = jws.get("payload") {
                 let json = URL_SAFE_NO_PAD.decode(b64).map_err(de::Error::custom)?;
@@ -152,28 +152,6 @@ impl<'de> Deserialize<'de> for Release {
         }
         Err(de::Error::custom("invalid or missing pgxn release data"))
     }
-}
-
-/// Deserializes the pgxn release payload from the certs property.
-pub fn deserialize_payload<'de, D>(deserializer: D) -> Result<ReleasePayload, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
-    let map: HashMap<String, Value> = HashMap::deserialize(deserializer)?;
-    println!("{:?}", map);
-    if let Some(Value::Object(certs)) = map.get("certs") {
-        if let Some(Value::Object(rel)) = certs.get("pgxn") {
-            // XXX Validate signature here.
-            if let Some(Value::String(b64)) = rel.get("payload") {
-                let pay = URL_SAFE_NO_PAD.decode(b64).map_err(de::Error::custom)?;
-                return serde_json::from_slice(&pay).map_err(de::Error::custom);
-            }
-            return Err(de::Error::custom("missing or invalid pgxn payload"));
-        }
-        return Err(de::Error::custom("invalid or missing pgxn release data"));
-    }
-    Err(de::Error::custom("invalid or missing certs property"))
 }
 
 impl Release {
@@ -272,9 +250,9 @@ impl Release {
     }
 
     /// Borrows the Distribution release metadata.
-    // pub fn release(&self) -> &ReleasePayload {
-    //     self.release.borrow()
-    // }
+    pub fn release(&self) -> &ReleasePayload {
+        self.release.borrow()
+    }
 
     /// Borrows the Distribution certifications.
     pub fn certs(&self) -> &HashMap<String, Value> {
