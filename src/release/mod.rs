@@ -21,7 +21,7 @@ use crate::dist::*;
 use crate::util;
 
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::{de, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use std::{borrow::Borrow, collections::HashMap, error::Error, fs::File, path::Path};
 
@@ -92,18 +92,88 @@ impl ReleasePayload {
     }
 }
 
+// #[derive(Serialize, Deserialize, PartialEq, Debug)]
+// pub struct Certs {
+//     #[serde(flatten)]
+//     all: HashMap<String, Value>,
+//     pgxn: ReleasePayload,
+// }
+
 /**
 
 Represents metadata for a PGXN release, which is the same as [`Distribution`]
 plus [`ReleaseJws`] that contains signed metadata about the release to PGXN.
 
 */
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, PartialEq, Debug)]
 pub struct Release {
     #[serde(flatten)]
     dist: Distribution,
     certs: HashMap<String, Value>,
-    // release: ReleasePayload,
+    #[serde(skip_serializing)]
+    release: ReleasePayload,
+}
+
+impl<'de> Deserialize<'de> for Release {
+    /// deserialize deserializes a
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
+
+        // First deserialize into a struct with just the dist and certs, since
+        // that's what's in the JSON.
+        #[derive(Deserialize)]
+        struct ReleaseInitial {
+            #[serde(flatten)]
+            dist: Distribution,
+            certs: HashMap<String, Value>,
+        }
+        let rel = ReleaseInitial::deserialize(deserializer)?;
+
+        // Now deserialize and validate the pgxn release JWS.
+        if let Some(Value::Object(jws)) = rel.certs.get("pgxn") {
+            // XXX Use the jose_jws crate to validate signature here.
+            // Convert the payload from base64-encoded JSON into a ReleasePayload.
+            if let Some(Value::String(b64)) = jws.get("payload") {
+                let json = URL_SAFE_NO_PAD.decode(b64).map_err(de::Error::custom)?;
+                let payload: ReleasePayload =
+                    serde_json::from_slice(&json).map_err(de::Error::custom)?;
+
+                // Return the complete Release struct.
+                return Ok(Release {
+                    dist: rel.dist,
+                    certs: rel.certs,
+                    release: payload,
+                });
+            }
+            return Err(de::Error::custom("missing or invalid pgxn payload"));
+        }
+        Err(de::Error::custom("invalid or missing pgxn release data"))
+    }
+}
+
+/// Deserializes the pgxn release payload from the certs property.
+pub fn deserialize_payload<'de, D>(deserializer: D) -> Result<ReleasePayload, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
+    let map: HashMap<String, Value> = HashMap::deserialize(deserializer)?;
+    println!("{:?}", map);
+    if let Some(Value::Object(certs)) = map.get("certs") {
+        if let Some(Value::Object(rel)) = certs.get("pgxn") {
+            // XXX Validate signature here.
+            if let Some(Value::String(b64)) = rel.get("payload") {
+                let pay = URL_SAFE_NO_PAD.decode(b64).map_err(de::Error::custom)?;
+                return serde_json::from_slice(&pay).map_err(de::Error::custom);
+            }
+            return Err(de::Error::custom("missing or invalid pgxn payload"));
+        }
+        return Err(de::Error::custom("invalid or missing pgxn release data"));
+    }
+    Err(de::Error::custom("invalid or missing certs property"))
 }
 
 impl Release {

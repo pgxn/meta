@@ -47,7 +47,7 @@ fn test_v1_v2_release() {
         }
 
         // Decode the payload and make sure it's correct.
-        let pay: Value = serde_json::from_slice(pay.as_slice()).unwrap();
+        let pay: Value = serde_json::from_slice(&pay).unwrap();
         assert_eq!(input.get("user"), pay.get("user"), "{name} user");
         assert_eq!(input.get("date"), pay.get("date"), "{name} date");
         let uri = Value::String(format!(
