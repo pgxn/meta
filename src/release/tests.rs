@@ -572,6 +572,11 @@ fn release_deserialize_err() -> Result<(), Box<dyn Error>> {
             json!({"certs": {"pgxn": {"payload": "bm90IGpzb24"}}}),
             "expected ident at line 1 column 2",
         ),
+        (
+            "invalid payload",
+            json!({"certs": {"pgxn": {"payload": "eyJ1c2VyIjogIm5hb21pIn0"}}}),
+            "jsonschema validation failed with https://pgxn.org/meta/v2/payload.schema.json#\n- at '': missing properties 'date', 'uri', 'digests'",
+        ),
     ] {
         let mut meta = meta.clone();
         json_patch::merge(&mut meta, &patch);
@@ -579,7 +584,6 @@ fn release_deserialize_err() -> Result<(), Box<dyn Error>> {
         match Release::deserialize(meta.clone()) {
             Ok(_) => panic!("{name} unexpectedly succeeded"),
             Err(e) => assert_eq!(err, e.to_string()),
-            // Err(e) => assert!(e.to_string().contains(err), "{name}: {e}"),
         }
     }
 

@@ -139,11 +139,16 @@ impl<'de> Deserialize<'de> for Release {
         use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
         let json = URL_SAFE_NO_PAD.decode(b64).map_err(de::Error::custom)?;
 
+        // Parse and validate the JSON.
+        let pay = serde_json::from_slice(&json).map_err(de::Error::custom)?;
+        let mut v = crate::valid::Validator::new();
+        v.validate_payload(&pay).map_err(de::Error::custom)?;
+
         // Decode the ReleasePayload and return the complete Release struct.
         Ok(Release {
             dist: rel.dist,
             certs: rel.certs,
-            release: serde_json::from_slice(&json).map_err(de::Error::custom)?,
+            release: serde_json::from_value(pay).map_err(de::Error::custom)?,
         })
     }
 }
