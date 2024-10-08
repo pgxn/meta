@@ -152,10 +152,7 @@ impl Validator {
     /// [JSON Serialization]: https://datatracker.ietf.org/doc/html/rfc7515#section-7.2
     /// [RFC 5]: https://github.com/pgxn/rfcs/pull/5
     pub fn validate_payload<'a>(&'a mut self, meta: &'a Value) -> Result<(), Box<dyn Error + 'a>> {
-        match self.validate_schema(meta, "payload.schema.json") {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
-        }
+        self.validate_version_schema(meta, 2, "payload.schema.json")
     }
 
     fn validate_schema<'a>(
@@ -164,6 +161,15 @@ impl Validator {
         schema: &str,
     ) -> Result<u8, Box<dyn Error + 'a>> {
         let v = util::get_version(meta).ok_or(ValidationError::UnknownSpec)?;
+        self.validate_version_schema(meta, v, schema).map(|()| v)
+    }
+
+    fn validate_version_schema<'a>(
+        &'a mut self,
+        meta: &'a Value,
+        v: u8,
+        schema: &str,
+    ) -> Result<(), Box<dyn Error + 'a>> {
         let id = format!("{SCHEMA_BASE}{v}/{schema}");
 
         let compiler = &mut self.compiler;
@@ -171,7 +177,7 @@ impl Validator {
         let idx = compiler.compile(&id, schemas)?;
         schemas.validate(meta, idx)?;
 
-        Ok(v)
+        Ok(())
     }
 }
 
@@ -414,6 +420,86 @@ mod tests {
             match validator.validate_release(&meta) {
                 Err(e) => assert!(e.to_string().contains(err), "{name}: {e}"),
                 Ok(_) => panic!("{name} validate_release unexpectedly succeeded"),
+            };
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_payload() -> Result<(), Box<dyn Error>> {
+        let mut validator = Validator::new();
+        for (name, payload) in [
+            (
+                "sha1",
+                json!({
+                  "user": "theory",
+                  "date": "2024-07-20T20:34:34Z",
+                  "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+                  "digests": {
+                    "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+                  }
+                }),
+            ),
+            (
+                "multiple digests",
+                json!({
+                "user": "theory",
+                "date": "2024-09-13T17:32:55Z",
+                "uri": "dist/pair/0.1.7/pair-0.1.7.zip",
+                "digests": {
+                    "sha256": "257b71aa57a28d62ddbb301333b3521ea3dc56f17551fa0e4516b03998abb089",
+                    "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
+                }
+                }),
+            ),
+        ] {
+            if let Err(e) = validator.validate_payload(&payload) {
+                panic!("{name} validate failed: {e}");
+            }
+        }
+
+        let pay = json!({
+          "user": "theory",
+          "date": "2024-07-20T20:34:34Z",
+          "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+          "digests": {
+            "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+          }
+        });
+        for (name, patch, err) in [
+            (
+                "no user",
+                json!({"user": null}),
+                "'': missing properties 'user'",
+            ),
+            (
+                "no date",
+                json!({"date": null}),
+                "'': missing properties 'date'",
+            ),
+            (
+                "no uri",
+                json!({"uri": null}),
+                "'': missing properties 'uri'",
+            ),
+            (
+                "no digests",
+                json!({"digests": null}),
+                "'': missing properties 'digests'",
+            ),
+            (
+                "empty digests",
+                json!({"digests": {"sha1": null}}),
+                "'/digests': minimum 1 properties required, but got 0 properties",
+            ),
+        ] {
+            let mut pay = pay.clone();
+            json_patch::merge(&mut pay, &patch);
+
+            match validator.validate_payload(&pay) {
+                Err(e) => assert!(e.to_string().contains(err), "{name}: {e}"),
+                Ok(_) => panic!("{name} validate_payload unexpectedly succeeded"),
             };
         }
 
