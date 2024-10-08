@@ -118,17 +118,44 @@ impl Validator {
     /// Validates PGXN release distribution metadata.
     ///
     /// On release, PGXN adds release metadata to the distribution `META.json`
-    /// and publishes it separately so that clients can find and validate a release.
-    /// The metadata includes the user who published the release, the release
-    /// timestamp, and checksums for the distribution file. The v2 spec goes
-    /// further by signing the release.
+    /// and publishes it separately so that clients can find and validate a
+    /// release. A v1 `META.json` file include the user who published the
+    /// release, the release timestamp, and a sha1 checksums for the
+    /// distribution file. [RFC 5] defines the structure of v2 release
+    /// metadata as a [JSON Web Signature], which includes an encoded payload
+    /// value which must be separately validated by [`validate_payload`].
+    ///
     ///
     /// This method validates the structure of such a release `META.json`
-    /// file. Load one up into a serde_json::value::Value and pass it for
+    /// file. Load one up into a [serde_json::value::Value] and pass it for
     /// validation. Returns the Meta spec version (1 or 2) on success and a
     /// validation error on failure.
+    ///
+    /// [JSON Serialization]: https://datatracker.ietf.org/doc/html/rfc7515#section-7.2
+    /// [RFC 5]: https://github.com/pgxn/rfcs/pull/5
+    /// [JSON Web Signature]: https://datatracker.ietf.org/doc/html/rfc7515
     pub fn validate_release<'a>(&'a mut self, meta: &'a Value) -> Result<u8, Box<dyn Error + 'a>> {
         self.validate_schema(meta, "release.schema.json")
+    }
+
+    /// Validate PGXN release JWS payload.
+    ///
+    /// The JSON Web Signature [JSON Serialization] object validated by
+    /// [`validate_release`] includes a Base 64 URL-encoded payload, which
+    /// contains the validated PGXN release metadata. Once decoded, use this
+    /// method to validate it.
+    ///
+    /// The payload includes the user who published the release, the release
+    /// timestamp, and checksums for the distribution file, as defined by [RFC
+    /// 5]. Returns an error if validation fails.
+    ///
+    /// [JSON Serialization]: https://datatracker.ietf.org/doc/html/rfc7515#section-7.2
+    /// [RFC 5]: https://github.com/pgxn/rfcs/pull/5
+    pub fn validate_payload<'a>(&'a mut self, meta: &'a Value) -> Result<(), Box<dyn Error + 'a>> {
+        match self.validate_schema(meta, "payload.schema.json") {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
+        }
     }
 
     fn validate_schema<'a>(
