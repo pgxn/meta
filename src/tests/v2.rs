@@ -15,14 +15,12 @@ fn test_schema_v2() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_term() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the term schema.
     let compiler = new_compiler("schema/v2")?;
     test_term_schema(compiler, SCHEMA_VERSION)
 }
 
 #[test]
 fn test_v2_tags() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the tags schema.
     let compiler = new_compiler("schema/v2")?;
     test_tags_schema(compiler, SCHEMA_VERSION)
 }
@@ -59,7 +57,7 @@ fn test_v2_semver() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_path() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the semver schema.
+    // Load the schemas and compile the path schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "path");
@@ -103,7 +101,7 @@ fn test_v2_path() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_glob() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the semver schema.
+    // Load the schemas and compile the glob schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "glob");
@@ -214,7 +212,7 @@ fn test_v2_version_range() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_license() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the semver schema.
+    // Load the schemas and compile the license schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "license");
@@ -264,7 +262,7 @@ fn test_v2_license() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_purl() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the semver schema.
+    // Load the schemas and compile the purl schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "purl");
@@ -308,7 +306,7 @@ fn test_v2_purl() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_platform() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the semver schema.
+    // Load the schemas and compile the platform schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "platform");
@@ -394,7 +392,7 @@ fn test_v2_platform() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_platforms() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the semver schema.
+    // Load the schemas and compile the platforms schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "platforms");
@@ -442,7 +440,7 @@ fn test_v2_platforms() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_maintainers() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the maintainers schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "maintainers");
@@ -757,7 +755,7 @@ fn test_v2_extension() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_module() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the extension schema.
+    // Load the schemas and compile the module schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "module");
@@ -926,7 +924,7 @@ fn test_v2_module() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_app() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the extension schema.
+    // Load the schemas and compile the app schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "app");
@@ -1040,7 +1038,7 @@ fn test_v2_app() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_contents() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the extension schema.
+    // Load the schemas and compile the contents schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "contents");
@@ -1179,7 +1177,7 @@ fn test_v2_contents() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_meta_spec() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the meta-spec schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "meta-spec");
@@ -1233,7 +1231,7 @@ fn test_v2_meta_spec() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_categories() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the categories schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "categories");
@@ -1302,7 +1300,7 @@ fn test_v2_categories() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_classifications() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the classifications schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "classifications");
@@ -1373,7 +1371,7 @@ fn test_v2_classifications() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_ignore() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the semver schema.
+    // Load the schemas and compile the ignore schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "ignore");
@@ -1431,7 +1429,7 @@ fn test_v2_ignore() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_phase() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the phase schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "phase");
@@ -1558,7 +1556,7 @@ fn test_v2_phase() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_packages() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the packages schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "packages");
@@ -1712,7 +1710,7 @@ fn test_v2_packages() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_postgres() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the postgres schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "postgres");
@@ -1772,7 +1770,7 @@ fn test_v2_postgres() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_pipeline() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the semver schema.
+    // Load the schemas and compile the pipeline schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "pipeline");
@@ -1816,7 +1814,7 @@ fn test_v2_pipeline() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_dependencies() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the dependencies schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "dependencies");
@@ -2071,7 +2069,7 @@ fn test_v2_dependencies() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_variations() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the variations schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "variations");
@@ -2201,7 +2199,7 @@ fn test_v2_variations() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_badges() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the badges schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "badges");
@@ -2314,7 +2312,7 @@ fn test_v2_badges() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_resources() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the resources schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "resources");
@@ -2440,7 +2438,7 @@ fn test_v2_resources() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the artifacts schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "artifacts");
@@ -3264,7 +3262,7 @@ fn test_v2_distribution() -> Result<(), Box<dyn Error>> {
 
 #[test]
 fn test_v2_digests() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the maintainer schema.
+    // Load the schemas and compile the digests schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "digests");
@@ -4300,8 +4298,1364 @@ fn test_v2_pgxn_jws() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
+fn test_v2_payload() -> Result<(), Box<dyn Error>> {
+    // Load the schemas and compile the payload schema.
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "payload");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        (
+            "general",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              }
+            }),
+        ),
+        (
+            "multi general",
+            json!({
+              "user": "theory",
+              "date": "2024-09-13T17:32:55Z",
+              "uri": "dist/pair/0.1.7/pair-0.1.7.zip",
+              "digests": {
+                "sha256": "257b71aa57a28d62ddbb301333b3521ea3dc56f17551fa0e4516b03998abb089",
+                "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
+              }
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("no data", json!({})),
+        ("array", json!([])),
+        ("empty object", json!({})),
+        ("string", json!("2.0.0")),
+        ("empty string", json!("")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        // user
+        (
+            "missing user",
+            json!({
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "user empty",
+            json!({
+              "user": "",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "user number",
+            json!({
+              "user": 42,
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "user null",
+            json!({
+              "user": null,
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "user bool",
+            json!({
+              "user": true,
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "user array",
+            json!({
+              "user": ["theory"],
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "user object",
+            json!({
+              "user": {"x": "hi"},
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "user too short",
+            json!({
+              "user": "x",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        // date
+        (
+            "missing date",
+            json!({
+              "user": "theory",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "date null",
+            json!({
+              "user": "theory",
+              "date": null,
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "date bool",
+            json!({
+              "user": "theory",
+              "date": true,
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "date number",
+            json!({
+              "user": "theory",
+              "date": 42,
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "date array",
+            json!({
+              "user": "theory",
+              "date": ["2024-07-20T20:34:34Z"],
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "date object",
+            json!({
+              "user": "theory",
+              "date": {"x": "2024-07-20T20:34:34Z"},
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "invalid date",
+            json!({
+              "user": "theory",
+              "date": ["2024-07-20T27:34:34Z"],
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        // url
+        (
+            "missing uri",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "uri null",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": null,
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "uri number",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": 42,
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "uri bool",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": true,
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "uri empty",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "uri array",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": ["/dist/semver/0.40.0/semver-0.40.0.zip"],
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "uri object",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": {"x": "/dist/semver/0.40.0/semver-0.40.0.zip"},
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "invalid uri",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "not a URI",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        (
+            "bad uri start",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "/dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {
+                "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+              },
+            }),
+        ),
+        // digests
+        (
+            "missing digests",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip"
+            }),
+        ),
+        (
+            "empty digests",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": {},
+            }),
+        ),
+        (
+            "invalid digest",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": { "sha1": "nope" },
+            }),
+        ),
+        (
+            "null digests",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": null,
+            }),
+        ),
+        (
+            "number digests",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": 42,
+            }),
+        ),
+        (
+            "string digests",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": "fe8c013f991b5f537c39fb0c0b04bc955457675a",
+            }),
+        ),
+        (
+            "array digests",
+            json!({
+              "user": "theory",
+              "date": "2024-07-20T20:34:34Z",
+              "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+              "digests": ["fe8c013f991b5f537c39fb0c0b04bc955457675a"],
+            }),
+        ),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_v2_jwk() -> Result<(), Box<dyn Error>> {
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "jwk");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        ("kty EC", json!({"kty": "EC"})),
+        ("kty RSA", json!({"kty": "RSA"})),
+        ("kty empty", json!({"kty": ""})),
+        ("use enc", json!({"kty": "EC", "use": "enc"})),
+        ("use sig", json!({"kty": "EC", "use": "sig"})),
+        ("key_ops", json!({"kty": "EC", "key_ops": ["read"]})),
+        (
+            "key_ops 2",
+            json!({"kty": "EC", "key_ops": ["read", "write"]}),
+        ),
+        ("alg", json!({"kty": "EC", "alg": "HS256"})),
+        ("kid", json!({"kty": "EC", "kid": "hi"})),
+        ("x5u", json!({"kty": "EC", "x5u": "https://example.com"})),
+        (
+            "x5c",
+            json!({"kty": "EC", "x5c": ["VGhpcyBpcyBhIHRlc3Q=", "q0V4Ot8L8YlUzZm2BytfHTK0KQLzCyqZrdSpnyAci3E="]}),
+        ),
+        (
+            "x5c 2",
+            json!({"kty": "EC", "x5c": ["VGhpcyBpcyBhIHRlc3Q="]}),
+        ),
+        ("x5t", json!({"kty": "EC", "x5t": "012345678912"})),
+        (
+            "x5t#S256",
+            json!({"kty": "EC", "x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po"}),
+        ),
+        ("other string prop", json!({"kty": "EC", "go": "whatever"})),
+        ("other bool prop", json!({"kty": "EC", "safe": true})),
+        ("custom x_ prop", json!({"kty": "EC", "x_": true})),
+        ("custom X_ prop", json!({"kty": "EC", "X_": true})),
+        (
+            "everything",
+            json!({
+              "kty": "EC",
+              "use": "sig",
+              "key_ops": ["read"],
+              "alg": "HS256",
+              "kid": "42",
+              "x5u": "https://example.com",
+              "x5c": ["VGhpcyBpcyBhIHRlc3Q=", "q0V4Ot8L8YlUzZm2BytfHTK0KQLzCyqZrdSpnyAci3E="],
+              "x5t": "012345678912",
+              "x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po",
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("array", json!(["hi"])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("empty object", json!({})),
+        // kty
+        ("kty array", json!({"kty": ["HS256"]})),
+        ("kty object", json!({"kty": {"HS256": "HS256"}})),
+        ("kty true", json!({"kty": true})),
+        ("kty null", json!({"kty": null})),
+        ("kty number", json!({"kty": 42})),
+        ("no kty", json!({"alg": "HS256"})),
+        // use
+        ("use array", json!({"kty": "EC", "use": ["enc"]})),
+        ("use object", json!({"kty": "EC", "use": {"ecn": true}})),
+        ("use true", json!({"kty": "EC", "use": true})),
+        ("use null", json!({"kty": "EC", "use": null})),
+        ("use number", json!({"kty": "EC", "use": 42})),
+        // key_ops
+        ("key_ops empty array", json!({"kty": "EC", "key_ops": []})),
+        (
+            "key_ops object",
+            json!({"kty": "EC", "key_ops": {"read": true}}),
+        ),
+        ("key_ops true", json!({"kty": "EC", "key_ops": true})),
+        ("key_ops null", json!({"kty": "EC", "key_ops": null})),
+        ("key_ops number", json!({"kty": "EC", "key_ops": 42})),
+        ("key_ops true item", json!({"kty": "EC", "key_ops": [true]})),
+        ("key_ops null item", json!({"kty": "EC", "key_ops": [null]})),
+        ("key_ops number item", json!({"kty": "EC", "key_ops": [42]})),
+        (
+            "key_ops array item",
+            json!({"kty": "EC", "key_ops": [["read"]]}),
+        ),
+        (
+            "key_ops object item",
+            json!({"kty": "EC", "key_ops": [{"read": true}]}),
+        ),
+        // alg
+        ("alg array", json!({"kty": "EC", "alg": ["enc"]})),
+        ("alg object", json!({"kty": "EC", "alg": {"ecn": true}})),
+        ("alg true", json!({"kty": "EC", "alg": true})),
+        ("alg null", json!({"kty": "EC", "alg": null})),
+        ("alg number", json!({"kty": "EC", "alg": 42})),
+        // kid
+        ("kid array", json!({"kty": "EC", "kid": ["enc"]})),
+        ("kid object", json!({"kty": "EC", "kid": {"ecn": true}})),
+        ("kid true", json!({"kty": "EC", "kid": true})),
+        ("kid null", json!({"kty": "EC", "kid": null})),
+        ("kid number", json!({"kty": "EC", "kid": 42})),
+        // x5u
+        ("x5u array", json!({"kty": "EC", "x5u": ["HS256"]})),
+        (
+            "x5u object",
+            json!({"kty": "EC", "x5u": {"HS256": "HS256"}}),
+        ),
+        ("x5u non-uri", json!({"kty": "EC", "x5u": "not a uri"})),
+        ("x5u true", json!({"kty": "EC", "x5u": true})),
+        ("x5u null", json!({"kty": "EC", "x5u": null})),
+        ("x5u number", json!({"kty": "EC", "x5u": 42})),
+        // x5c
+        ("x5c empty array", json!({"kty": "EC", "x5c": []})),
+        ("x5c object", json!({"kty": "EC", "x5c": {"read": true}})),
+        ("x5c true", json!({"kty": "EC", "x5c": true})),
+        ("x5c null", json!({"kty": "EC", "x5c": null})),
+        ("x5c number", json!({"kty": "EC", "x5c": 42})),
+        ("x5c true item", json!({"kty": "EC", "x5c": [true]})),
+        ("x5c null item", json!({"kty": "EC", "x5c": [null]})),
+        ("x5c number item", json!({"kty": "EC", "x5c": [42]})),
+        ("x5c array item", json!({"kty": "EC", "x5c": [["read"]]})),
+        (
+            "x5c object item",
+            json!({"kty": "EC", "x5c": [{"read": true}]}),
+        ),
+        (
+            "x5c not base64",
+            json!({"kty": "EC", "x5c": ["not base64"]}),
+        ),
+        (
+            "x5c base64 URL",
+            json!({"kty": "EC", "x5c": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"]}),
+        ),
+        // x5t
+        ("x5t array", json!({"kty": "EC", "x5t": ["enc"]})),
+        ("x5t object", json!({"kty": "EC", "x5t": {"ecn": true}})),
+        ("x5t true", json!({"kty": "EC", "x5t": true})),
+        ("x5t null", json!({"kty": "EC", "x5t": null})),
+        ("x5t number", json!({"kty": "EC", "x5t": 42})),
+        (
+            "x5t not base64 URL",
+            json!({"kty": "EC", "x5t": "not base64"}),
+        ),
+        // x5t#S256
+        ("x5t#S256 array", json!({"kty": "EC", "x5t#S256": ["enc"]})),
+        (
+            "x5t#S256 object",
+            json!({"kty": "EC", "x5t#S256": {"ecn": true}}),
+        ),
+        ("x5t#S256 true", json!({"kty": "EC", "x5t#S256": true})),
+        ("x5t#S256 null", json!({"kty": "EC", "x5t#S256": null})),
+        ("x5t#S256 number", json!({"kty": "EC", "x5t#S256": 42})),
+        (
+            "x5t#S256 not base64 URL",
+            json!({"kty": "EC", "x5t#S256": "not base64"}),
+        ),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn test_v2_jws_header() -> Result<(), Box<dyn Error>> {
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "jws-header");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        ("alg", json!({"alg": "HS256"})),
+        ("empty alg", json!({"alg": ""})),
+        ("jku", json!({"jku": "https://example.com"})),
+        ("jwk kty", json!({"jwk": {"kty": "EC"}})),
+        ("jwk kty use", json!({"jwk": {"kty": "EC", "use": "sig"}})),
+        ("kid", json!({"kid": "big kid"})),
+        ("empty kid", json!({"kid": ""})),
+        ("x5u", json!({"x5u": "x:y"})),
+        ("x5c", json!({"x5c": ["VGhpcyBpcyBhIHRlc3Q="]})),
+        (
+            "x5c 2",
+            json!({"x5c": ["VGhpcyBpcyBhIHRlc3Q=", "y4MKFQUlW9XrfFXCmZeYXUZkqpc="]}),
+        ),
+        ("x5t", json!({"x5t": "012345678912"})),
+        (
+            "x5t#S256",
+            json!({"x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po"}),
+        ),
+        ("typ", json!({"typ": "extension"})),
+        ("empty typ", json!({"typ": ""})),
+        ("cty", json!({"cty": "text/plain"})),
+        ("empty cty", json!({"cty": ""})),
+        (
+            "everything",
+            json!({
+              "alg": "HS256",
+              "jku": "https://example.com",
+              "jwk": {
+                "kty": "EC",
+                "use": "sig",
+                "key_ops": ["read"],
+                "alg": "HS256",
+                "kid": "99",
+                "x5u": "https://example.com",
+                "x5c": ["VGhpcyBpcyBhIHRlc3Q="],
+                "x5t": "012345678912",
+                "x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po",
+              },
+              "kid": "2024-07-01",
+              "x5u": "https://example.com",
+              "x5c": ["VGhpcyBpcyBhIHRlc3Q="],
+              "x5t": "012345678912",
+              "x5t#S256": "abgU7GuNO8EfzYDFmryoploCskBljphPWnpJ0po",
+              "typ": "extension",
+              "cty": "text/plain",
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("array", json!(["hi"])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("empty object", json!({})),
+        // alg
+        ("alg array", json!({"alg": ["HS256"]})),
+        ("alg object", json!({"alg": {"HS256": "HS256"}})),
+        ("alg true", json!({"alg": true})),
+        ("alg null", json!({"alg": null})),
+        ("alg number", json!({"alg": 42})),
+        // jku
+        ("jku array", json!({"jku": ["HS256"]})),
+        ("jku object", json!({"jku": {"HS256": "HS256"}})),
+        ("jku non-uri", json!({"jku": "not a uri"})),
+        ("jku true", json!({"jku": true})),
+        ("jku null", json!({"jku": null})),
+        ("jku number", json!({"jku": 42})),
+        // jwk
+        ("jwk array", json!({"jwk": ["HS256"]})),
+        ("jwk string", json!({"jwk": "hi"})),
+        ("jwk true", json!({"jwk": true})),
+        ("jwk null", json!({"jwk": null})),
+        ("jwk number", json!({"jwk": 42})),
+        ("jwk empty object", json!({"jwk": {}})),
+        ("jwk no kty", json!({"jwk": {"alg": "HS256"}})),
+        // kid
+        ("kid array", json!({"kid": ["HS256"]})),
+        ("kid object", json!({"kid": {"HS256": "HS256"}})),
+        ("kid true", json!({"kid": true})),
+        ("kid null", json!({"kid": null})),
+        ("kid number", json!({"kid": 42})),
+        // x5u
+        ("x5u array", json!({"x5u": ["HS256"]})),
+        ("x5u object", json!({"x5u": {"HS256": "HS256"}})),
+        ("x5u non-uri", json!({"x5u": "not a uri"})),
+        ("x5u true", json!({"x5u": true})),
+        ("x5u null", json!({"x5u": null})),
+        ("x5u number", json!({"x5u": 42})),
+        // x5c
+        ("x5c empty array", json!({"x5c": []})),
+        ("x5c object", json!({"x5c": {"read": true}})),
+        ("x5c true", json!({"x5c": true})),
+        ("x5c null", json!({"x5c": null})),
+        ("x5c number", json!({"x5c": 42})),
+        ("x5c true item", json!({"x5c": [true]})),
+        ("x5c null item", json!({"x5c": [null]})),
+        ("x5c number item", json!({"x5c": [42]})),
+        ("x5c array item", json!({"x5c": [["read"]]})),
+        ("x5c object item", json!({"x5c": [{"read": true}]})),
+        ("x5c not base64", json!({"x5c": ["not base64"]})),
+        (
+            "x5c base64 URL",
+            json!({"x5c": ["DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-"]}),
+        ),
+        // x5t
+        ("x5t array", json!({"x5t": ["enc"]})),
+        ("x5t object", json!({"x5t": {"ecn": true}})),
+        ("x5t true", json!({"x5t": true})),
+        ("x5t null", json!({"x5t": null})),
+        ("x5t number", json!({"x5t": 42})),
+        ("x5t not base64 URL", json!({"x5t": "not base64"})),
+        // x5t#S256
+        ("x5t#S256 array", json!({"x5t#S256": ["enc"]})),
+        ("x5t#S256 object", json!({"x5t#S256": {"ecn": true}})),
+        ("x5t#S256 true", json!({"x5t#S256": true})),
+        ("x5t#S256 null", json!({"x5t#S256": null})),
+        ("x5t#S256 number", json!({"x5t#S256": 42})),
+        ("x5t#S256 not base64 URL", json!({"x5t#S256": "not base64"})),
+        // typ
+        ("typ array", json!({"typ": ["extension"]})),
+        ("typ object", json!({"typ": {"extension": "extension"}})),
+        ("typ true", json!({"typ": true})),
+        ("typ null", json!({"typ": null})),
+        ("typ number", json!({"typ": 42})),
+        // cty
+        ("cty array", json!({"cty": ["text/plain"]})),
+        ("cty object", json!({"cty": {"type": "text/plain"}})),
+        ("cty true", json!({"cty": true})),
+        ("cty null", json!({"cty": null})),
+        ("cty number", json!({"cty": 42})),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn test_v2_jws() -> Result<(), Box<dyn Error>> {
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "jws");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        (
+            "general",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [
+                {"signature": "abcdefghijklmnopqrstuvwxyz012345"}
+              ]
+            }),
+        ),
+        (
+            "flattened",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }),
+        ),
+        (
+            "full general signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [
+                {
+                  "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                  "protected": "012345678912",
+                  "header": { "kid": "42" },
+                }
+              ]
+            }),
+        ),
+        (
+            "full flattened signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "protected": "012345678912",
+              "header": { "kid": "42" },
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }),
+        ),
+        (
+            "multiple signatures",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [
+                {
+                  "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                  "protected": "012345678912",
+                  "header": { "kid": "42" },
+                },
+                {"signature": "098765432109876543210987654321209"}
+                ]
+            }),
+        ),
+        (
+            "general plus additional properties",
+            json!({
+              "payload": "abcdefghijkl",
+              "hello": "yourself",
+              "signatures": [
+                {"signature": "abcdefghijklmnopqrstuvwxyz012345"}
+              ]
+            }),
+        ),
+        (
+            "flattened plus additional properties",
+            json!({
+              "payload": "abcdefghijkl",
+              "safe": true,
+              "clamp": "u",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("array", json!(["hi"])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("empty object", json!({})),
+        (
+            "no flattened payload",
+            json!({"signature": "abcdefghijklmnopqrstuvwxyz012345"}),
+        ),
+        (
+            "no general payload",
+            json!({"signatures": [{"signature": "abcdefghijklmnopqrstuvwxyz012345"}]}),
+        ),
+        (
+            "no signatures or signature",
+            json!({"payload": "abcdefghijkl"}),
+        ),
+        // payload
+        ("true payload", json!({"payload": true})),
+        ("false payload", json!({"payload": false})),
+        ("null payload", json!({"payload": null})),
+        ("number payload", json!({"payload": 42})),
+        ("array payload", json!({"payload": ["hi"]})),
+        ("object payload", json!({"payload": {}})),
+        ("short payload", json!({"payload": "012345678901"})),
+        ("invalid payload", json!({"payload": "not base64 url"})),
+        // signatures
+        (
+            "true signatures",
+            json!({"payload": "abcdefghijkl", "signatures": true}),
+        ),
+        (
+            "false signatures",
+            json!({"payload": "abcdefghijkl", "signatures": false}),
+        ),
+        (
+            "null signatures",
+            json!({"payload": "abcdefghijkl", "signatures": null}),
+        ),
+        (
+            "string signatures",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": "abcdefghijklmnopqrstuvwxyz012345",
+            }),
+        ),
+        (
+            "number signatures",
+            json!({"payload": "abcdefghijkl", "signatures": 42}),
+        ),
+        (
+            "object signatures",
+            json!({"payload": "abcdefghijkl", "signatures": {
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }}),
+        ),
+        (
+            "empty signatures",
+            json!({"payload": "abcdefghijkl", "signatures": []}),
+        ),
+        // signatures items
+        (
+            "signatures string item",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": ["abcdefghijklmnopqrstuvwxyz012345"],
+            }),
+        ),
+        (
+            "signatures bool item",
+            json!({"payload": "abcdefghijkl", "signatures": [true]}),
+        ),
+        (
+            "signatures null item",
+            json!({"payload": "abcdefghijkl", "signatures": [null]}),
+        ),
+        (
+            "signatures number item",
+            json!({"payload": "abcdefghijkl", "signatures": [42]}),
+        ),
+        (
+            "signatures array item",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [["abcdefghijklmnopqrstuvwxyz012345"]],
+            }),
+        ),
+        (
+            "signatures empty item",
+            json!({"payload": "abcdefghijkl", "signatures": [{}]}),
+        ),
+        // signatures signature
+        (
+            "signatures bool signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": true}],
+            }),
+        ),
+        (
+            "signatures null signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": null}],
+            }),
+        ),
+        (
+            "signatures number signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": 42}],
+            }),
+        ),
+        (
+            "signatures array signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": ["abcdefghijklmnopqrstuvwxyz012345"]}],
+            }),
+        ),
+        (
+            "signatures object signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": {}}],
+            }),
+        ),
+        (
+            "signatures empty string signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": ""}],
+            }),
+        ),
+        (
+            "signatures short signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": "abcdefghijklmnopqrstuvwxyz01234"}],
+            }),
+        ),
+        (
+            "signatures signature not base64",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{"signature": "abcdefghijklmnopqrstuvwxyz01234#"}],
+            }),
+        ),
+        // signatures header
+        (
+            "signatures header empty object",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": {},
+              }],
+            }),
+        ),
+        (
+            "signatures header array",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": [],
+              }],
+            }),
+        ),
+        (
+            "signatures header bool",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": true,
+              }],
+            }),
+        ),
+        (
+            "signatures header null",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": null,
+              }],
+            }),
+        ),
+        (
+            "signatures header number",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": 42,
+              }],
+            }),
+        ),
+        (
+            "signatures header invalid",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "header": {"jku": "not a uri"},
+              }],
+            }),
+        ),
+        // signatures protected
+        (
+            "signatures protected bool",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": true,
+              }],
+            }),
+        ),
+        (
+            "signatures protected null",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": null,
+              }],
+            }),
+        ),
+        (
+            "signatures protected number",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": 42,
+              }],
+            }),
+        ),
+        (
+            "signatures protected array",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": ["012345678912"],
+              }],
+            }),
+        ),
+        (
+            "signatures protected object",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": {"012345678912": true},
+              }],
+            }),
+        ),
+        (
+            "signatures protected empty string",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": "",
+              }],
+            }),
+        ),
+        (
+            "signatures protected too short",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": "01234567891",
+              }],
+            }),
+        ),
+        (
+            "signatures protected not base64",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": "this is not base 64",
+              }],
+            }),
+        ),
+        (
+            "signatures protected not base64 URL",
+            json!({
+              "payload": "abcdefghijkl",
+              "signatures": [{
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+                "protected": "012345678912+",
+              }],
+            }),
+        ),
+        // signature
+        (
+            "true signature",
+            json!({"payload": "abcdefghijkl", "signature": true}),
+        ),
+        (
+            "false signature",
+            json!({"payload": "abcdefghijkl", "signature": false}),
+        ),
+        (
+            "null signature",
+            json!({"payload": "abcdefghijkl", "signature": null}),
+        ),
+        (
+            "number signature",
+            json!({"payload": "abcdefghijkl", "signature": 42}),
+        ),
+        (
+            "array signature",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": ["abcdefghijklmnopqrstuvwxyz012345"],
+            }),
+        ),
+        (
+            "object signature",
+            json!({"payload": "abcdefghijkl", "signature": {
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }}),
+        ),
+        (
+            "empty signature",
+            json!({"payload": "abcdefghijkl", "signature": ""}),
+        ),
+        (
+            "short signature",
+            json!({"payload": "abcdefghijkl", "signature": "abcdefghijklmnopqrstuvwxyz01234"}),
+        ),
+        (
+            "not base 64 url signature",
+            json!({"payload": "abcdefghijkl", "signature": "abcdefghijklmnopqrstuvwxyz012345+"}),
+        ),
+        // header
+        (
+            "header empty object",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": {},
+            }),
+        ),
+        (
+            "header array",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": [],
+            }),
+        ),
+        (
+            "header bool",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": true,
+            }),
+        ),
+        (
+            "header null",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": null,
+            }),
+        ),
+        (
+            "header number",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": 42,
+            }),
+        ),
+        (
+            "header invalid",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "header": {"jku": "not a uri"},
+            }),
+        ),
+        // protected
+        (
+            "protected bool",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": true,
+            }),
+        ),
+        (
+            "protected null",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": null,
+            }),
+        ),
+        (
+            "protected number",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": 42,
+            }),
+        ),
+        (
+            "protected array",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": ["012345678912"],
+            }),
+        ),
+        (
+            "protected object",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": {"012345678912": true},
+            }),
+        ),
+        (
+            "protected empty string",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": "",
+            }),
+        ),
+        (
+            "protected too short",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": "01234567891",
+            }),
+        ),
+        (
+            "protected not base64",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": "this is not base 64",
+            }),
+        ),
+        (
+            "protected not base64 URL",
+            json!({
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              "protected": "012345678912+",
+            }),
+        ),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_v2_certs() -> Result<(), Box<dyn Error>> {
+    let mut compiler = new_compiler("schema/v2")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "certs");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        (
+            "pgxn flattened",
+            json!({"pgxn": {
+              "payload": "abcdefghijkl",
+              "signature": "abcdefghijklmnopqrstuvwxyz012345",
+            }}),
+        ),
+        (
+            "pgxn general",
+            json!({"pgxn": {
+              "payload": "abcdefghijkl",
+              "signatures": [
+                {"signature": "abcdefghijklmnopqrstuvwxyz012345"},
+              ],
+            }}),
+        ),
+        (
+            "pgxn plus additional property x_",
+            json!({
+              "pgxn": {
+                "payload": "abcdefghijkl",
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              },
+              "x_abc": true,
+            }),
+        ),
+        (
+            "pgxn plus additional property X_",
+            json!({
+              "pgxn": {
+                "payload": "abcdefghijkl",
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              },
+              "X_yz": {"kid": "anna"},
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("array", json!(["hi"])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("empty object", json!({})),
+        (
+            "invalid property",
+            json!({
+              "pgxn": {
+                "payload": "abcdefghijkl",
+                "signature": "abcdefghijklmnopqrstuvwxyz012345",
+              },
+              "hi": "there",
+            }),
+        ),
+        ("invalid pgxn", json!({"pgxn": {"payload": "abcdefghijkl"}})),
+        ("pgxn array", json!({"pgxn": ["hi"]})),
+        ("pgxn string", json!({"pgxn": "pgxn hi"})),
+        ("pgxn true", json!({"pgxn": true})),
+        ("pgxn false", json!({"pgxn": false})),
+        ("pgxn null", json!({"pgxn": null})),
+        ("pgxn number", json!({"pgxn": 42})),
+        ("pgxn empty object", json!({"pgxn": {}})),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
 fn test_v2_release() -> Result<(), Box<dyn Error>> {
-    // Load the schemas and compile the distribution schema.
+    // Load the schemas and compile the release and distribution schemas.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let release_id = id_for(SCHEMA_VERSION, "release");

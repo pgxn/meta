@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v2/certs.schema.json",
+  "title": "Certifications",
+  "description": "One or more cryptographic signatures or certifications that attest to the authenticity or other characteristics of a distribution release.",
+  "type": "object",
+  "properties": {
+    "pgxn": { "$ref": "jws.schema.json" }
+  },
+  "patternProperties": { "^[xX]_.": { "description": "Custom key" } },
+  "additionalProperties": false,
+  "required": ["pgxn"]
+}
