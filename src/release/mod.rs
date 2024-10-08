@@ -21,7 +21,7 @@ use crate::dist::*;
 use crate::util;
 
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
+use serde::{de, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use std::{borrow::Borrow, collections::HashMap, error::Error, fs::File, path::Path};
 
@@ -124,11 +124,59 @@ Represents metadata for a PGXN release, which is the same as [`Distribution`]
 plus [`ReleaseJws`] that contains signed metadata about the release to PGXN.
 
 */
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, PartialEq, Debug)]
 pub struct Release {
     #[serde(flatten)]
     dist: Distribution,
-    release: ReleaseJws,
+    certs: HashMap<String, Value>,
+    #[serde(skip_serializing)]
+    release: ReleasePayload,
+}
+
+impl<'de> Deserialize<'de> for Release {
+    /// deserialize deserializes a Release. Required to transparently
+    /// deserialize and validate the `release` field from `certs`.
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        // First deserialize into a struct with just the dist and certs.
+        #[derive(Deserialize)]
+        struct ReleaseInitial {
+            #[serde(flatten)]
+            dist: Distribution,
+            certs: HashMap<String, Value>,
+        }
+        let rel = ReleaseInitial::deserialize(deserializer)?;
+
+        // Fetch the pgxn release JWS from the certs object.
+        let Some(Value::Object(jws)) = rel.certs.get("pgxn") else {
+            return Err(de::Error::custom("invalid or missing pgxn release data"));
+        };
+
+        // XXX Use the jose_jws crate to validate signature here.
+
+        // Fetch the JWS payload.
+        let Some(Value::String(b64)) = jws.get("payload") else {
+            return Err(de::Error::custom("missing or invalid pgxn payload"));
+        };
+
+        // Decode the payload from base64-encoded JSON.
+        use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
+        let json = URL_SAFE_NO_PAD.decode(b64).map_err(de::Error::custom)?;
+
+        // Parse and validate the JSON.
+        let pay = serde_json::from_slice(&json).map_err(de::Error::custom)?;
+        let mut v = crate::valid::Validator::new();
+        v.validate_payload(&pay).map_err(de::Error::custom)?;
+
+        // Decode the ReleasePayload and return the complete Release struct.
+        Ok(Release {
+            dist: rel.dist,
+            certs: rel.certs,
+            release: serde_json::from_value(pay).map_err(de::Error::custom)?,
+        })
+    }
 }
 
 impl Release {
@@ -227,8 +275,13 @@ impl Release {
     }
 
     /// Borrows the Distribution release metadata.
-    pub fn release(&self) -> &ReleaseJws {
+    pub fn release(&self) -> &ReleasePayload {
         self.release.borrow()
+    }
+
+    /// Borrows the Distribution certifications.
+    pub fn certs(&self) -> &HashMap<String, Value> {
+        self.certs.borrow()
     }
 
     /// Borrows the custom_props object, which holds any `x_` or `X_`
@@ -267,18 +320,10 @@ impl TryFrom<Value> for Release {
     ///     }
     ///   },
     ///   "meta-spec": { "version": "2.0.0" },
-    ///   "release": {
-    ///     "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-    ///     "signatures": [
-    ///       "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-    ///     ],
-    ///     "payload": {
-    ///       "user": "xxx",
-    ///       "date": "2024-07-20T20:34:34Z",
-    ///       "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-    ///       "digests": {
-    ///         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-    ///       }
+    ///   "certs": {
+    ///     "pgxn": {
+    ///       "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+    ///       "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
     ///     }
     ///   }
     /// });
@@ -331,18 +376,10 @@ impl TryFrom<&[&Value]> for Release {
     ///     }
     ///   },
     ///   "meta-spec": { "version": "2.0.0" },
-    ///   "release": {
-    ///     "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-    ///     "signatures": [
-    ///       "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-    ///     ],
-    ///     "payload": {
-    ///       "user": "xxx",
-    ///       "date": "2024-07-20T20:34:34Z",
-    ///       "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-    ///       "digests": {
-    ///         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-    ///       }
+    ///   "certs": {
+    ///     "pgxn": {
+    ///       "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+    ///       "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
     ///     }
     ///   }
     /// });
@@ -412,18 +449,10 @@ impl TryFrom<Release> for Value {
     ///     }
     ///   },
     ///   "meta-spec": { "version": "2.0.0" },
-    ///   "release": {
-    ///     "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-    ///     "signatures": [
-    ///       "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-    ///     ],
-    ///     "payload": {
-    ///       "user": "xxx",
-    ///       "date": "2024-07-20T20:34:34Z",
-    ///       "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-    ///       "digests": {
-    ///         "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-    ///       }
+    ///   "certs": {
+    ///     "pgxn": {
+    ///       "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+    ///       "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
     ///     }
     ///   }
     /// });

@@ -15,6 +15,7 @@ exclude = [ ".github", ".vscode", ".gitignore", ".ci", ".pre-*.yaml"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+base64 = "0.22"
 boon = "0.6"
 chrono = { version = "0.4.38", features = ["serde"] }
 email_address = "0.2.9"

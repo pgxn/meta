@@ -494,6 +494,7 @@ name = "pgxn_meta"
 version = "0.3.0"
 dependencies = [
  "assert-json-diff",
+ "base64 0.22.1",
  "boon",
  "chrono",
  "email_address",

@@ -5666,37 +5666,34 @@ fn test_v2_release() -> Result<(), Box<dyn Error>> {
     for (name, release_meta) in [
         (
             "basic",
-            json!({"release": {
-              "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-              "signatures": [
-                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-              ],
-              "payload": {
-                "user": "theory",
-                "date": "2024-07-20T20:34:34Z",
-                "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-                "digests": {
-                  "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-                }
+            json!({"certs": {
+              "pgxn": {
+                "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+                "signatures": [
+                   {
+                     "protected": "eyJhbGciOiJSUzI1NiJ9",
+                     "header": { "kid": "2024-12-29" },
+                     "signature": "cC4hiUPoj9Eetdgtv3hF80EGrhuB__dzERat0XF9g2VtQgr9PJbu3XOiZj5RZmh7AAuHIm4Bh-rLIARNPvkSjtQBMHlb1L07Qe7K0GarZRmB_eSN9383LcOLn6_dO--xi12jzDwusC-eOkHWEsqtFZESc6BfI7noOPqvhJ1phCnvWh6IeYI2w9QOYEUipUTI8np6LbgGY9Fs98rqVt5AXLIhWkWywlVmtVrBp0igcN_IoypGlUPQGe77Rw"
+                   }
+                ]
               }
             }}),
         ),
         (
             "multi signature",
-            json!({"release": {
-              "headers": ["eyJhbGciOiJSUzI1NiJ9", "eyJhbGciOiJFUzI1NiJ9"],
-              "signatures": [
-                "cC4hiUPoj9Eetdgtv3hF80EGrhuB__dzERat0XF9g2VtQgr9PJbu3XOiZj5RZmh7AAuHIm4Bh-0Qc_lF5YKt_O8W2Fp5jujGbds9uJdbF9CUAr7t1dnZcAcQjbKBYNX4BAynRFdiuB--f_nZLgrnbyTyWzO75vRK5h6xBArLIARNPvkSjtQBMHlb1L07Qe7K0GarZRmB_eSN9383LcOLn6_dO--xi12jzDwusC-eOkHWEsqtFZESc6BfI7noOPqvhJ1phCnvWh6IeYI2w9QOYEUipUTI8np6LbgGY9Fs98rqVt5AXLIhWkWywlVmtVrBp0igcN_IoypGlUPQGe77Rw",
-                "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-              ],
-              "payload": {
-                "user": "theory",
-                "date": "2024-09-13T17:32:55Z",
-                "uri": "dist/pair/0.1.7/pair-0.1.7.zip",
-                "digests": {
-                  "sha256": "257b71aa57a28d62ddbb301333b3521ea3dc56f17551fa0e4516b03998abb089",
-                  "sha512": "b353b5a82b3b54e95f4a2859e7a2bd0648abcb35a7c3612b126c2c75438fc2f8e8ee1f19e61f30fa54d7bb64bcf217ed1264722b497bcb613f82d78751515b67"
-                }
+            json!({"certs": {
+              "pgxn": {
+                "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+                "signatures": [
+                   {
+                     "protected": "eyJhbGciOiJSUzI1NiJ9",
+                     "header": { "kid": "2024-12-29" },
+                     "signature": "cC4hiUPoj9Eetdgtv3hF80EGrhuB__dzERat0XF9g2VtQgr9PJbu3XOiZj5RZmh7AAuHIm4Bh-rLIARNPvkSjtQBMHlb1L07Qe7K0GarZRmB_eSN9383LcOLn6_dO--xi12jzDwusC-eOkHWEsqtFZESc6BfI7noOPqvhJ1phCnvWh6IeYI2w9QOYEUipUTI8np6LbgGY9Fs98rqVt5AXLIhWkWywlVmtVrBp0igcN_IoypGlUPQGe77Rw"
+                   },
+                   {
+                    "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
+                  }
+               ]
               }
             }}),
         ),
@@ -5714,80 +5711,58 @@ fn test_v2_release() -> Result<(), Box<dyn Error>> {
         }
 
         // Now try invalid cases.
-        for (name, release_meta, err) in [
+        for (name, certs_meta, err) in [
+            ("no certs field", json!({}), "missing properties 'certs'"),
             (
-                "no release field",
-                json!({}),
-                "missing properties 'release'",
+                "null certs",
+                json!({"certs": null}),
+                "missing properties 'certs'",
             ),
             (
-                "null release",
-                json!({"release": null}),
-                "missing properties 'release'",
+                "bool certs",
+                json!({"certs": true}),
+                "'/certs': want object, but got boolean",
             ),
             (
-                "bool release",
-                json!({"release": true}),
-                "'/release': want object, but got boolean",
+                "number certs",
+                json!({"certs": 42}),
+                "'/certs': want object, but got number",
             ),
             (
-                "number release",
-                json!({"release": 42}),
-                "'/release': want object, but got number",
-            ),
-            (
-                "string release",
-                json!({"release": "hi"}),
-                "'/release': want object, but got string",
+                "string certs",
+                json!({"certs": "hi"}),
+                "'/certs': want object, but got string",
             ),
             (
                 "bool array",
-                json!({"release": [true]}),
-                "'/release': want object, but got array",
+                json!({"certs": [true]}),
+                "'/certs': want object, but got array",
             ),
             (
                 "empty",
-                json!({"release": {}}),
-                "'/release': missing properties 'headers', 'signatures', 'payload'",
+                json!({"certs": {}}),
+                "'/certs': missing properties 'pgxn'",
             ),
             (
-                "missing headers",
-                json!({"release": {
+                "missing payload",
+                json!({"certs": {"pgxn": {
                   "signatures": [
                     "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-                  ],
-                  "payload": {
-                    "user": "theory",
-                    "date": "2024-07-20T20:34:34Z",
-                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-                    "digests": {
-                      "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-                    }
-                  }
-                }}),
-                "'/release': missing properties 'headers'",
+                  ]
+                }}}),
+                "'/certs/pgxn': missing properties 'payload'",
             ),
             (
-                "missing user",
-                json!({"release": {
-                  "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-                  "signatures": [
-                    "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-                  ],
-                  "payload": {
-                    "date": "2024-07-20T20:34:34Z",
-                    "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-                    "digests": {
-                      "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-                    }
-                  }
-                }}),
-                "missing properties 'user'",
+                "missing signatures",
+                json!({"certs": {"pgxn": {
+                  "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+                }}}),
+                "'/certs/pgxn': missing properties 'signatures'",
             ),
         ] {
-            // Merge the release metadata; the release schema should validate it.
+            // Merge the certs metadata; the release schema should validate it.
             let mut meta = valid_v2_distribution();
-            json_patch::merge(&mut meta, &release_meta);
+            json_patch::merge(&mut meta, &certs_meta);
             match schemas.validate(&meta, release_idx) {
                 Err(e) => assert!(e.to_string().contains(err), "{name} Error: {e}"),
                 Ok(_) => panic!("{name} unexpectedly succeeded"),

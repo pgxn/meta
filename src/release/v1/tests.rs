@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_v1_v2_release() {
-    let mut prev_head = "x".repeat(16);
+    use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
     let mut prev_sig = "x".repeat(32);
 
     for (name, input) in [
@@ -28,11 +28,30 @@ fn test_v1_v2_release() {
         ),
     ] {
         let v2 = v1_to_v2_release(&input).unwrap();
-        // Should have three keys.
-        assert_eq!(3, v2.as_object().unwrap().keys().len());
+        // Should have one key.
+        assert_eq!(1, v2.as_object().unwrap().keys().len());
 
-        // Make sure the payload is correct.
-        let pay = v2.get("payload").unwrap();
+        // Make sure we have the pgxn key.
+        let pgxn = v2.get("pgxn").unwrap();
+        assert_eq!(2, pgxn.as_object().unwrap().keys().len());
+
+        // Extract the payload and make sure the keys are in code point order.
+        let pay = pgxn.get("payload").unwrap().as_str().unwrap();
+        let pay = URL_SAFE_NO_PAD.decode(pay).unwrap();
+        let str = String::from_utf8(pay.clone()).unwrap();
+        let mut prev = 0;
+        for key in ["date", "digests", "uri", "user"] {
+            let idx = str.find(key).unwrap();
+            assert!(idx > prev);
+            prev = idx;
+        }
+
+        // Make sure there is no blank spacing in the payload JSON.
+        assert!(!str.contains("\": "));
+        assert!(!str.contains("\n"));
+
+        // Decode the payload and make sure it's correct.
+        let pay: Value = serde_json::from_slice(&pay).unwrap();
         assert_eq!(input.get("user"), pay.get("user"), "{name} user");
         assert_eq!(input.get("date"), pay.get("date"), "{name} date");
         let uri = Value::String(format!(
@@ -42,21 +61,10 @@ fn test_v1_v2_release() {
         ));
         assert_eq!(&uri, pay.get("uri").unwrap(), "{name} uri");
 
-        // Make sure headers contains 1 16-char random string.
-        let heads = v2.get("headers").unwrap().as_array().unwrap();
-        assert_eq!(1, heads.len());
-        let head = heads.first().unwrap().as_str().unwrap();
-        assert_eq!(16, head.len());
-        assert!(head.starts_with("eyJ"));
-        assert_ne!(&prev_head, head);
-        prev_head = head.to_string();
-
-        // Make sure signatures contains 1 32-char random string.
-        let sigs = v2.get("signatures").unwrap().as_array().unwrap();
-        assert_eq!(1, sigs.len());
-        let sig = sigs.first().unwrap().as_str().unwrap();
+        // Make sure signatures contains a 32-char random string.
+        let sig = pgxn.get("signature").unwrap().as_str().unwrap();
         assert_eq!(32, sig.len());
-        assert_ne!(&prev_sig, sig);
+        assert_ne!(&prev_sig, sig, "{name} sig");
         prev_sig = sig.to_string();
     }
 }

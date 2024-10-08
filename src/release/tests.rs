@@ -22,22 +22,48 @@ fn release_meta() -> Value {
     }})
 }
 
+fn certs() -> Value {
+    json!({
+      "certs": {
+        "pgxn": {
+          "payload": "eyJ1c2VyIjoidGhlb3J5IiwiZGF0ZSI6IjIwMjQtMDktMTNUMTc6MzI6NTVaIiwidXJpIjoiZGlzdC9wYWlyLzAuMS43L3BhaXItMC4xLjcuemlwIiwiZGlnZXN0cyI6eyJzaGE1MTIiOiJiMzUzYjVhODJiM2I1NGU5NWY0YTI4NTllN2EyYmQwNjQ4YWJjYjM1YTdjMzYxMmIxMjZjMmM3NTQzOGZjMmY4ZThlZTFmMTllNjFmMzBmYTU0ZDdiYjY0YmNmMjE3ZWQxMjY0NzIyYjQ5N2JjYjYxM2Y4MmQ3ODc1MTUxNWI2NyJ9fQ",
+          "signature": "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q",
+        },
+        "x_yz": true,
+        "x_ab": {"kid": "anna"},
+      },
+    })
+}
+
+fn payload() -> Value {
+    json!({
+      "user": "theory",
+      "date": "2024-07-20T20:34:34Z",
+      "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
+      "digests": {
+        "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
+      }
+    })
+}
+
 fn release_date() -> DateTime<Utc> {
     Utc.with_ymd_and_hms(2024, 7, 20, 20, 34, 34).unwrap()
 }
 
 #[test]
 fn test_corpus() -> Result<(), Box<dyn Error>> {
-    for (version, release_patch) in [
+    let certs = certs();
+    let payload = get_payload(&certs);
+    for (version, patch) in [
         (
             1,
             json!({
-              "user": "theory",
-              "date": "2019-09-23T17:16:45Z",
+              "user": payload.user,
+              "date": payload.date,
               "sha1": "0389be689af6992b4da520ec510d147bae411e8b",
             }),
         ),
-        (2, release_meta()),
+        (2, certs),
     ] {
         let v_dir = format!("v{version}");
         let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", &v_dir]
@@ -50,28 +76,26 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
             let path = path?.into_path();
             let bn = path.file_name().unwrap().to_str().unwrap();
             let mut meta: Value = serde_json::from_reader(File::open(&path)?)?;
-            json_patch::merge(&mut meta, &release_patch);
+            json_patch::merge(&mut meta, &patch);
 
             // Test try_from value.
             match Release::try_from(meta.clone()) {
                 Err(e) => panic!("{v_dir}/{bn} failed: {e}"),
                 Ok(release) => {
-                    // Validate that release data was loaded.
+                    // Validate that certs were loaded
                     if version == 2 {
                         assert_eq!(
                             meta.get("license").unwrap(),
                             release.license(),
                             "{v_dir}/{bn} license",
                         );
+                        let certs: HashMap<String, Value> =
+                            serde_json::from_value(meta.get("certs").unwrap().clone()).unwrap();
+                        assert_eq!(&certs, release.certs(), "{v_dir}/{bn} release certs");
                         assert_eq!(
-                            meta.get("release")
-                                .unwrap()
-                                .get("payload")
-                                .unwrap()
-                                .get("user")
-                                .unwrap(),
-                            release.release().payload().user(),
-                            "{v_dir}/{bn} release user",
+                            payload.user,
+                            release.release().user(),
+                            "{v_dir}/{bn} release user"
                         );
 
                         // Make sure round-trip produces the same JSON.
@@ -119,6 +143,25 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+fn get_payload(meta: &Value) -> ReleasePayload {
+    use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
+    let b64 = meta
+        .get("certs")
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .get("pgxn")
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .get("payload")
+        .unwrap()
+        .as_str()
+        .unwrap();
+    let json = URL_SAFE_NO_PAD.decode(b64).unwrap();
+    serde_json::from_slice(&json).unwrap()
+}
+
 #[test]
 fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
     // Load valid distribution metadata.
@@ -129,7 +172,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
     let mut meta: Value = serde_json::from_reader(File::open(&file)?)?;
 
     // Patch it with release metadata.
-    let patch = release_meta();
+    let patch = certs();
     json_patch::merge(&mut meta, &patch);
 
     // Make sure we catch the validation failure.
@@ -154,22 +197,19 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
         Err(e) => assert_eq!("Cannot determine meta-spec version", e.to_string()),
     }
 
-    // Should fail on missing release object.
+    // Should fail on missing certs object.
     let obj = meta.as_object_mut().unwrap();
     obj.insert("meta-spec".to_string(), json!({"version": "2.0.0"}));
-    obj.remove("release");
+    obj.remove("certs");
     match Release::try_from(meta.clone()) {
-        Ok(_) => panic!("Unexpected success with no release property"),
-        Err(e) => assert!(
-            e.to_string().contains(" missing properties 'release'"),
-            "{e}",
-        ),
+        Ok(_) => panic!("Unexpected success with no certs property"),
+        Err(e) => assert!(e.to_string().contains(" missing properties 'certs'"), "{e}",),
     }
 
     // Make sure we catch a failure parsing into a Release struct.
     match Release::from_version(2, json!({"invalid": true})) {
         Ok(_) => panic!("Unexpected success with invalid schema"),
-        Err(e) => assert_eq!("missing field `release`", e.to_string()),
+        Err(e) => assert_eq!("missing field `certs`", e.to_string()),
     }
 
     Ok(())
@@ -272,8 +312,8 @@ fn run_merge_case(
     patches: &[Value],
     expect: &Value,
 ) -> Result<(), Box<dyn Error>> {
-    let release = release_meta();
-    let mut meta = vec![orig, &release];
+    let patch = certs();
+    let mut meta = vec![orig, &patch];
     for p in patches {
         meta.push(p);
     }
@@ -384,8 +424,7 @@ fn digests() {
 
 #[test]
 fn release_payload() {
-    let release = release_meta();
-    let payload = release.get("release").unwrap().get("payload").unwrap();
+    let payload = payload();
     let date = release_date();
     let sha1 = payload.get("digests").unwrap().get("sha1").unwrap();
     let load: ReleasePayload = serde_json::from_value(payload.clone()).unwrap();
@@ -432,17 +471,20 @@ fn release() -> Result<(), Box<dyn Error>> {
         let mut meta: Value = serde_json::from_reader(File::open(&path)?)?;
 
         // Patch it.
-        let patch = release_meta();
+        let patch = certs();
+        let payload = get_payload(&patch);
         json_patch::merge(&mut meta, &patch);
 
         // Load it up.
         match Release::try_from(meta.clone()) {
             Err(e) => panic!("{name} failed: {e}"),
             Ok(rel) => {
-                // Should have the release data.
-                let jws: ReleaseJws =
-                    serde_json::from_value(patch.get("release").unwrap().clone())?;
-                assert_eq!(&jws, rel.release(), "{name} release");
+                // Should have the certs.
+                let certs: HashMap<String, Value> =
+                    serde_json::from_value(patch.get("certs").unwrap().clone())?;
+                assert_eq!(&certs, rel.certs(), "{name} certs");
+                // Should have the release payload.
+                assert_eq!(&payload, rel.release(), "{name} release");
                 // Required fields.
                 assert_eq!(
                     meta.get("name").unwrap().as_str().unwrap(),
@@ -531,6 +573,53 @@ fn release() -> Result<(), Box<dyn Error>> {
                 }
                 assert_eq!(&exes_from(&meta), rel.custom_props(), "{name} custom_props");
             }
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn release_deserialize_err() -> Result<(), Box<dyn Error>> {
+    // Load a v2 META file.
+    let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
+    let widget_file = dir.join("v2").join("minimal.json");
+    let meta: Value = serde_json::from_reader(File::open(&widget_file)?)?;
+
+    for (name, patch, err) in [
+        ("missing certs", json!({}), "missing field `certs`"),
+        (
+            "missing pgxn",
+            json!({"certs": {}}),
+            "invalid or missing pgxn release data",
+        ),
+        (
+            "missing payload",
+            json!({"certs": {"pgxn": {}}}),
+            "missing or invalid pgxn payload",
+        ),
+        (
+            "invalid base64",
+            json!({"certs": {"pgxn": {"payload": "not base64"}}}),
+            "Invalid symbol 32, offset 3.",
+        ),
+        (
+            "invalid json",
+            json!({"certs": {"pgxn": {"payload": "bm90IGpzb24"}}}),
+            "expected ident at line 1 column 2",
+        ),
+        (
+            "invalid payload",
+            json!({"certs": {"pgxn": {"payload": "eyJ1c2VyIjogIm5hb21pIn0"}}}),
+            "jsonschema validation failed with https://pgxn.org/meta/v2/payload.schema.json#\n- at '': missing properties 'date', 'uri', 'digests'",
+        ),
+    ] {
+        let mut meta = meta.clone();
+        json_patch::merge(&mut meta, &patch);
+
+        match Release::deserialize(meta.clone()) {
+            Ok(_) => panic!("{name} unexpectedly succeeded"),
+            Err(e) => assert_eq!(err, e.to_string()),
         }
     }
 
