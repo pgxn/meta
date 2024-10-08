@@ -7,7 +7,41 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.4.0] — Unreleased
+
+The theme of this release is *JSON Web Signatures.*
+
+### ⚡ Improvements
+
+*   Following [RFC 5], added v2 JSON Schemas for the `certs` property and its
+    child `pgxn` property, which contains an [RFC 7515] JSON Web Signature
+    (JWS) [JSON Serialization] object in either the general or flattened
+    syntaxes.
+*   Revamped the [release module] to support the updated release signing spec
+    defined in [RFC 5]
+*   Added the `validate_payload` method to `valid::Validator`, which that the
+    `release::Release` deserialization implementation uses to validate the JWS
+    payload. Required because the payload is Base 64 URL-encoded and therefore
+    cannot be parsed into a struct on the first pass.
+
+### 📔 Notes
+
+*   The [release] interface has changed with the new data structures. The
+    [JWS-JS] data added in v0.3.0 has been replaced with [RFC 7515]-standard
+    [JSON Serialization].
+*   Upgraded to [json-patch] v3.0 and updated all other dependencies.
+
+  [v0.4.0]: https://github.com/pgxn/meta/compare/v0.3.0...v0.4.0
+  [release module]: https://docs.rs/pgxn_meta/0.4.0/pgxn_meta/release/
+  [RFC 5]: https://github.com/pgxn/rfcs/pull/5
+    "pgxn/rfs#5 Add RFC for JWS-signing PGXN releases"
+  [RFC 7515] https://datatracker.ietf.org/doc/html/rfc7515 "RFC 7515 JSON Web Signature"
+  [JSON Serialization]: https://datatracker.ietf.org/doc/html/rfc7515#section-7.2
+    "RFC 7515 JWS — JWS JSON Serialization"
+
 ## [v0.3.0] — 2024-09-23
+
+The theme of this release is *Release metadata.*
 
 ### ⚡ Improvements
 
@@ -39,7 +73,7 @@ All notable changes to this project will be documented in this file. It uses the
     payload, as we are not doing any key signing, yet. For now it generates
     random strings to satisfy JSON Schema validation.
 
-  [v0.3.0]: https://github.com/pgxn/meta/compare/v0.3.0...v0.3.0
+  [v0.3.0]: https://github.com/pgxn/meta/compare/v0.2.0...v0.3.0
   [metadata schema]: https://github.com/pgxn/meta/blob/v0.3.0/schema/v2/pgxn-jws.schema.json
   [dist module]: https://docs.rs/pgxn_meta/0.3.0/pgxn_meta/dist/
   [release module]: https://docs.rs/pgxn_meta/0.3.0/pgxn_meta/release/
@@ -50,6 +84,8 @@ All notable changes to this project will be documented in this file. It uses the
   [v2 artifacts schema]: https://github.com/pgxn/meta/blob/v0.3.0/schema/v2/artifacts.schema.json
 
 ## [v0.2.0] — 2024-09-12
+
+The theme of this release is *Data structures and APIs.*
 
 ### ⚡ Improvements
 

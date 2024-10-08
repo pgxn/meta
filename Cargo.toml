@@ -1,6 +1,6 @@
 [package]
 name = "pgxn_meta"
-version = "0.3.0"
+version = "0.4.0"
 description = "The PGXN distribution metadata specification"
 repository = "https://github.com/pgxn/pgxn-meta-spec"
 documentation = "https://docs.rs/pgxn_meta/"
@@ -19,7 +19,7 @@ base64 = "0.22"
 boon = "0.6"
 chrono = { version = "0.4.38", features = ["serde"] }
 email_address = "0.2.9"
-json-patch = "2.0.0"
+json-patch = "3.0"
 lexopt = "0.3.0"
 rand = "0.8.5"
 relative-path = { version = "1.9", features = ["serde"] }
