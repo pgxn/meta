@@ -92,32 +92,6 @@ impl ReleasePayload {
     }
 }
 
-/// ReleaseJws represents JSON Web Signature release metadata populated by
-/// PGXN.
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
-pub struct ReleaseJws {
-    headers: Vec<String>,
-    signatures: Vec<String>,
-    payload: ReleasePayload,
-}
-
-impl ReleaseJws {
-    /// Borrows the signature headers.
-    pub fn headers(&self) -> &[String] {
-        self.headers.as_slice()
-    }
-
-    /// Borrows the signatures.
-    pub fn signatures(&self) -> &[String] {
-        self.signatures.as_slice()
-    }
-
-    /// Borrows the release payload.
-    pub fn payload(&self) -> &ReleasePayload {
-        self.payload.borrow()
-    }
-}
-
 /**
 
 Represents metadata for a PGXN release, which is the same as [`Distribution`]

@@ -5,23 +5,6 @@ use std::{error::Error, fs::File, io::Write, path::PathBuf};
 use tempfile::NamedTempFile;
 use wax::Glob;
 
-fn release_meta() -> Value {
-    json!({"release": {
-      "headers": ["eyJhbGciOiJFUzI1NiJ9"],
-      "signatures": [
-        "DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q"
-      ],
-      "payload": {
-        "user": "theory",
-        "date": "2024-07-20T20:34:34Z",
-        "uri": "dist/semver/0.40.0/semver-0.40.0.zip",
-        "digests": {
-          "sha1": "fe8c013f991b5f537c39fb0c0b04bc955457675a"
-        }
-      }
-    }})
-}
-
 fn certs() -> Value {
     json!({
       "certs": {
@@ -436,25 +419,6 @@ fn release_payload() {
         hex::encode(load.digests().sha1().unwrap()),
         "payload digests",
     )
-}
-
-#[test]
-fn release_jws() {
-    let release = release_meta();
-    let json = release.get("release").unwrap();
-    let pay: ReleasePayload = serde_json::from_value(json.get("payload").unwrap().clone()).unwrap();
-    let jws: ReleaseJws = serde_json::from_value(json.clone()).unwrap();
-    assert_eq!(
-        json.get("headers").unwrap().as_array().unwrap(),
-        jws.headers(),
-        "headers"
-    );
-    assert_eq!(
-        json.get("signatures").unwrap().as_array().unwrap(),
-        jws.signatures(),
-        "signatures"
-    );
-    assert_eq!(&pay, jws.payload(), "payload");
 }
 
 #[test]
