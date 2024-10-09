@@ -35,7 +35,7 @@ The theme of this release is *JSON Web Signatures.*
   [release module]: https://docs.rs/pgxn_meta/0.4.0/pgxn_meta/release/
   [RFC 5]: https://github.com/pgxn/rfcs/pull/5
     "pgxn/rfs#5 Add RFC for JWS-signing PGXN releases"
-  [RFC 7515] https://datatracker.ietf.org/doc/html/rfc7515 "RFC 7515 JSON Web Signature"
+  [RFC 7515]: https://datatracker.ietf.org/doc/html/rfc7515 "RFC 7515 JSON Web Signature"
   [JSON Serialization]: https://datatracker.ietf.org/doc/html/rfc7515#section-7.2
     "RFC 7515 JWS — JWS JSON Serialization"
 
