@@ -7,6 +7,24 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.5.0] — Unreleased
+
+### ⚡ Improvements
+
+*   Added the [error module], which defines all the errors returned by
+    pgxn_meta.
+*   Changed the errors returned from the [valid module] from boxed
+    [boon] errors with lifetimes to [error module] errors with no lifetimes.
+
+### 📔 Notes
+
+*   Removed the `valid::ValidationError` enum.
+
+  [v0.5.0]: https://github.com/pgxn/meta/compare/v0.4.0...v0.5.0
+  [error module]: https://docs.rs/pgxn_meta/0.5.0/pgxn_meta/error/
+  [valid module]: https://docs.rs/pgxn_meta/0.5.0/pgxn_meta/valid/
+  [boon]: https://github.com/santhosh-tekuri/boon
+
 ## [v0.4.0] — 2024-10-08
 
 The theme of this release is *JSON Web Signatures.*

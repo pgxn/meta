@@ -1,9 +1,8 @@
-use relative_path::{Component, RelativePath};
+use crate::error::Error;
 /// Public but undocumented and un-exported module that creates a
 /// boon::Compiler for use in validation and Tests.
-use std::error::Error;
-
 use boon::Compiler;
+use relative_path::{Component, RelativePath};
 use serde_json::Value;
 
 /// new returns a new boon::Compiler with the schema files loaded from `dir`
@@ -18,7 +17,7 @@ pub fn new() -> Compiler {
             let schema: Value = serde_json::from_str(line).unwrap();
             let id = &schema["$id"]
                 .as_str()
-                .ok_or(super::ValidationError::UnknownID)
+                .ok_or(Error::UnknownSchemaId)
                 .unwrap();
             compiler.add_resource(id, schema.to_owned()).unwrap();
         }
@@ -44,27 +43,23 @@ pub fn spec_compiler() -> Compiler {
 }
 
 /// Returns an error if v is not a valid path.
-fn is_path(v: &Value) -> Result<(), Box<dyn Error>> {
-    let Value::String(s) = v else {
-        Err("not a string")?
-    };
+fn is_path(v: &Value) -> Result<(), Box<dyn std::error::Error>> {
+    let Value::String(s) = v else { return Ok(()) };
 
     let path = RelativePath::new(s);
     for c in path.components() {
         if c == Component::ParentDir {
-            Err("parent dir")?
+            Err("references parent dir")?
         };
     }
 
     Ok(())
 }
 
-/// Returns an error if vi is not a valid SPDX license expression.
-fn is_license(v: &Value) -> Result<(), Box<dyn Error>> {
-    let Value::String(s) = v else {
-        Err("not a string")?
-    };
-    _ = spdx::Expression::parse(s)?;
+/// Returns an error if v is not a valid SPDX license expression.
+fn is_license(v: &Value) -> Result<(), Box<dyn std::error::Error>> {
+    let Value::String(s) = v else { return Ok(()) };
+    _ = spdx::Expression::parse(s).map_err(crate::error::Error::License)?;
     Ok(())
 }
 
@@ -96,17 +91,17 @@ mod tests {
         }
 
         // Test invalid paths.
-        for invalid in [
-            json!("../outside/path"),
-            json!("thing/../other"),
-            json!({}),
-            json!([]),
-            json!(true),
-            json!(null),
-            json!(42),
+        for (name, invalid, err) in [
+            ("parent", json!("../outside/path"), "references parent dir"),
+            (
+                "sub parent",
+                json!("thing/../other"),
+                "references parent dir",
+            ),
         ] {
-            if is_path(&invalid).is_ok() {
-                panic!("{} unexpectedly passed!", invalid)
+            match is_path(&invalid) {
+                Ok(_) => panic!("{name} unexpectedly passed!"),
+                Err(e) => assert_eq!(err, e.to_string(), "{name}"),
             }
         }
     }
@@ -137,24 +132,89 @@ mod tests {
         }
 
         // Test invalid licenses.
-        for invalid_license in [
-            json!(""),
-            json!(null),
-            json!("0"),
-            json!(0),
-            json!("\n\t"),
-            json!("()"),
-            json!("AND"),
-            json!("OR"),
+        for (name, invalid_license, reason) in [
+            ("empty string", json!(""), spdx::error::Reason::Empty),
+            ("zero", json!("0"), spdx::error::Reason::UnknownTerm),
+            ("control chars", json!("\n\t"), spdx::error::Reason::Empty),
+            (
+                "parens",
+                json!("()"),
+                spdx::error::Reason::Unexpected(&["<license>", "("]),
+            ),
+            (
+                "and",
+                json!("AND"),
+                spdx::error::Reason::Unexpected(&["<license>", "("]),
+            ),
+            (
+                "or",
+                json!("OR"),
+                spdx::error::Reason::Unexpected(&["<license>", "("]),
+            ),
         ] {
-            if is_license(&invalid_license).is_ok() {
-                panic!("{} unexpectedly passed!", invalid_license)
+            match is_license(&invalid_license) {
+                Ok(_) => panic!("{name} unexpectedly passed!"),
+                Err(e) => assert_eq!(reason.to_string(), e.to_string(), "{name}"),
             }
         }
     }
 
     #[test]
-    fn test_new() -> Result<(), Box<dyn Error>> {
+    fn test_spec_compiler() -> Result<(), Error> {
+        let mut c = spec_compiler();
+        let id = "format";
+        // Compile simple schema to validate license and path.
+        c.add_resource(
+            id,
+            json!({
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "format": "path",
+                    },
+                    "license": {
+                        "type": "string",
+                        "format": "license",
+                    }
+                }
+            }),
+        )?;
+
+        let mut schemas = Schemas::new();
+        let idx = c.compile(id, &mut schemas)?;
+
+        for (name, json, err) in [
+            (
+                "empty license",
+                json!({"license": ""}),
+                "at '/license': '' is not valid license: empty expression",
+            ),
+            (
+                "zero license",
+                json!({"license": "0"}),
+                "at '/license': '0' is not valid license: unknown term",
+            ),
+            (
+                "parent path",
+                json!({"path": "../foo"}),
+                "'../foo' is not valid path: references parent dir",
+            ),
+        ] {
+            match schemas.validate(&json, idx) {
+                Ok(_) => panic!("{name} unexpectedly succeeded"),
+                Err(e) => {
+                    println!("{e}");
+                    assert!(e.to_string().contains(err), "{name}")
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_new() -> Result<(), Error> {
         let mut compiler = new();
 
         for tc in [("v1", "widget.json"), ("v2", "typical-sql.json")] {

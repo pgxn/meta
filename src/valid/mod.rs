@@ -7,7 +7,7 @@ It supports both the [v1] and [v2] specs.
 # Example
 
 ``` rust
-# use std::error::Error;
+# use pgxn_meta::error::Error;
 use serde_json::json;
 use pgxn_meta::valid::*;
 
@@ -30,16 +30,14 @@ let meta = json!({
 
 let mut validator = Validator::new();
 assert!(validator.validate(&meta).is_ok());
-# Ok::<(), Box<dyn Error>>(())
+# Ok::<(), Error>(())
 ```
 
   [v1]: https://rfcs.pgxn.org/0001-meta-spec-v1.html
   [v2]: https://github.com/pgxn/rfcs/pull/3
 
 */
-use std::{error::Error, fmt};
-
-use crate::util;
+use crate::{error::Error, util};
 use boon::{Compiler, Schemas};
 use serde_json::Value;
 
@@ -54,28 +52,6 @@ mod compiler;
 pub struct Validator {
     compiler: Compiler,
     schemas: Schemas,
-}
-
-/// Errors returned by Validator are ValidationError objects.
-#[derive(Debug, PartialEq)]
-pub enum ValidationError {
-    /// UnknownSpec errors are returned when the validator cannot determine
-    /// the version of the meta spec.
-    UnknownSpec,
-    /// UnknownID errors are returned by new() when a schema file has no `$id`
-    /// property.
-    UnknownID,
-}
-
-impl Error for ValidationError {}
-
-impl fmt::Display for ValidationError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            ValidationError::UnknownSpec => write!(f, "Cannot determine meta-spec version"),
-            ValidationError::UnknownID => write!(f, "No $id found in schema"),
-        }
-    }
 }
 
 /// The base URL for all JSON schemas.
@@ -111,7 +87,7 @@ impl Validator {
     /// success and a validation error on failure.
     ///
     /// See the [module docs](crate::valid) for an example.
-    pub fn validate<'a>(&'a mut self, meta: &'a Value) -> Result<u8, Box<dyn Error + 'a>> {
+    pub fn validate(&mut self, meta: &Value) -> Result<u8, Error> {
         self.validate_schema(meta, "distribution.schema.json")
     }
 
@@ -134,7 +110,7 @@ impl Validator {
     /// [JSON Serialization]: https://datatracker.ietf.org/doc/html/rfc7515#section-7.2
     /// [RFC 5]: https://github.com/pgxn/rfcs/pull/5
     /// [JSON Web Signature]: https://datatracker.ietf.org/doc/html/rfc7515
-    pub fn validate_release<'a>(&'a mut self, meta: &'a Value) -> Result<u8, Box<dyn Error + 'a>> {
+    pub fn validate_release(&mut self, meta: &Value) -> Result<u8, Error> {
         self.validate_schema(meta, "release.schema.json")
     }
 
@@ -151,25 +127,16 @@ impl Validator {
     ///
     /// [JSON Serialization]: https://datatracker.ietf.org/doc/html/rfc7515#section-7.2
     /// [RFC 5]: https://github.com/pgxn/rfcs/pull/5
-    pub fn validate_payload<'a>(&'a mut self, meta: &'a Value) -> Result<(), Box<dyn Error + 'a>> {
+    pub fn validate_payload(&mut self, meta: &Value) -> Result<(), Error> {
         self.validate_version_schema(meta, 2, "payload.schema.json")
     }
 
-    fn validate_schema<'a>(
-        &'a mut self,
-        meta: &'a Value,
-        schema: &str,
-    ) -> Result<u8, Box<dyn Error + 'a>> {
-        let v = util::get_version(meta).ok_or(ValidationError::UnknownSpec)?;
+    fn validate_schema(&mut self, meta: &Value, schema: &str) -> Result<u8, Error> {
+        let v = util::get_version(meta).ok_or(Error::UnknownSpec)?;
         self.validate_version_schema(meta, v, schema).map(|()| v)
     }
 
-    fn validate_version_schema<'a>(
-        &'a mut self,
-        meta: &'a Value,
-        v: u8,
-        schema: &str,
-    ) -> Result<(), Box<dyn Error + 'a>> {
+    fn validate_version_schema(&mut self, meta: &Value, v: u8, schema: &str) -> Result<(), Error> {
         let id = format!("{SCHEMA_BASE}{v}/{schema}");
 
         let compiler = &mut self.compiler;
@@ -184,12 +151,13 @@ impl Validator {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::error::Error;
     use serde_json::{json, Value};
-    use std::{error::Error, fs::File, path::PathBuf};
+    use std::{fs::File, path::PathBuf};
     use wax::Glob;
 
     #[test]
-    fn test_corpus() -> Result<(), Box<dyn Error>> {
+    fn test_corpus() -> Result<(), Error> {
         let mut validator = Validator::default();
 
         for (version, release_patch) in [
@@ -242,19 +210,7 @@ mod tests {
     }
 
     #[test]
-    fn test_errors() {
-        assert_eq!(
-            format!("{}", ValidationError::UnknownSpec),
-            "Cannot determine meta-spec version",
-        );
-        assert_eq!(
-            format!("{}", ValidationError::UnknownID),
-            "No $id found in schema",
-        );
-    }
-
-    #[test]
-    fn test_unknown_versions() -> Result<(), Box<dyn Error>> {
+    fn test_unknown_versions() -> Result<(), Error> {
         let mut validator = Validator::new();
 
         for (name, json) in [
@@ -285,7 +241,7 @@ mod tests {
         Ok(())
     }
 
-    fn load_minimal() -> Result<(Value, Value), Box<dyn Error>> {
+    fn load_minimal() -> Result<(Value, Value), Error> {
         let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
         let file = dir.join("v1").join("howto.json");
         let v1: Value = serde_json::from_reader(File::open(file)?)?;
@@ -295,7 +251,7 @@ mod tests {
     }
 
     #[test]
-    fn test_invalid_distribution() -> Result<(), Box<dyn Error>> {
+    fn test_invalid_distribution() -> Result<(), Error> {
         let mut validator = Validator::new();
         let (v1, v2) = load_minimal()?;
 
@@ -340,7 +296,7 @@ mod tests {
                 "v2 invalid license",
                 &v2,
                 json!({"license": "lol no"}),
-                "'/license': 'lol no' is not valid license: lol no",
+                "'/license': 'lol no' is not valid license: unknown term",
             ),
             (
                 "v1 missing control",
@@ -366,7 +322,7 @@ mod tests {
     }
 
     #[test]
-    fn test_invalid_release() -> Result<(), Box<dyn Error>> {
+    fn test_invalid_release() -> Result<(), Error> {
         let mut validator = Validator::new();
         let (v1, v2) = load_minimal()?;
         for (name, meta, patch, err) in [
@@ -427,7 +383,7 @@ mod tests {
     }
 
     #[test]
-    fn test_payload() -> Result<(), Box<dyn Error>> {
+    fn test_payload() -> Result<(), Error> {
         let mut validator = Validator::new();
         for (name, payload) in [
             (

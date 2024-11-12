@@ -508,6 +508,7 @@ dependencies = [
  "serde_with",
  "spdx",
  "tempfile",
+ "thiserror",
  "wax",
 ]
 

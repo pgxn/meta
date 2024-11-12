@@ -12,6 +12,7 @@ files. It supports both the [v1] and [v2] specs.
 */
 
 pub mod dist;
+pub mod error;
 pub mod release;
 mod util; // private utilities
 pub mod valid;
