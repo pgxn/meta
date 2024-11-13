@@ -1,32 +1,29 @@
-use std::error::Error;
-
+use super::common::*;
+use crate::error::Error;
 use boon::Schemas;
 use serde_json::{json, Map, Value};
-
-// importing common module.
-use super::common::*;
 
 const SCHEMA_VERSION: u8 = 2;
 
 #[test]
-fn test_schema_v2() -> Result<(), Box<dyn Error>> {
+fn test_schema_v2() -> Result<(), Error> {
     test_schema_version(SCHEMA_VERSION)
 }
 
 #[test]
-fn test_v2_term() -> Result<(), Box<dyn Error>> {
+fn test_v2_term() -> Result<(), Error> {
     let compiler = new_compiler("schema/v2")?;
     test_term_schema(compiler, SCHEMA_VERSION)
 }
 
 #[test]
-fn test_v2_tags() -> Result<(), Box<dyn Error>> {
+fn test_v2_tags() -> Result<(), Error> {
     let compiler = new_compiler("schema/v2")?;
     test_tags_schema(compiler, SCHEMA_VERSION)
 }
 
 #[test]
-fn test_v2_semver() -> Result<(), Box<dyn Error>> {
+fn test_v2_semver() -> Result<(), Error> {
     // Load the schemas and compile the semver schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -56,7 +53,7 @@ fn test_v2_semver() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_path() -> Result<(), Box<dyn Error>> {
+fn test_v2_path() -> Result<(), Error> {
     // Load the schemas and compile the path schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -100,7 +97,7 @@ fn test_v2_path() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_glob() -> Result<(), Box<dyn Error>> {
+fn test_v2_glob() -> Result<(), Error> {
     // Load the schemas and compile the glob schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -141,7 +138,7 @@ fn test_v2_glob() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_version_range() -> Result<(), Box<dyn Error>> {
+fn test_v2_version_range() -> Result<(), Error> {
     // Load the schemas and compile the version_range schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -211,7 +208,7 @@ fn test_v2_version_range() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_license() -> Result<(), Box<dyn Error>> {
+fn test_v2_license() -> Result<(), Error> {
     // Load the schemas and compile the license schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -261,7 +258,7 @@ fn test_v2_license() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_purl() -> Result<(), Box<dyn Error>> {
+fn test_v2_purl() -> Result<(), Error> {
     // Load the schemas and compile the purl schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -305,7 +302,7 @@ fn test_v2_purl() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_platform() -> Result<(), Box<dyn Error>> {
+fn test_v2_platform() -> Result<(), Error> {
     // Load the schemas and compile the platform schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -391,7 +388,7 @@ fn test_v2_platform() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_platforms() -> Result<(), Box<dyn Error>> {
+fn test_v2_platforms() -> Result<(), Error> {
     // Load the schemas and compile the platforms schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -439,7 +436,7 @@ fn test_v2_platforms() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_maintainers() -> Result<(), Box<dyn Error>> {
+fn test_v2_maintainers() -> Result<(), Error> {
     // Load the schemas and compile the maintainers schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -577,7 +574,7 @@ fn test_v2_maintainers() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_extension() -> Result<(), Box<dyn Error>> {
+fn test_v2_extension() -> Result<(), Error> {
     // Load the schemas and compile the extension schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -754,7 +751,7 @@ fn test_v2_extension() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_module() -> Result<(), Box<dyn Error>> {
+fn test_v2_module() -> Result<(), Error> {
     // Load the schemas and compile the module schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -923,7 +920,7 @@ fn test_v2_module() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_app() -> Result<(), Box<dyn Error>> {
+fn test_v2_app() -> Result<(), Error> {
     // Load the schemas and compile the app schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1037,7 +1034,7 @@ fn test_v2_app() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_contents() -> Result<(), Box<dyn Error>> {
+fn test_v2_contents() -> Result<(), Error> {
     // Load the schemas and compile the contents schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1176,7 +1173,7 @@ fn test_v2_contents() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_meta_spec() -> Result<(), Box<dyn Error>> {
+fn test_v2_meta_spec() -> Result<(), Error> {
     // Load the schemas and compile the meta-spec schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1230,7 +1227,7 @@ fn test_v2_meta_spec() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_categories() -> Result<(), Box<dyn Error>> {
+fn test_v2_categories() -> Result<(), Error> {
     // Load the schemas and compile the categories schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1299,7 +1296,7 @@ fn test_v2_categories() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_classifications() -> Result<(), Box<dyn Error>> {
+fn test_v2_classifications() -> Result<(), Error> {
     // Load the schemas and compile the classifications schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1370,7 +1367,7 @@ fn test_v2_classifications() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_ignore() -> Result<(), Box<dyn Error>> {
+fn test_v2_ignore() -> Result<(), Error> {
     // Load the schemas and compile the ignore schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1428,7 +1425,7 @@ fn test_v2_ignore() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_phase() -> Result<(), Box<dyn Error>> {
+fn test_v2_phase() -> Result<(), Error> {
     // Load the schemas and compile the phase schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1555,7 +1552,7 @@ fn test_v2_phase() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_packages() -> Result<(), Box<dyn Error>> {
+fn test_v2_packages() -> Result<(), Error> {
     // Load the schemas and compile the packages schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1709,7 +1706,7 @@ fn test_v2_packages() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_postgres() -> Result<(), Box<dyn Error>> {
+fn test_v2_postgres() -> Result<(), Error> {
     // Load the schemas and compile the postgres schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1769,7 +1766,7 @@ fn test_v2_postgres() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_pipeline() -> Result<(), Box<dyn Error>> {
+fn test_v2_pipeline() -> Result<(), Error> {
     // Load the schemas and compile the pipeline schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -1813,7 +1810,7 @@ fn test_v2_pipeline() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_dependencies() -> Result<(), Box<dyn Error>> {
+fn test_v2_dependencies() -> Result<(), Error> {
     // Load the schemas and compile the dependencies schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -2068,7 +2065,7 @@ fn test_v2_dependencies() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_variations() -> Result<(), Box<dyn Error>> {
+fn test_v2_variations() -> Result<(), Error> {
     // Load the schemas and compile the variations schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -2198,7 +2195,7 @@ fn test_v2_variations() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_badges() -> Result<(), Box<dyn Error>> {
+fn test_v2_badges() -> Result<(), Error> {
     // Load the schemas and compile the badges schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -2311,7 +2308,7 @@ fn test_v2_badges() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_resources() -> Result<(), Box<dyn Error>> {
+fn test_v2_resources() -> Result<(), Error> {
     // Load the schemas and compile the resources schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -2437,7 +2434,7 @@ fn test_v2_resources() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_artifacts() -> Result<(), Box<dyn Error>> {
+fn test_v2_artifacts() -> Result<(), Error> {
     // Load the schemas and compile the artifacts schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -2810,7 +2807,7 @@ fn valid_v2_distribution() -> Value {
 }
 
 #[test]
-fn test_v2_distribution() -> Result<(), Box<dyn Error>> {
+fn test_v2_distribution() -> Result<(), Error> {
     // Load the schemas and compile the distribution schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -3261,7 +3258,7 @@ fn test_v2_distribution() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_digests() -> Result<(), Box<dyn Error>> {
+fn test_v2_digests() -> Result<(), Error> {
     // Load the schemas and compile the digests schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -3421,7 +3418,7 @@ fn test_v2_digests() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_payload() -> Result<(), Box<dyn Error>> {
+fn test_v2_payload() -> Result<(), Error> {
     // Load the schemas and compile the payload schema.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
@@ -3804,7 +3801,7 @@ fn test_v2_payload() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_jwk() -> Result<(), Box<dyn Error>> {
+fn test_v2_jwk() -> Result<(), Error> {
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "jwk");
@@ -3978,7 +3975,7 @@ fn test_v2_jwk() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_jws_header() -> Result<(), Box<dyn Error>> {
+fn test_v2_jws_header() -> Result<(), Error> {
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "jws-header");
@@ -4131,7 +4128,7 @@ fn test_v2_jws_header() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_jws() -> Result<(), Box<dyn Error>> {
+fn test_v2_jws() -> Result<(), Error> {
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "jws");
@@ -4692,7 +4689,7 @@ fn test_v2_jws() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_certs() -> Result<(), Box<dyn Error>> {
+fn test_v2_certs() -> Result<(), Error> {
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();
     let id = id_for(SCHEMA_VERSION, "certs");
@@ -4777,7 +4774,7 @@ fn test_v2_certs() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v2_release() -> Result<(), Box<dyn Error>> {
+fn test_v2_release() -> Result<(), Error> {
     // Load the schemas and compile the release and distribution schemas.
     let mut compiler = new_compiler("schema/v2")?;
     let mut schemas = Schemas::new();

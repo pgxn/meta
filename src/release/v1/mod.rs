@@ -1,15 +1,14 @@
 use super::Release;
-use crate::dist::v1 as dist;
+use crate::{dist::v1 as dist, error::Error};
 use serde_json::{json, Value};
-use std::error::Error;
 
 /// to_v2 parses v1, which contains PGXN v1 release metadata, into a JSON
 /// object containing valid PGXN v2 release certification.
-pub fn to_v2(v1: &Value) -> Result<Value, Box<dyn Error>> {
+pub fn to_v2(v1: &Value) -> Result<Value, Error> {
     let mut v2_val = dist::to_v2(v1)?;
     let v2 = v2_val
         .as_object_mut()
-        .ok_or("Date returned from v1::to_v2 is not an object")?;
+        .ok_or_else(|| Error::Param("data returned from v1::to_v2 is not an object"))?;
 
     // Convert release.
     v2.insert("certs".to_string(), v1_to_v2_release(v1)?);
@@ -19,14 +18,14 @@ pub fn to_v2(v1: &Value) -> Result<Value, Box<dyn Error>> {
 
 /// from_value parses v1, which contains PGXN v1 metadata, into a
 /// [`Release`] object containing valid PGXN v2 metadata.
-pub fn from_value(v1: Value) -> Result<Release, Box<dyn Error>> {
+pub fn from_value(v1: Value) -> Result<Release, Error> {
     to_v2(&v1)?.try_into()
 }
 
 /// v1_to_v2_release clones release metadata from v1 to the v2 format. The
 /// included signature information will be random and un-verifiable, but
 /// adequate for v2 JSON Schema validation.
-fn v1_to_v2_release(v1: &Value) -> Result<Value, Box<dyn Error>> {
+fn v1_to_v2_release(v1: &Value) -> Result<Value, Error> {
     use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
     use rand::distributions::{Alphanumeric, DistString};
 
@@ -66,7 +65,7 @@ fn v1_to_v2_release(v1: &Value) -> Result<Value, Box<dyn Error>> {
             }
         }
     }
-    Err(Box::from(format!("missing release property {:?}", field)))
+    Err(Error::Missing(field))
 }
 
 #[cfg(test)]

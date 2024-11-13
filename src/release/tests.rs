@@ -1,7 +1,8 @@
 use super::*;
+use crate::error::Error;
 use chrono::prelude::*;
 use serde_json::{json, Value};
-use std::{error::Error, fs::File, io::Write, path::PathBuf};
+use std::{fs::File, io::Write, path::PathBuf};
 use tempfile::NamedTempFile;
 use wax::Glob;
 
@@ -34,7 +35,7 @@ fn release_date() -> DateTime<Utc> {
 }
 
 #[test]
-fn test_corpus() -> Result<(), Box<dyn Error>> {
+fn test_corpus() -> Result<(), Error> {
     let certs = certs();
     let payload = get_payload(&certs);
     for (version, patch) in [
@@ -82,7 +83,7 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
                         );
 
                         // Make sure round-trip produces the same JSON.
-                        let output: Result<Value, Box<dyn Error>> = release.try_into();
+                        let output: Result<Value, Error> = release.try_into();
                         match output {
                             Err(e) => panic!("{v_dir}/{bn} failed: {e}"),
                             Ok(val) => {
@@ -100,7 +101,7 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
                 Ok(dist) => {
                     if version == 2 {
                         // Make sure value round-trip produces the same JSON.
-                        let output: Result<String, Box<dyn Error>> = dist.try_into();
+                        let output: Result<String, Error> = dist.try_into();
                         match output {
                             Err(e) => panic!("{v_dir}/{bn} failed: {e}"),
                             Ok(val) => {
@@ -146,7 +147,7 @@ fn get_payload(meta: &Value) -> ReleasePayload {
 }
 
 #[test]
-fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
+fn test_bad_corpus() -> Result<(), Error> {
     // Load valid distribution metadata.
     let file: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", "invalid.json"]
         .iter()
@@ -170,7 +171,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
     // Make sure we fail on invalid version.
     match Release::from_version(99, meta.clone()) {
         Ok(_) => panic!("Unexpected success with invalid version"),
-        Err(e) => assert_eq!("Unknown meta version 99", e.to_string(),),
+        Err(e) => assert_eq!("cannot determine meta-spec version", e.to_string(),),
     }
 
     // Should fail when no meta-spec.
@@ -199,7 +200,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_try_merge_v2() -> Result<(), Box<dyn Error>> {
+fn test_try_merge_v2() -> Result<(), Error> {
     // Load a v2 META file.
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
     let widget_file = dir.join("v2").join("minimal.json");
@@ -240,7 +241,7 @@ fn test_try_merge_v2() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_try_merge_v1() -> Result<(), Box<dyn Error>> {
+fn test_try_merge_v1() -> Result<(), Error> {
     // Load a v1 META file.
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
     let widget_file = dir.join("v1").join("widget.json");
@@ -294,7 +295,7 @@ fn run_merge_case(
     orig: &Value,
     patches: &[Value],
     expect: &Value,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), Error> {
     let patch = certs();
     let mut meta = vec![orig, &patch];
     for p in patches {
@@ -304,7 +305,7 @@ fn run_merge_case(
         Err(e) => panic!("patching {name} failed: {e}"),
         Ok(dist) => {
             // Convert the Release object to JSON.
-            let output: Result<Value, Box<dyn Error>> = dist.try_into();
+            let output: Result<Value, Error> = dist.try_into();
             match output {
                 Err(e) => panic!("{name} serialization failed: {e}"),
                 Ok(val) => {
@@ -321,7 +322,7 @@ fn run_merge_case(
 }
 
 #[test]
-fn test_try_merge_err() -> Result<(), Box<dyn Error>> {
+fn test_try_merge_err() -> Result<(), Error> {
     // Load invalid meta.
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
     let widget_file = dir.join("invalid.json");
@@ -335,12 +336,12 @@ fn test_try_merge_err() -> Result<(), Box<dyn Error>> {
         (
             "no version",
             vec![&empty],
-            "No spec version found in first meta value",
+            "cannot determine meta-spec version",
         ),
         (
             "bad version",
             vec![&bad_version],
-            "No spec version found in first meta value",
+            "cannot determine meta-spec version",
         ),
         ("invalid", vec![&invalid], "missing properties 'version'"),
     ] {
@@ -422,7 +423,7 @@ fn release_payload() {
 }
 
 #[test]
-fn release() -> Result<(), Box<dyn Error>> {
+fn release() -> Result<(), Error> {
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", "v2"]
         .iter()
         .collect();
@@ -544,7 +545,7 @@ fn release() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn release_deserialize_err() -> Result<(), Box<dyn Error>> {
+fn release_deserialize_err() -> Result<(), Error> {
     // Load a v2 META file.
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
     let widget_file = dir.join("v2").join("minimal.json");

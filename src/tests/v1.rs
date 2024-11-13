@@ -1,34 +1,31 @@
-use std::error::Error;
-
+use super::common::*;
+use crate::error::Error;
 use boon::Schemas;
 use serde_json::{json, Map, Value};
-
-// importing common module.
-use super::common::*;
 
 const SCHEMA_VERSION: u8 = 1;
 
 #[test]
-fn test_schema_v1() -> Result<(), Box<dyn Error>> {
+fn test_schema_v1() -> Result<(), Error> {
     test_schema_version(SCHEMA_VERSION)
 }
 
 #[test]
-fn test_v1_term() -> Result<(), Box<dyn Error>> {
+fn test_v1_term() -> Result<(), Error> {
     // Load the schemas and compile the term schema.
     let compiler = new_compiler("schema/v1")?;
     test_term_schema(compiler, SCHEMA_VERSION)
 }
 
 #[test]
-fn test_v1_tags() -> Result<(), Box<dyn Error>> {
+fn test_v1_tags() -> Result<(), Error> {
     // Load the schemas and compile the tags schema.
     let compiler = new_compiler("schema/v1")?;
     test_tags_schema(compiler, SCHEMA_VERSION)
 }
 
 #[test]
-fn test_v1_version() -> Result<(), Box<dyn Error>> {
+fn test_v1_version() -> Result<(), Error> {
     // Load the schemas and compile the version schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -53,7 +50,7 @@ fn test_v1_version() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_version_range() -> Result<(), Box<dyn Error>> {
+fn test_v1_version_range() -> Result<(), Error> {
     // Load the schemas and compile the version_range schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -124,7 +121,7 @@ fn test_v1_version_range() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_license() -> Result<(), Box<dyn Error>> {
+fn test_v1_license() -> Result<(), Error> {
     // Load the schemas and compile the license schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -193,7 +190,7 @@ fn test_v1_license() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_provides() -> Result<(), Box<dyn Error>> {
+fn test_v1_provides() -> Result<(), Error> {
     // Load the schemas and compile the provides schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -292,7 +289,7 @@ fn test_v1_provides() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_extension() -> Result<(), Box<dyn Error>> {
+fn test_v1_extension() -> Result<(), Error> {
     // Load the schemas and compile the extension schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -468,7 +465,7 @@ fn test_v1_extension() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_maintainer() -> Result<(), Box<dyn Error>> {
+fn test_v1_maintainer() -> Result<(), Error> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -518,7 +515,7 @@ fn test_v1_maintainer() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_meta_spec() -> Result<(), Box<dyn Error>> {
+fn test_v1_meta_spec() -> Result<(), Error> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -576,7 +573,7 @@ fn test_v1_meta_spec() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_bugtracker() -> Result<(), Box<dyn Error>> {
+fn test_v1_bugtracker() -> Result<(), Error> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -630,7 +627,7 @@ fn test_v1_bugtracker() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_no_index() -> Result<(), Box<dyn Error>> {
+fn test_v1_no_index() -> Result<(), Error> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -697,7 +694,7 @@ fn test_v1_no_index() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_prereq_relationship() -> Result<(), Box<dyn Error>> {
+fn test_v1_prereq_relationship() -> Result<(), Error> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -750,7 +747,7 @@ fn test_v1_prereq_relationship() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_prereq_phase() -> Result<(), Box<dyn Error>> {
+fn test_v1_prereq_phase() -> Result<(), Error> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -862,7 +859,7 @@ fn test_v1_prereq_phase() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_prereqs() -> Result<(), Box<dyn Error>> {
+fn test_v1_prereqs() -> Result<(), Error> {
     // Load the schemas and compile the maintainer schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -1010,7 +1007,7 @@ fn test_v1_prereqs() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_repository() -> Result<(), Box<dyn Error>> {
+fn test_v1_repository() -> Result<(), Error> {
     // Load the schemas and compile the repository schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -1087,7 +1084,7 @@ fn test_v1_repository() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_resources() -> Result<(), Box<dyn Error>> {
+fn test_v1_resources() -> Result<(), Error> {
     // Load the schemas and compile the resources schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -1224,7 +1221,7 @@ fn valid_distribution() -> Value {
 }
 
 #[test]
-fn test_v1_distribution() -> Result<(), Box<dyn Error>> {
+fn test_v1_distribution() -> Result<(), Error> {
     // Load the schemas and compile the distribution schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();
@@ -2043,7 +2040,7 @@ fn test_v1_distribution() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_v1_release() -> Result<(), Box<dyn Error>> {
+fn test_v1_release() -> Result<(), Error> {
     // Load the schemas and compile the distribution schema.
     let mut compiler = new_compiler("schema/v1")?;
     let mut schemas = Schemas::new();

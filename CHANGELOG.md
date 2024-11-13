@@ -13,12 +13,14 @@ All notable changes to this project will be documented in this file. It uses the
 
 *   Added the [error module], which defines all the errors returned by
     pgxn_meta.
-*   Changed the errors returned from the [valid module] from boxed
-    [boon] errors with lifetimes to [error module] errors with no lifetimes.
+*   Changed the errors returned by all the APIs from boxed errors [error
+    module] errors.
 
 ### 📔 Notes
 
 *   Removed the `valid::ValidationError` enum.
+*   Changed the errors returned from the [valid module] from boxed [boon]
+    errors with lifetimes to [error module] errors with no lifetimes.
 
   [v0.5.0]: https://github.com/pgxn/meta/compare/v0.4.0...v0.5.0
   [error module]: https://docs.rs/pgxn_meta/0.5.0/pgxn_meta/error/

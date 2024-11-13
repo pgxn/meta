@@ -1,10 +1,7 @@
 use super::Release;
+use crate::error::Error;
 use serde_json::Value;
-use std::error::Error;
 
-pub fn from_value(meta: Value) -> Result<Release, Box<dyn Error>> {
-    match serde_json::from_value(meta) {
-        Ok(m) => Ok(m),
-        Err(e) => Err(Box::from(e)),
-    }
+pub fn from_value(meta: Value) -> Result<Release, Error> {
+    Ok(serde_json::from_value(meta)?)
 }

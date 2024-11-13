@@ -1,11 +1,10 @@
 use std::{
     collections::HashMap,
-    error::Error,
     fs::{self, File},
     path::Path,
 };
 
-use crate::valid::compiler;
+use crate::{error::Error, valid::compiler};
 use boon::{Compiler, Schemas};
 use serde_json::{json, Value};
 use wax::Glob;
@@ -93,22 +92,20 @@ pub fn id_for(version: u8, schema: &str) -> String {
     format!("{SCHEMA_BASE}{version}/{schema}.schema.json")
 }
 
-pub fn new_compiler<P: AsRef<Path>>(dir: P) -> Result<Compiler, Box<dyn Error>> {
+pub fn new_compiler<P: AsRef<Path>>(dir: P) -> Result<Compiler, Error> {
     let mut compiler = compiler::spec_compiler();
     let glob = Glob::new("**/*.schema.json")?;
     for path in glob.walk(dir) {
         let path = path?.into_path();
         let schema: Value = serde_json::from_reader(File::open(&path)?)?;
-        let id = &schema["$id"]
-            .as_str()
-            .ok_or(format!("Missing $id from {}", &path.display()))?;
+        let id = &schema["$id"].as_str().ok_or(Error::UnknownSchemaId)?;
         compiler.add_resource(id, schema.to_owned())?;
     }
 
     Ok(compiler)
 }
 
-pub fn test_term_schema(mut compiler: Compiler, version: u8) -> Result<(), Box<dyn Error>> {
+pub fn test_term_schema(mut compiler: Compiler, version: u8) -> Result<(), Error> {
     let mut schemas = Schemas::new();
     let id = id_for(version, "term");
     let idx = compiler.compile(&id, &mut schemas)?;
@@ -157,7 +154,7 @@ pub fn test_term_schema(mut compiler: Compiler, version: u8) -> Result<(), Box<d
     Ok(())
 }
 
-pub fn test_tags_schema(mut compiler: Compiler, version: u8) -> Result<(), Box<dyn Error>> {
+pub fn test_tags_schema(mut compiler: Compiler, version: u8) -> Result<(), Error> {
     // Load the schemas and compile the tags schema.
     let mut schemas = Schemas::new();
     let id = id_for(version, "tags");
@@ -206,7 +203,7 @@ pub fn test_tags_schema(mut compiler: Compiler, version: u8) -> Result<(), Box<d
     Ok(())
 }
 
-pub fn test_schema_version(version: u8) -> Result<(), Box<dyn Error>> {
+pub fn test_schema_version(version: u8) -> Result<(), Error> {
     let mut compiler = Compiler::new();
     compiler.enable_format_assertions();
     let mut loaded: HashMap<String, Vec<Value>> = HashMap::new();

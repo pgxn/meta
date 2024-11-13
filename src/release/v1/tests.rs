@@ -87,7 +87,7 @@ fn test_v1_v2_release_err() {
         match v1_to_v2_release(&input) {
             Ok(_) => panic!("{name} unexpectedly succeeded"),
             Err(e) => assert_eq!(
-                format!("missing release property \"{name}\""),
+                format!("{name} property missing"),
                 e.to_string(),
                 "{name}: {e}"
             ),
