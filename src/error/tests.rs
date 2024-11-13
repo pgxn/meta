@@ -16,13 +16,13 @@ fn spdx() {
 fn unknown_spec() {
     assert_eq!(
         Error::UnknownSpec.to_string(),
-        "Cannot determine meta-spec version"
+        "cannot determine meta-spec version"
     )
 }
 
 #[test]
 fn unknown_schema_id() {
-    assert_eq!(Error::UnknownSchemaId.to_string(), "No $id found in schema")
+    assert_eq!(Error::UnknownSchemaId.to_string(), "no $id found in schema")
 }
 
 #[test]
@@ -88,4 +88,35 @@ fn glob() {
         assert!(matches!(err, Error::Glob { .. }));
         assert_eq!(exp, err.to_string());
     }
+}
+
+#[test]
+fn parameter() {
+    assert_eq!("invalid hi", Error::Param("invalid hi").to_string())
+}
+
+#[test]
+fn invalid() {
+    for (name, err, exp) in [
+        (
+            "v1 thing",
+            Error::Invalid("thing", 1, json!("hi")),
+            "invalid v1 thing value: \"hi\"",
+        ),
+        (
+            "v2 bag array",
+            Error::Invalid("bag", 2, json!([])),
+            "invalid v2 bag value: []",
+        ),
+    ] {
+        assert_eq!(exp, err.to_string(), "{name}");
+    }
+}
+
+#[test]
+fn missing() {
+    assert_eq!(
+        "thing property missing",
+        Error::Missing("thing").to_string()
+    )
 }

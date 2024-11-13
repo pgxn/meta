@@ -116,22 +116,22 @@ fn test_v1_to_v2_maintainers_errors() {
         (
             "null maintainer",
             json!({"maintainer": null}),
-            "Invalid v1 maintainer: null",
+            "invalid v1 maintainer value: null",
         ),
         (
             "object maintainer",
             json!({"maintainer": {"name": "hi"}}),
-            r#"Invalid v1 maintainer: {"name":"hi"}"#,
+            r#"invalid v1 maintainer value: {"name":"hi"}"#,
         ),
         (
             "null maintainer item",
             json!({"maintainer": [null]}),
-            "Invalid v1 maintainer: null",
+            "invalid v1 maintainer value: null",
         ),
         (
             "true maintainer item",
             json!({"maintainer": [true]}),
-            "Invalid v1 maintainer: true",
+            "invalid v1 maintainer value: true",
         ),
     ] {
         match v1_to_v2_maintainers(&input) {
@@ -249,25 +249,33 @@ fn test_v1_v2_licenses_error() {
         (
             "unknown string",
             json!({"license": "nonesuch"}),
-            "Invalid v1 license: \"nonesuch\"",
+            "invalid v1 license value: \"nonesuch\"",
         ),
         (
             "unknown array",
             json!({"license": ["nonesuch"]}),
-            "Invalid v1 license: \"nonesuch\"",
+            "invalid v1 license value: \"nonesuch\"",
         ),
         (
             "array non-string item",
             json!({"license": [{"x": "y"}]}),
-            "Invalid v1 license: {\"x\":\"y\"}",
+            "invalid v1 license value: {\"x\":\"y\"}",
         ),
         (
             "unknown object",
             json!({"license": {"nonesuch": "http://example.com"}}),
-            "Unknown v1 license: nonesuch: \"http://example.com\"",
+            "invalid v1 license value: \"http://example.com\"",
         ),
-        ("number", json!({"license": 42}), "Invalid v1 license: 42"),
-        ("null", json!({"license": null}), "Invalid v1 license: null"),
+        (
+            "number",
+            json!({"license": 42}),
+            "invalid v1 license value: 42",
+        ),
+        (
+            "null",
+            json!({"license": null}),
+            "invalid v1 license value: null",
+        ),
         ("nonexistent", json!({}), "license property missing"),
     ] {
         match v1_to_v2_license(&input) {
@@ -333,12 +341,12 @@ fn test_v1_v2_contents_err() {
         (
             "provides null",
             json!({"provides": null}),
-            "Invalid v1 provides value: null",
+            "invalid v1 provides value: null",
         ),
         (
             "extension not object",
             json!({"provides": {"foo": []}}),
-            "Invalid v1 \"foo\" extension value: []",
+            "invalid v1 extension value: []",
         ),
     ] {
         match v1_to_v2_contents(&input) {
@@ -678,7 +686,7 @@ fn test_v1_v2_resources() {
 }
 
 #[test]
-fn test_from_value() -> Result<(), Box<dyn Error>> {
+fn test_from_value() -> Result<(), Error> {
     use wax::Glob;
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", "v1"]
         .iter()

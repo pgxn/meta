@@ -1,14 +1,13 @@
 use super::*;
 use serde_json::{json, Value};
 use std::{
-    error::Error,
     fs::{self, File},
     path::PathBuf,
 };
 use wax::Glob;
 
 #[test]
-fn test_corpus() -> Result<(), Box<dyn Error>> {
+fn test_corpus() -> Result<(), Error> {
     for v_dir in ["v1", "v2"] {
         let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", v_dir]
             .iter()
@@ -32,10 +31,11 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
                     if v_dir == "v2" {
                         assert_eq!(contents.get("license").unwrap(), dist.license());
                         // Make sure round-trip produces the same JSON.
-                        let output: Result<Value, Box<dyn Error>> = dist.try_into();
+                        let output: Result<String, Error> = dist.try_into();
                         match output {
                             Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
                             Ok(val) => {
+                                let val: Value = serde_json::from_str(&val)?;
                                 assert_json_diff::assert_json_eq!(&contents, &val);
                             }
                         };
@@ -49,11 +49,10 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
                 Ok(dist) => {
                     if v_dir == "v2" {
                         // Make sure value round-trip produces the same JSON.
-                        let output: Result<String, Box<dyn Error>> = dist.try_into();
+                        let output: Result<Value, Error> = dist.try_into();
                         match output {
                             Err(e) => panic!("{v_dir}/{:?} failed: {e}", path.file_name().unwrap()),
                             Ok(val) => {
-                                let val: Value = serde_json::from_str(&val)?;
                                 assert_json_diff::assert_json_eq!(&contents, &val);
                             }
                         };
@@ -68,7 +67,7 @@ fn test_corpus() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
+fn test_bad_corpus() -> Result<(), Error> {
     let file: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", "invalid.json"]
         .iter()
         .collect();
@@ -89,7 +88,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
             "Should have failed on {:?} but did not",
             file.file_name().unwrap()
         ),
-        Err(e) => assert_eq!("Unknown meta version 99", e.to_string()),
+        Err(e) => assert_eq!("cannot determine meta-spec version", e.to_string()),
     }
 
     // Should fail when no meta-spec.
@@ -99,7 +98,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
             "Should have failed on {:?} but did not",
             file.file_name().unwrap()
         ),
-        Err(e) => assert_eq!("Cannot determine meta-spec version", e.to_string()),
+        Err(e) => assert_eq!("cannot determine meta-spec version", e.to_string()),
     }
 
     // Make sure we catch a failure parsing into a Distribution struct.
@@ -112,7 +111,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_try_merge_v1() -> Result<(), Box<dyn Error>> {
+fn test_try_merge_v1() -> Result<(), Error> {
     // Load a v1 META file.
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
     let widget_file = dir.join("v1").join("widget.json");
@@ -169,7 +168,7 @@ fn test_try_merge_v1() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_try_merge_v2() -> Result<(), Box<dyn Error>> {
+fn test_try_merge_v2() -> Result<(), Error> {
     // Load a v2 META file.
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
     let widget_file = dir.join("v2").join("minimal.json");
@@ -214,7 +213,7 @@ fn run_merge_case(
     orig: &Value,
     patches: &[Value],
     expect: &Value,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), Error> {
     let mut meta = vec![orig];
     for p in patches {
         meta.push(p);
@@ -223,7 +222,7 @@ fn run_merge_case(
         Err(e) => panic!("patching {name} failed: {e}"),
         Ok(dist) => {
             // Convert the Distribution object to JSON.
-            let output: Result<Value, Box<dyn Error>> = dist.try_into();
+            let output: Result<Value, Error> = dist.try_into();
             match output {
                 Err(e) => panic!("{name} serialization failed: {e}"),
                 Ok(val) => {
@@ -240,7 +239,7 @@ fn run_merge_case(
 }
 
 #[test]
-fn test_try_merge_err() -> Result<(), Box<dyn Error>> {
+fn test_try_merge_err() -> Result<(), Error> {
     // Load invalid meta.
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus"].iter().collect();
     let widget_file = dir.join("invalid.json");
@@ -254,12 +253,12 @@ fn test_try_merge_err() -> Result<(), Box<dyn Error>> {
         (
             "no version",
             vec![&empty],
-            "No spec version found in first meta value",
+            "cannot determine meta-spec version",
         ),
         (
             "bad version",
             vec![&bad_version],
-            "No spec version found in first meta value",
+            "cannot determine meta-spec version",
         ),
         (
             "invalid",
@@ -277,7 +276,7 @@ fn test_try_merge_err() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
-fn test_try_merge_partman() -> Result<(), Box<dyn Error>> {
+fn test_try_merge_partman() -> Result<(), Error> {
     // Test the real-world pg_partman JSON with a patch to build the expected
     // v2 JSON. First, load the original metadata.
     let original_meta = json!({
@@ -410,7 +409,7 @@ fn test_try_merge_partman() -> Result<(), Box<dyn Error>> {
         Err(e) => panic!("patching part man failed: {e}"),
         Ok(dist) => {
             // Convert the Distributions object to JSON.
-            let output: Result<Value, Box<dyn Error>> = dist.try_into();
+            let output: Result<Value, Error> = dist.try_into();
             match output {
                 Err(e) => panic!("partman serialization failed: {e}"),
                 Ok(val) => {
@@ -1336,7 +1335,7 @@ fn test_artifact() {
 }
 
 #[test]
-fn test_distribution() -> Result<(), Box<dyn Error>> {
+fn test_distribution() -> Result<(), Error> {
     let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", "v2"]
         .iter()
         .collect();

@@ -11,11 +11,11 @@ pub enum Error {
     License(#[from] spdx::error::ParseError),
 
     /// Validator cannot determine the version of the meta spec.
-    #[error("Cannot determine meta-spec version")]
+    #[error("cannot determine meta-spec version")]
     UnknownSpec,
 
     /// A schema file has no `$id` property.
-    #[error("No $id found in schema")]
+    #[error("no $id found in schema")]
     UnknownSchemaId,
 
     /// JSON Schema compile error.
@@ -39,6 +39,18 @@ pub enum Error {
     /// Glob build error.
     #[error(transparent)]
     Glob(#[from] wax::GlobError),
+
+    /// Parameter errors.
+    #[error("{0}")]
+    Param(&'static str),
+
+    /// Invalid property value.
+    #[error("invalid v{1} {0} value: {2}")]
+    Invalid(&'static str, u8, serde_json::Value),
+
+    /// Missing property value.
+    #[error("{0} property missing")]
+    Missing(&'static str),
 }
 
 impl<'s, 'v> From<boon::ValidationError<'s, 'v>> for Error {

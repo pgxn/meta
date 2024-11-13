@@ -222,7 +222,7 @@ mod tests {
         ] {
             match validator.validate(&json) {
                 Err(e) => assert_eq!(
-                    "Cannot determine meta-spec version",
+                    "cannot determine meta-spec version",
                     e.to_string(),
                     "{name} validate"
                 ),
@@ -230,7 +230,7 @@ mod tests {
             }
             match validator.validate_release(&json) {
                 Err(e) => assert_eq!(
-                    "Cannot determine meta-spec version",
+                    "cannot determine meta-spec version",
                     e.to_string(),
                     "{name} validate_release"
                 ),

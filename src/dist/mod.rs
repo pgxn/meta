@@ -8,9 +8,9 @@ distribution `META.json` files. It supports both the [v1] and [v2] specs.
   [v2]: https://github.com/pgxn/rfcs/pull/3
 
 */
-use std::{borrow::Borrow, collections::HashMap, error::Error, fs::File, path::Path};
+use std::{borrow::Borrow, collections::HashMap, fs::File, path::Path};
 
-use crate::util;
+use crate::{error::Error, util};
 use relative_path::{RelativePath, RelativePathBuf};
 use semver::Version;
 use serde::{Deserialize, Deserializer, Serialize};
@@ -828,18 +828,18 @@ where
 impl Distribution {
     /// Deserializes `meta`, which contains PGXN `version` metadata, into a
     /// [`Distribution`].
-    fn from_version(version: u8, meta: Value) -> Result<Self, Box<dyn Error>> {
+    fn from_version(version: u8, meta: Value) -> Result<Self, Error> {
         match version {
             1 => v1::from_value(meta),
             2 => v2::from_value(meta),
-            _ => Err(Box::from(format!("Unknown meta version {version}"))),
+            _ => Err(Error::UnknownSpec),
         }
     }
 
     /// Loads the release `META.json` data from `file` then converts into a
     /// [`Distribution`]. Returns an error on file error or if the content of
     /// `file` is not valid PGXN `META.json` data.
-    pub fn load<P: AsRef<Path>>(file: P) -> Result<Self, Box<dyn Error>> {
+    pub fn load<P: AsRef<Path>>(file: P) -> Result<Self, Error> {
         let meta: Value = serde_json::from_reader(File::open(file)?)?;
         meta.try_into()
     }
@@ -922,7 +922,7 @@ impl Distribution {
 }
 
 impl TryFrom<Value> for Distribution {
-    type Error = Box<dyn Error>;
+    type Error = Error;
     /// Converts the PGXN `META.json` data from `meta` into a
     /// [`Distribution`]. Returns an error if `meta` is invalid.
     ///
@@ -959,16 +959,13 @@ impl TryFrom<Value> for Distribution {
     fn try_from(meta: Value) -> Result<Self, Self::Error> {
         // Make sure it's valid.
         let mut validator = crate::valid::Validator::new();
-        let version = match validator.validate(&meta) {
-            Err(e) => return Err(Box::from(e.to_string())),
-            Ok(v) => v,
-        };
+        let version = validator.validate(&meta)?;
         Distribution::from_version(version, meta)
     }
 }
 
 impl TryFrom<&[&Value]> for Distribution {
-    type Error = Box<dyn Error>;
+    type Error = Error;
     /// Merge multiple PGXN `META.json` data from `meta` into a
     /// [`Distribution`]. Returns an error if `meta` is invalid.
     ///
@@ -1013,12 +1010,11 @@ impl TryFrom<&[&Value]> for Distribution {
     /// [RFC 7396]: https:///www.rfc-editor.org/rfc/rfc7396.html
     fn try_from(meta: &[&Value]) -> Result<Self, Self::Error> {
         if meta.is_empty() {
-            return Err(Box::from("meta contains no values"));
+            return Err(Error::Param("meta contains no values"));
         }
 
         // Find the version of the first doc.
-        let version =
-            util::get_version(meta[0]).ok_or("No spec version found in first meta value")?;
+        let version = util::get_version(meta[0]).ok_or(Error::UnknownSpec)?;
 
         // Convert the first doc to v2 if necessary.
         let mut v2 = match version {
@@ -1034,21 +1030,20 @@ impl TryFrom<&[&Value]> for Distribution {
 
         // Validate the patched doc and return.
         let mut validator = crate::valid::Validator::new();
-        validator.validate(&v2).map_err(|e| e.to_string())?;
+        validator.validate(&v2)?;
         Distribution::from_version(2, v2)
     }
 }
 
 impl TryFrom<Distribution> for Value {
-    type Error = Box<dyn Error>;
+    type Error = Error;
     /// Converts `meta` into a [serde_json::Value].
     ///
     /// # Example
     ///
     /// ``` rust
-    /// # use std::error::Error;
     /// use serde_json::{json, Value};
-    /// use pgxn_meta::dist::*;
+    /// use pgxn_meta::{error::Error, dist::*};
     ///
     /// let meta_json = json!({
     ///   "name": "pair",
@@ -1072,7 +1067,7 @@ impl TryFrom<Distribution> for Value {
     ///
     /// let meta = Distribution::try_from(meta_json);
     /// assert!(meta.is_ok());
-    /// let val: Result<Value, Box<dyn Error>> = meta.unwrap().try_into();
+    /// let val: Result<Value, Error> = meta.unwrap().try_into();
     /// assert!(val.is_ok());
     /// ```
     fn try_from(meta: Distribution) -> Result<Self, Self::Error> {
@@ -1082,7 +1077,7 @@ impl TryFrom<Distribution> for Value {
 }
 
 impl TryFrom<&String> for Distribution {
-    type Error = Box<dyn Error>;
+    type Error = Error;
     /// Converts `str` into JSON and then into  a [`Distribution`]. Returns an
     /// error if the content of `str` is not valid PGXN `META.json` data.
     fn try_from(str: &String) -> Result<Self, Self::Error> {
@@ -1092,7 +1087,7 @@ impl TryFrom<&String> for Distribution {
 }
 
 impl TryFrom<Distribution> for String {
-    type Error = Box<dyn Error>;
+    type Error = Error;
     /// Converts `meta` into a JSON String.
     fn try_from(meta: Distribution) -> Result<Self, Self::Error> {
         let val = serde_json::to_string(&meta)?;

@@ -177,7 +177,7 @@ fn test_bad_corpus() -> Result<(), Box<dyn Error>> {
     meta.as_object_mut().unwrap().remove("meta-spec");
     match Release::try_from(meta.clone()) {
         Ok(_) => panic!("Unexpected success with no meta-spec"),
-        Err(e) => assert_eq!("Cannot determine meta-spec version", e.to_string()),
+        Err(e) => assert_eq!("cannot determine meta-spec version", e.to_string()),
     }
 
     // Should fail on missing certs object.

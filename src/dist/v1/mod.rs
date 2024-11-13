@@ -1,11 +1,12 @@
 use super::Distribution;
+use crate::error::Error;
 use email_address::EmailAddress;
 use serde_json::{json, Map, Value};
-use std::{error::Error, str::FromStr};
+use std::str::FromStr;
 
 /// to_v2 parses v1, which contains PGXN v1 metadata, into a JSON object
 /// containing valid PGXN v2 metadata.
-pub fn to_v2(v1: &Value) -> Result<Value, Box<dyn Error>> {
+pub fn to_v2(v1: &Value) -> Result<Value, Error> {
     // Copy common fields.
     let mut v2 = v1_to_v2_common(v1);
 
@@ -43,7 +44,7 @@ pub fn to_v2(v1: &Value) -> Result<Value, Box<dyn Error>> {
 
 /// from_value parses v1, which contains PGXN v1 metadata, into a
 /// [`Distribution`] object containing valid PGXN v2 metadata.
-pub fn from_value(v1: Value) -> Result<Distribution, Box<dyn Error>> {
+pub fn from_value(v1: Value) -> Result<Distribution, Error> {
     to_v2(&v1)?.try_into()
 }
 
@@ -104,7 +105,7 @@ fn v1_to_v2_custom_props(v1: &Map<String, Value>, v2: &mut Map<String, Value>) {
 /// attempts to parse an email address from each maintainer in v1; if there is
 /// no email address, it sets `url` the value in `resources.homepage`, if
 /// present, and otherwise to `https://pgxn.org`.
-fn v1_to_v2_maintainers(v1: &Value) -> Result<Value, Box<dyn Error>> {
+fn v1_to_v2_maintainers(v1: &Value) -> Result<Value, Error> {
     if let Some(maintainer) = v1.get("maintainer") {
         return match maintainer {
             Value::Array(list) => parse_v1_maintainers(v1, list),
@@ -112,10 +113,10 @@ fn v1_to_v2_maintainers(v1: &Value) -> Result<Value, Box<dyn Error>> {
                 let list = vec![maintainer.clone()];
                 parse_v1_maintainers(v1, &list)
             }
-            _ => Err(Box::from(format!("Invalid v1 maintainer: {maintainer}"))),
+            _ => Err(Error::Invalid("maintainer", 1, maintainer.clone())),
         };
     }
-    Err(Box::from("maintainer property missing"))
+    Err(Error::Missing("maintainer"))
 }
 
 /// parse_v1_maintainers parses list for a list of v1 maintainer strings and
@@ -125,7 +126,7 @@ fn v1_to_v2_maintainers(v1: &Value) -> Result<Value, Box<dyn Error>> {
 /// Otherwise the string will be saved as the maintainer `name` and the `url`
 /// set to either the `homepage` in the `resources` object in `v1`, or else
 /// `https://pgxn.org`.
-fn parse_v1_maintainers(v1: &Value, list: &[Value]) -> Result<Value, Box<dyn Error>> {
+fn parse_v1_maintainers(v1: &Value, list: &[Value]) -> Result<Value, Error> {
     let mut new_list: Vec<Value> = Vec::with_capacity(list.len());
     for v in list {
         if let Some(str) = v.as_str() {
@@ -150,7 +151,7 @@ fn parse_v1_maintainers(v1: &Value, list: &[Value]) -> Result<Value, Box<dyn Err
                 new_list.push(json!({"name": str, "url": url}));
             }
         } else {
-            return Err(Box::from(format!("Invalid v1 maintainer: {v}")));
+            return Err(Error::Invalid("maintainer", 1, v.clone()));
         }
     }
 
@@ -172,14 +173,14 @@ fn parse_v1_maintainers(v1: &Value, list: &[Value]) -> Result<Value, Box<dyn Err
 ///     from those used on PGXN, and all should be mapped to valid values. If
 ///     not, an error will be returned. Otherwise, the resulting list of
 ///     license strings is `OR`ed into a license expression.
-fn v1_to_v2_license(v1: &Value) -> Result<Value, Box<dyn Error>> {
+fn v1_to_v2_license(v1: &Value) -> Result<Value, Error> {
     if let Some(license) = v1.get("license") {
         return match license {
             Value::String(l) => {
                 if let Some(name) = license_expression_for(l.as_str()) {
                     return Ok(Value::String(name.to_string()));
                 }
-                Err(Box::from(format!("Invalid v1 license: {license}")))
+                Err(Error::Invalid("license", 1, license.clone()))
             }
             Value::Array(list) => {
                 // https://users.rust-lang.org/t/replace-elements-of-a-vector-as-a-function-of-previous-values/101618/6
@@ -189,10 +190,10 @@ fn v1_to_v2_license(v1: &Value) -> Result<Value, Box<dyn Error>> {
                         Value::String(s) => {
                             match license_expression_for(s.as_str()) {
                                 Some(name) => v.push(name.to_string()),
-                                None => return Err(Box::from(format!("Invalid v1 license: {ln}"))),
+                                None => return Err(Error::Invalid("license", 1, ln.clone())),
                             };
                         }
-                        _ => return Err(Box::from(format!("Invalid v1 license: {ln}"))),
+                        _ => return Err(Error::Invalid("license", 1, ln.clone())),
                     };
                 }
                 return Ok(Value::String(v.join(" OR ")));
@@ -219,15 +220,15 @@ fn v1_to_v2_license(v1: &Value) -> Result<Value, Box<dyn Error>> {
                             "restricted",
                             Some("https://github.com/diffix/pg_diffix/blob/master/LICENSE.md"),
                         ) => list.push("BUSL-1.1".to_string()),
-                        _ => return Err(Box::from(format!("Unknown v1 license: {k}: {v}"))),
+                        _ => return Err(Error::Invalid("license", 1, v.clone())),
                     }
                 }
                 return Ok(Value::String(list.join(" OR ")));
             }
-            _ => Err(Box::from(format!("Invalid v1 license: {license}"))),
+            _ => Err(Error::Invalid("license", 1, license.clone())),
         };
     }
-    Err(Box::from("license property missing"))
+    Err(Error::Missing("license"))
 }
 
 /// license_expression_for maps the list of v1 open source license names to
@@ -276,7 +277,7 @@ fn license_expression_for(name: &str) -> Option<&str> {
 ///
 /// Returns the resulting object in a valid `contents` object with
 /// `extensions` as the sole property.
-fn v1_to_v2_contents(v1: &Value) -> Result<Value, Box<dyn Error>> {
+fn v1_to_v2_contents(v1: &Value) -> Result<Value, Error> {
     if let Some(provides) = v1.get("provides") {
         // Assume everything is an extension. It's not true, but most common.
         let mut extensions = Map::new();
@@ -310,21 +311,16 @@ fn v1_to_v2_contents(v1: &Value) -> Result<Value, Box<dyn Error>> {
 
                         extensions.insert(ext.to_string(), Value::Object(v2_spec));
                     }
-                    _ => {
-                        return Err(Box::from(format!(
-                            "Invalid v1 {:?} extension value: {spec}",
-                            ext,
-                        )))
-                    }
+                    _ => return Err(Error::Invalid("extension", 1, spec.clone())),
                 }
             }
         } else {
-            return Err(Box::from(format!("Invalid v1 provides value: {provides}")));
+            return Err(Error::Invalid("provides", 1, provides.clone()));
         }
 
         return Ok(json!({"extensions": extensions}));
     }
-    Err(Box::from("provides property missing"))
+    Err(Error::Missing("provides"))
 }
 
 /// v1_to_v2_classifications clones the tags array in v1 into an object with
