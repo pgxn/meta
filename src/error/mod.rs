@@ -51,6 +51,10 @@ pub enum Error {
     /// Missing property value.
     #[error("{0} property missing")]
     Missing(&'static str),
+
+    /// Hash digest mismatch.
+    #[error("{0} digest {1} does not match {2}")]
+    Digest(&'static str, String, String),
 }
 
 impl<'s, 'v> From<boon::ValidationError<'s, 'v>> for Error {

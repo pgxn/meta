@@ -19,9 +19,10 @@ It supports both the [v1] and [v2] specs.
 
 use crate::{dist::*, error::Error, util};
 use chrono::{DateTime, Utc};
+use hex;
 use serde::{de, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
-use std::{borrow::Borrow, collections::HashMap, fs::File, path::Path};
+use std::{borrow::Borrow, collections::HashMap, fs::File, io, path::Path};
 
 mod v1;
 mod v2;
@@ -57,6 +58,62 @@ impl Digests {
     pub fn sha512(&self) -> Option<&[u8; 64]> {
         self.sha512.as_ref()
     }
+
+    /// Validates `path` against one or more of the digests. Returns an error
+    /// on validation failure.
+    pub fn validate<P: AsRef<Path>>(&self, path: P) -> Result<(), Error> {
+        self._validate(File::open(path)?)
+    }
+
+    /// Validates `file` against one or more of the digests. Returns an error
+    /// on validation failure.
+    fn _validate<P: io::Read + io::Seek>(&self, mut file: P) -> Result<(), Error> {
+        use sha1::Sha1;
+        use sha2::{Digest, Sha256, Sha512};
+        let mut ok = false;
+
+        // Prefer SHA-512.
+        if let Some(digest) = self.sha512() {
+            compare(&mut file, digest, Sha512::new(), "SHA-512")?;
+            ok = true;
+        }
+
+        // Allow SHA-256.
+        if let Some(digest) = self.sha256() {
+            compare(&mut file, digest, Sha256::new(), "SHA-256")?;
+            ok = true;
+        }
+
+        // Fall back on SHA-1 for PGXN v1 distributions.
+        if let Some(digest) = self.sha1() {
+            compare(&mut file, digest, Sha1::new(), "SHA-1")?;
+            ok = true;
+        }
+
+        if ok {
+            return Ok(());
+        }
+
+        // This should not happen, since the validator ensures there's a digest.
+        Err(Error::Missing("digests"))
+    }
+}
+
+/// Use `hasher` to hash the contents of `file` and compare the result to
+/// `digest`. Returns an error on digest failure.
+fn compare<P, D>(mut file: P, digest: &[u8], mut hasher: D, alg: &'static str) -> Result<(), Error>
+where
+    P: io::Read + io::Seek,
+    D: digest::Digest + io::Write,
+{
+    // Rewind the file, as it may be read multiple times.
+    file.rewind()?;
+    io::copy(&mut file, &mut hasher)?;
+    let hash = hasher.finalize();
+    if constant_time_eq::constant_time_eq(hash.as_slice(), digest) {
+        return Ok(());
+    }
+    Err(Error::Digest(alg, hex::encode(hash), hex::encode(digest)))
 }
 
 /// ReleasePayload represents release metadata populated by PGXN.

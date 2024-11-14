@@ -15,6 +15,8 @@ All notable changes to this project will be documented in this file. It uses the
     pgxn_meta.
 *   Changed the errors returned by all the APIs from boxed errors [error
     module] errors.
+*   Added `release.Digests.validate` method to validate a file against one or
+    more digests.
 
 ### 📔 Notes
 

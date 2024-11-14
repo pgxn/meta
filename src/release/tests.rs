@@ -2,7 +2,7 @@ use super::*;
 use crate::error::Error;
 use chrono::prelude::*;
 use serde_json::{json, Value};
-use std::{fs::File, io::Write, path::PathBuf};
+use std::{fs::File, io::Cursor, io::Write, path::PathBuf};
 use tempfile::NamedTempFile;
 use wax::Glob;
 
@@ -403,6 +403,165 @@ fn digests() {
                 "{name} sha512"
             ),
         }
+    }
+}
+
+#[test]
+fn digest_validation() {
+    use sha1::Sha1;
+    use sha2::{Digest, Sha256, Sha512};
+
+    for (name, data, digests, err) in [
+        (
+            "sha1 only",
+            b"foo".to_vec(),
+            Digests {
+                sha1: Some(Sha1::digest(b"foo").into()),
+                sha256: None,
+                sha512: None,
+            },
+            None::<&'static str>,
+        ),
+        (
+            "sha1 fail",
+            b"foo".to_vec(),
+            Digests {
+                sha1: Some(Sha1::digest(b"foobar").into()),
+                sha256: None,
+                sha512: None,
+            },
+            Some("SHA-1 digest 0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33 does not match 8843d7f92416211de9ebb963ff4ce28125932878"),
+        ),
+        (
+            "sha256 only",
+            b"foobar".to_vec(),
+            Digests {
+                sha1: None,
+                sha256: Some(Sha256::digest(b"foobar").into()),
+                sha512: None,
+            },
+            None,
+        ),
+        (
+            "sha256 fail",
+            b"foobar".to_vec(),
+            Digests {
+                sha1: None,
+                sha256: Some(Sha256::digest(b"foo bar lol").into()),
+                sha512: None,
+            },
+            Some("SHA-256 digest c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2 does not match bc218a65a558c9b8f313317afa9234220fe2e02b1db629e969ad5f9aa3ec474b"),
+        ),
+        (
+            "sha512 only",
+            b"Brat and it's completely different but also still brat".to_vec(),
+            Digests {
+                sha1: None,
+                sha256: None,
+                sha512: Some(
+                    Sha512::digest(b"Brat and it's completely different but also still brat")
+                        .into(),
+                ),
+            },
+            None,
+        ),
+        (
+            "sha512 fail",
+            b"Brat and it's completely different but also still brat".to_vec(),
+            Digests {
+                sha1: None,
+                sha256: None,
+                sha512: Some(
+                    Sha512::digest(b"The Rise and Fall of a Midwest Princess")
+                        .into(),
+                ),
+            },
+            Some("SHA-512 digest c2a036d2333446a7e35d10c3c1b2730633ab1e777ce96986a95a6b3c389861b2ce4f0ca36dd17248cafd81dc5da9dec1cc7b0861b3a89145ca6f9b79ea7a2338 does not match 854bb0d8a1c74bb5a908de96bfd3b104e1199f7fca86afea13df508dd03569f10c0e46f001824a380dd2c294fb997ff2a17649a2de5ab94dcdfecc4e738e8b82"),
+        ),
+        (
+            "all three",
+            b"So I featuring a. g. cook".to_vec(),
+            Digests {
+                sha1: Some(Sha1::digest(b"So I featuring a. g. cook").into()),
+                sha256: Some(Sha256::digest(b"So I featuring a. g. cook").into()),
+                sha512: Some(Sha512::digest(b"So I featuring a. g. cook").into()),
+            },
+            None,
+        ),
+        (
+            "all three fail sha512",
+            b"So I featuring a. g. cook".to_vec(),
+            Digests {
+                sha1: Some(Sha1::digest(b"So I featuring a. g. cook").into()),
+                sha256: Some(Sha256::digest(b"So I featuring a. g. cook").into()),
+                sha512: Some(Sha512::digest(b"So I featuring a. g. kook").into()),
+            },
+            Some("SHA-512 digest 6613d453097b5dac724cf1eda4e8b1dda22fb1fef814095a6042b2ff18a581c8d3389c76f07c28b4713dc1b6ab84751d2c04cfd6c09eadbf734010df1fd20981 does not match e836a081212cd0c96f14cbe95ffae2e7ddf57a4deecd0d0810c5f0d5705f32a5d1d93b6ea64a933a9ade762efe2ce049b2250314f61ed72f06c9eca6b6e8a068"),
+        ),
+        (
+            "all three fail sha256",
+            b"So I featuring a. g. cook".to_vec(),
+            Digests {
+                sha1: Some(Sha1::digest(b"So I featuring a. g. cook").into()),
+                sha256: Some(Sha256::digest(b"So I featuring a. g. kook").into()),
+                sha512: Some(Sha512::digest(b"So I featuring a. g. cook").into()),
+            },
+            Some("SHA-256 digest 0a636daa781343cbe78899f4ce6db80884e1f5cba2f321707ed804d8316bfd48 does not match 5327c9bc3812e9f90055db6241c1c2a58f256ec367d449eada565f09a0c51c20"),
+        ),
+        (
+            "all three fail sha1",
+            b"So I featuring a. g. cook".to_vec(),
+            Digests {
+                sha1: Some(Sha1::digest(b"So I featuring a. g. kook").into()),
+                sha256: Some(Sha256::digest(b"So I featuring a. g. cook").into()),
+                sha512: Some(Sha512::digest(b"So I featuring a. g. cook").into()),
+            },
+            Some("SHA-1 digest de4031265fa2d0813804105f662c651bbf1c29e6 does not match 50f22ad02e731657438bd6bf1a4437e47312e42d"),
+        ),
+        (
+            "no digests",
+            b"foo".to_vec(),
+            Digests {
+                sha1: None,
+                sha256: None,
+                sha512: None,
+            },
+            Some("digests property missing"),
+        ),
+    ] {
+        // std::io::Cursor wraps a vector and provides io::Read and io::Seek.
+        let res = digests._validate(Cursor::new(data));
+        match err {
+            None => assert!(res.is_ok(), "{name}"),
+            Some(e) => assert_eq!(e, res.unwrap_err().to_string(), "{name}"),
+        }
+    }
+}
+
+#[test]
+fn digest_file_validation() {
+    let dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "corpus", "v2"]
+        .iter()
+        .collect();
+
+    for (file, sha1) in [
+        ("minimal.json", "6123adb8f053fe51d11f4fd512c0f1b6953c05b5"),
+        ("typical-c.json", "a7fe4df78de863433745ad190a3f2e9a91470197"),
+    ] {
+        let path = dir.join(file);
+        let mut dst = [0u8; 20];
+        hex::decode_to_slice(sha1, &mut dst).unwrap();
+        let digests = Digests {
+            sha1: Some(dst),
+            sha256: None,
+            sha512: None,
+        };
+
+        let res = digests.validate(&path);
+        if let Err(e) = digests.validate(&path) {
+            panic!("{file} validation failed: {e}")
+        }
+        assert!(res.is_ok(), "{file}");
     }
 }
 
