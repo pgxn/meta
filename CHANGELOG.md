@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.5.1] — 2024-11-15
+
+### 📔 Notes
+
+*   Updated all dependencies.
+
+  [v0.5.1]: https://github.com/pgxn/meta/compare/v0.5.0...v0.5.1
+
 ## [v0.5.0] — 2024-11-15
 
 ### ⚡ Improvements
