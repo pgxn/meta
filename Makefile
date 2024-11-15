@@ -25,3 +25,7 @@ VERSION = $(shell perl -nE '/^version\s*=\s*"([^"]+)/ && do { say $$1; exit }' C
 .PHONY: release-notes # Show release notes for current version (must have `mknotes` in PATH).
 release-notes: CHANGELOG.md
 	mknotes -v v$(VERSION) -f $< -r https://github.com/$(or $(GITHUB_REPOSITORY),pgxn/meta)
+
+.PHONY: clean # Remove generated files
+clean:
+	@rm -rf target
