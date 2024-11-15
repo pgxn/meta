@@ -1,8 +1,8 @@
 [package]
 name = "pgxn_meta"
-version = "0.4.0"
+version = "0.5.0"
 description = "The PGXN distribution metadata specification"
-repository = "https://github.com/pgxn/pgxn-meta-spec"
+repository = "https://github.com/pgxn/meta"
 documentation = "https://docs.rs/pgxn_meta/"
 authors = ["David E. Wheeler <david@justatheory.com>"]
 readme = "README.md"

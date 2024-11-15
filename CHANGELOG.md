@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
-## [v0.5.0] — Unreleased
+## [v0.5.0] — 2024-11-15
 
 ### ⚡ Improvements
 
@@ -22,7 +22,12 @@ All notable changes to this project will be documented in this file. It uses the
 
 *   Removed the `valid::ValidationError` enum.
 *   Changed the errors returned from the [valid module] from boxed [boon]
-    errors with lifetimes to [error module] errors with no lifetimes.
+    errors with lifetimes to [error module] errors with no lifetimes,
+    eliminating the need for lifetimes on the Validator struct and methods.
+
+### 📚 Documentation
+
+*   Fixed the repository link in `Cargo.toml`.
 
   [v0.5.0]: https://github.com/pgxn/meta/compare/v0.4.0...v0.5.0
   [error module]: https://docs.rs/pgxn_meta/0.5.0/pgxn_meta/error/
