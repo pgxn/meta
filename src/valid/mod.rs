@@ -99,7 +99,7 @@ impl Validator {
     /// release, the release timestamp, and a sha1 checksums for the
     /// distribution file. [RFC 5] defines the structure of v2 release
     /// metadata as a [JSON Web Signature], which includes an encoded payload
-    /// value which must be separately validated by [`validate_payload`].
+    /// value which must be separately validated by [`Self::validate_payload`].
     ///
     ///
     /// This method validates the structure of such a release `META.json`
@@ -117,9 +117,9 @@ impl Validator {
     /// Validate PGXN release JWS payload.
     ///
     /// The JSON Web Signature [JSON Serialization] object validated by
-    /// [`validate_release`] includes a Base 64 URL-encoded payload, which
-    /// contains the validated PGXN release metadata. Once decoded, use this
-    /// method to validate it.
+    /// [`Self::validate_release`] includes a Base 64 URL-encoded payload,
+    /// which contains the validated PGXN release metadata. Once decoded, use
+    /// this method to validate it.
     ///
     /// The payload includes the user who published the release, the release
     /// timestamp, and checksums for the distribution file, as defined by [RFC

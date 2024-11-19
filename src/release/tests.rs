@@ -297,9 +297,9 @@ fn run_merge_case(
     expect: &Value,
 ) -> Result<(), Error> {
     let patch = certs();
-    let mut meta = vec![orig, &patch];
+    let mut meta = vec![orig.clone(), patch];
     for p in patches {
-        meta.push(p);
+        meta.push(p.clone());
     }
     match Release::try_from(meta.as_slice()) {
         Err(e) => panic!("patching {name} failed: {e}"),
@@ -335,15 +335,15 @@ fn test_try_merge_err() -> Result<(), Error> {
         ("no meta", vec![], "meta contains no values"),
         (
             "no version",
-            vec![&empty],
+            vec![empty],
             "cannot determine meta-spec version",
         ),
         (
             "bad version",
-            vec![&bad_version],
+            vec![bad_version],
             "cannot determine meta-spec version",
         ),
-        ("invalid", vec![&invalid], "missing properties 'version'"),
+        ("invalid", vec![invalid], "missing properties 'version'"),
     ] {
         match Release::try_from(arg.as_slice()) {
             Ok(_) => panic!("patching {name} unexpectedly succeeded"),

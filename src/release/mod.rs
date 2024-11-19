@@ -150,7 +150,7 @@ impl ReleasePayload {
 /**
 
 Represents metadata for a PGXN release, which is the same as [`Distribution`]
-plus [`ReleaseJws`] that contains signed metadata about the release to PGXN.
+plus [`ReleasePayload`] that contains signed metadata about the release to PGXN.
 
 */
 #[derive(Serialize, PartialEq, Debug)]
@@ -368,7 +368,7 @@ impl TryFrom<Value> for Release {
     }
 }
 
-impl TryFrom<&[&Value]> for Release {
+impl TryFrom<&[Value]> for Release {
     type Error = Error;
     /// Merge multiple PGXN release `META.json` data from `meta` into a
     /// [`Release`]. Returns an error if `meta` is invalid.
@@ -409,7 +409,7 @@ impl TryFrom<&[&Value]> for Release {
     /// });
     ///
     /// let patch = json!({"license": "MIT"});
-    /// let all_meta = [&meta_json, &patch];
+    /// let all_meta = [meta_json, patch];
     ///
     /// let meta = Release::try_from(&all_meta[..]);
     /// assert!(meta.is_ok());
@@ -417,17 +417,17 @@ impl TryFrom<&[&Value]> for Release {
     /// ```
     ///
     /// [RFC 7396]: https:///www.rfc-editor.org/rfc/rfc7396.html
-    fn try_from(meta: &[&Value]) -> Result<Self, Self::Error> {
+    fn try_from(meta: &[Value]) -> Result<Self, Self::Error> {
         if meta.is_empty() {
             return Err(Error::Param("meta contains no values"));
         }
 
         // Find the version of the first doc.
-        let version = util::get_version(meta[0]).ok_or_else(|| Error::UnknownSpec)?;
+        let version = util::get_version(&meta[0]).ok_or_else(|| Error::UnknownSpec)?;
 
         // Convert the first doc to v2 if necessary.
         let mut v2 = match version {
-            1 => v1::to_v2(meta[0])?,
+            1 => v1::to_v2(&meta[0])?,
             2 => meta[0].clone(),
             _ => unreachable!(),
         };

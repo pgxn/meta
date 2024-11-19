@@ -214,9 +214,9 @@ fn run_merge_case(
     patches: &[Value],
     expect: &Value,
 ) -> Result<(), Error> {
-    let mut meta = vec![orig];
+    let mut meta = vec![orig.clone()];
     for p in patches {
-        meta.push(p);
+        meta.push(p.clone());
     }
     match Distribution::try_from(meta.as_slice()) {
         Err(e) => panic!("patching {name} failed: {e}"),
@@ -252,17 +252,17 @@ fn test_try_merge_err() -> Result<(), Error> {
         ("no meta", vec![], "meta contains no values"),
         (
             "no version",
-            vec![&empty],
+            vec![empty],
             "cannot determine meta-spec version",
         ),
         (
             "bad version",
-            vec![&bad_version],
+            vec![bad_version],
             "cannot determine meta-spec version",
         ),
         (
             "invalid",
-            vec![&invalid],
+            vec![invalid],
             "jsonschema validation failed with https://pgxn.org/meta/v2/distribution.schema.json#\n- at '': missing properties 'version'",
         ),
     ] {
@@ -404,7 +404,7 @@ fn test_try_merge_partman() -> Result<(), Error> {
     });
 
     // Apply the patch.
-    let meta = [&original_meta, &patch];
+    let meta = [original_meta, patch];
     match Distribution::try_from(&meta[..]) {
         Err(e) => panic!("patching part man failed: {e}"),
         Ok(dist) => {
