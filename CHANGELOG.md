@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.5.2] — 2025-01-07
+
+### 📔 Notes
+
+*   Upgraded all dependencies, including [boon] v0.6.1, which mitigates
+    vulnerabilities.
+
+  [v0.5.2]: https://github.com/pgxn/meta/compare/v0.5.1...v0.5.2
+  [boon]: https://github.com/santhosh-tekuri/boon
+
 ## [v0.5.1] — 2024-11-15
 
 ### 📔 Notes
