@@ -9,17 +9,18 @@ All notable changes to this project will be documented in this file. It uses the
 
 ## [v0.5.2] — 2025-01-07
 
-### 📔 Notes
+### ⬆️ Dependency Updates
 
 *   Upgraded all dependencies, including [boon] v0.6.1, which mitigates
     vulnerabilities.
+*   Upgraded all other dependencies
 
   [v0.5.2]: https://github.com/pgxn/meta/compare/v0.5.1...v0.5.2
   [boon]: https://github.com/santhosh-tekuri/boon
 
 ## [v0.5.1] — 2024-11-15
 
-### 📔 Notes
+### ⬆️ Dependency Updates
 
 *   Updated all dependencies.
 
@@ -74,6 +75,9 @@ The theme of this release is *JSON Web Signatures.*
 *   The [release] interface has changed with the new data structures. The
     [JWS-JS] data added in v0.3.0 has been replaced with [RFC 7515]-standard
     [JSON Serialization].
+
+### ⬆️ Dependency Updates
+
 *   Upgraded to [json-patch] v3.0 and updated all other dependencies.
 
   [v0.4.0]: https://github.com/pgxn/meta/compare/v0.3.0...v0.4.0
