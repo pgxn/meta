@@ -218,7 +218,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          name: "Relelase ${{ env.VERSION }}"
+          name: "Release ${{ env.VERSION }}"
           files: "pgxn_meta-*"
           body_path: ${{ steps.notes.outputs.file }}
         if: matrix.toolchain == 'stable' && startsWith( github.ref, 'refs/tags/v' )
