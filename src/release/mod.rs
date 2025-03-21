@@ -63,7 +63,7 @@ impl Digests {
     /// Validates `path` against one or more of the digests. Returns an error
     /// on validation failure.
     pub fn validate<P: AsRef<Path>>(&self, path: P) -> Result<(), Error> {
-        info!(archive:?=path.as_ref().file_name().unwrap_or_else(|| OsStr::new("archive")); "Validating");
+        info!(archive=path.as_ref().file_name().unwrap_or_else(|| OsStr::new("archive")).to_str(); "Validating");
         self._validate(File::open(path)?)
     }
 
