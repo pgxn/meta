@@ -23,7 +23,7 @@ use hex;
 use log::info;
 use serde::{de, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
-use std::{borrow::Borrow, collections::HashMap, fs::File, io, path::Path};
+use std::{borrow::Borrow, collections::HashMap, ffi::OsStr, fs::File, io, path::Path};
 
 mod v1;
 mod v2;
@@ -63,7 +63,7 @@ impl Digests {
     /// Validates `path` against one or more of the digests. Returns an error
     /// on validation failure.
     pub fn validate<P: AsRef<Path>>(&self, path: P) -> Result<(), Error> {
-        info!(archive:?=path.as_ref().file_name(); "Validating");
+        info!(archive:?=path.as_ref().file_name().unwrap_or_else(|| OsStr::new("archive")); "Validating");
         self._validate(File::open(path)?)
     }
 
