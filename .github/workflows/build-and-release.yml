@@ -157,7 +157,7 @@ jobs:
         uses: houseabsolute/actions-rust-cross@v0
         with:
           command: build
-          cross-version: 7b79041 # Until upgrade from 0.2.5 to support solaris-amd64
+          cross-version: a9b43d4 # Until upgrade from 0.2.5 to support solaris-amd64
           target: ${{ matrix.platform.target }}
           toolchain: ${{ matrix.toolchain }}
           args: "--locked --release"
@@ -166,7 +166,7 @@ jobs:
         uses: houseabsolute/actions-rust-cross@v0
         with:
           command: test
-          cross-version: 7b79041 # Until upgrade from 0.2.5 to support solaris-amd64
+          cross-version: a9b43d4 # Until upgrade from 0.2.5 to support solaris-amd64
           target: ${{ matrix.platform.target }}
           toolchain: ${{ matrix.toolchain }}
           args: "--locked --release"
