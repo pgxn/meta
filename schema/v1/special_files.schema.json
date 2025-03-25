@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/special_files.schema.json",
+  "title": "Special Files",
+  "type": "array",
+  "items": { "$ref": "path.schema.json" },
+  "description": "Lists the paths to special files in the distribution, such as `Changes`, `README`, `INSTALL`, `License`, and others.",
+  "minItems": 1,
+  "uniqueItems": true,
+  "examples": [["Changes", "README.md", "META.json", "Makefile"]]
+}

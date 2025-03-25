@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
-## [v0.6.0] — Unreleased
+## [v0.6.0] — 2025-03-25
 
 ### ⬆️ Dependency Updates
 
@@ -17,13 +17,23 @@ All notable changes to this project will be documented in this file. It uses the
 
 *   Added basic logging for schema validation, digest validation, and JWS
     validation.
+*   Extended the v1 Release schema to include the properties added by the [API
+    Server Meta API]. However, these properties are not currently available
+    via accessors, as the v2 schema does not (yet) define equivalents.
+*   Improved validation of v1 schema paths to ensure they always use Unix
+    conventions and don't point to files outside a distribution.
 
-### 📔 Notes
+### 🏗️ Build Setup
 
-*   Upgraded [Cross] and and the Binary build workers.
+*   Upgraded [Cross] and and the binary build workers.
+*   Dropped the Solaris build pending [support for Solaris 11].
 
   [v0.6.0]: https://github.com/pgxn/meta/compare/v0.5.2...v0.6.0
   [Cross]: https://github.com/cross-rs/cross/
+    "“Zero setup” cross compilation and “cross testing” of Rust crates
+  [API Server Meta API]: https://github.com/pgxn/pgxn-api/wiki/meta-api#api-server-structure
+  [support for Solaris 11]: https://github.com/cross-rs/cross/issues/1599
+    "cross-rs/cross#1599: Support Solaris 11"
 
 ## [v0.5.2] — 2025-01-07
 

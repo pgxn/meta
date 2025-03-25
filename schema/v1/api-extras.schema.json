@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/api-extras.schema.json",
+  "title": "API Extras",
+  "type": "object",
+  "description": "Additional properties added to distribution metadata by the [API Server Meta API](https://github.com/pgxn/pgxn-api/wiki/meta-api#api-server-structure).",
+  "properties": {
+    "docs": { "$ref": "docs.schema.json" },
+    "special_files": { "$ref": "special_files.schema.json" },
+    "releases": { "$ref": "releases.schema.json" }
+  }
+}

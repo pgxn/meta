@@ -6,9 +6,8 @@
   "type": "object",
   "properties": {
     "file": {
-      "type": "string",
-      "description": "The value must contain a relative file path from the root of the distribution to the file containing the extension. The path must be specified with unix conventions.",
-      "minLength": 1
+      "$ref": "path.schema.json",
+      "description": "The value must contain a relative file path from the root of the distribution to the file containing the extension. The path must be specified with unix conventions."
     },
     "version": {
       "$ref": "version.schema.json",
@@ -20,8 +19,12 @@
       "minLength": 1
     },
     "docfile": {
+      "$ref": "path.schema.json",
+      "description": "The value must contain a relative file path from the root of the distribution to the file containing documentation for the extension. The path must be specified with unix conventions."
+    },
+    "docpath": {
       "type": "string",
-      "description": "The value must contain a relative file path from the root of the distribution to the file containing documentation for the extension. The path must be specified with unix conventions.",
+      "description": "The path to the documentation file for the extension, sans file name suffix. Added by the [API Server Meta API](https://github.com/pgxn/pgxn-api/wiki/meta-api#api-server-structure).",
       "minLength": 1
     }
   },

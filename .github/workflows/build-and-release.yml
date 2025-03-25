@@ -14,6 +14,7 @@ jobs:
   release:
     name: ${{ matrix.platform.emoji }} ${{ matrix.platform.os_name }} 🦀 ${{ matrix.toolchain }}
     runs-on: ${{ matrix.platform.os }}
+    continue-on-error: ${{ matrix.toolchain == 'nightly' }}
     strategy:
       fail-fast: false
       matrix:

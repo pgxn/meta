@@ -255,3 +255,46 @@ pub fn test_schema_version(version: u8) -> Result<(), Error> {
 
     Ok(())
 }
+
+pub fn test_path(version: u8) -> Result<(), Error> {
+    // Load the schemas and compile the path schema.
+    let mut compiler = new_compiler(format!("schema/v{version}"))?;
+    let mut schemas = Schemas::new();
+    let id = id_for(version, "path");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    // Test valid paths.
+    for valid in [
+        json!("\\foo.md"),
+        json!("this\\and\\that.txt"),
+        json!("/absolute/path"),
+        json!("C:\\foo"),
+        json!("README.txt"),
+        json!(".git"),
+        json!("src/pair.c"),
+        json!(".github/workflows/"),
+        json!("this\\\\and\\\\that.txt"),
+    ] {
+        if let Err(e) = schemas.validate(&valid, idx) {
+            panic!("{} failed: {e}", valid);
+        }
+    }
+
+    // Test invalid paths.
+    for invalid in [
+        json!("../outside/path"),
+        json!("thing/../other"),
+        json!(null),
+        json!(""),
+        json!({}),
+        json!([]),
+        json!(true),
+        json!(null),
+        json!(42),
+    ] {
+        if schemas.validate(&invalid, idx).is_ok() {
+            panic!("{} unexpectedly passed!", invalid)
+        }
+    }
+    Ok(())
+}

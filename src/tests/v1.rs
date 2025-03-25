@@ -1,4 +1,4 @@
-use super::common::*;
+use super::common::{self, *};
 use crate::error::Error;
 use boon::Schemas;
 use serde_json::{json, Map, Value};
@@ -279,6 +279,21 @@ fn test_v1_provides() -> Result<(), Error> {
             "bare x_",
             json!({"x": {"file": "x.txt", "version": "1.0.0", "x_": 0}}),
         ),
+        (
+            "invalid file",
+            json!({"pgtap": {
+                "file": "../widget.sql",
+                "version": "0.26.0",
+            }}),
+        ),
+        (
+            "invalid docfile",
+            json!({"pgtap": {
+                "docfile": "../bar.txt",
+                "file": "widget.sql",
+                "version": "0.26.0",
+            }}),
+        ),
     ] {
         if schemas.validate(&invalid_provides.1, idx).is_ok() {
             panic!("{} unexpectedly passed!", invalid_provides.0)
@@ -319,6 +334,7 @@ fn test_v1_extension() -> Result<(), Error> {
                 "abstract": "This and that",
                 "file": "widget.sql",
                 "version": "0.26.0",
+                "docpath": "foo/bar",
             }),
         ),
         (
@@ -652,7 +668,7 @@ fn test_v1_no_index() -> Result<(), Error> {
             json!({"file": ["x.txt"], "directory": ".git"}),
         ),
         ("two files", json!({"file": ["x.txt", "y.md"]})),
-        ("two dirs", json!({"directory": ["x", "y"]})),
+        ("two dirs", json!({"directory": ["xx", "yy"]})),
         ("x_ field", json!({"file": ["x.txt"], "x_Y": 0})),
         ("X_ field", json!({"file": ["x.txt"], "X_y": 0})),
     ] {
@@ -684,6 +700,8 @@ fn test_v1_no_index() -> Result<(), Error> {
         ("dupe", json!({"file": ["x", "x"]})),
         ("dupe", json!({"dir": ["x", "x"]})),
         ("missing required", json!({"x_y": 0})),
+        ("invalid file path", json!({"file": ["../outside/path"]})),
+        ("invalid dir path", json!({"directory": ["../outside"]})),
     ] {
         if schemas.validate(&invalid_no_index.1, idx).is_ok() {
             panic!("{} unexpectedly passed!", invalid_no_index.0)
@@ -2049,7 +2067,7 @@ fn test_v1_release() -> Result<(), Error> {
     let dist_id = id_for(SCHEMA_VERSION, "distribution");
     let dist_idx = compiler.compile(&dist_id, &mut schemas)?;
 
-    // Now try it with various release metadata.
+    // Try it with various release metadata and API release metadata.
     for (name, release_meta) in [
         (
             "all release fields",
@@ -2065,6 +2083,21 @@ fn test_v1_release() -> Result<(), Error> {
               "user": "okbob",
               "date": "2019-09-23T17:16:45Z",
               "sha1": "0389be689af6992b4da520ec510d147bae411e8b",
+            }),
+        ),
+        (
+            "add api fields",
+            json!({
+              "user": "bubba",
+              "date": "2025-03-25T19:52:53Z",
+              "sha1": "aab3bb21ae1d8254d145806e1ebc370d8600d9a3",
+              "docs": {"README": { "title": "pgTAP 0.25.0" }},
+              "special_files": ["Changes"],
+              "releases": {
+                "stable": [
+                  { "version": "0.25.0", "date": "2024-09-12T20:39:11Z" },
+                ],
+              },
             }),
         ),
     ] {
@@ -2329,6 +2362,25 @@ fn test_v1_release() -> Result<(), Error> {
             }),
             "missing properties 'version'",
         ),
+        (
+            "invalid special_files",
+            json!({"special_files": ["../outside/path"]}),
+            "'../outside/path' is not valid path",
+        ),
+        (
+            "invalid docs",
+            json!({"docs": {"README": {"no_title": "hello"}}}),
+            "missing properties 'title'",
+        ),
+        (
+            "invalid release",
+            json!({
+              "releases": {
+                "stable": [ { "version": "0.25.0" } ],
+              },
+            }),
+            " missing properties 'date'",
+        ),
     ] {
         // Merge the release metadata; the release schema should validate it.
         let mut meta = valid_distribution();
@@ -2339,5 +2391,369 @@ fn test_v1_release() -> Result<(), Error> {
         }
     }
 
+    Ok(())
+}
+
+#[test]
+fn test_v1_path() -> Result<(), Error> {
+    common::test_path(SCHEMA_VERSION)
+}
+
+#[test]
+fn test_v1_docs() -> Result<(), Error> {
+    // Load the schemas and compile the repository schema.
+    let mut compiler = new_compiler("schema/v1")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "docs");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        ("minimal", json!({ "README": { "title": "pgTAP 0.25.0" } })),
+        (
+            "with_abstract",
+            json!({ "README": { "title": "pgTAP 0.25.0", "abstract": "blah blah blah" } }),
+        ),
+        (
+            "multiple",
+            json!({
+                "README": { "title": "pgTAP 0.25.0" },
+                "doc/pgtap": { "title": "pgTAP 0.25.0 Documentation" }
+            }),
+        ),
+        (
+            "multiple_abstract",
+            json!({
+                "README": { "title": "pgTAP 0.25.0", "abstract": "Unit testing in PostgreSQL" },
+                "doc/pgtap": { "title": "pgTAP 0.25.0 Documentation", "abstract": "Unit testing in PostgreSQL" }
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("array", json!(["hi"])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("empty object", json!({})),
+        ("invalid docs", json!({"README": {"hi": "there"}})),
+        ("docs array", json!({"docs": ["hi"]})),
+        ("docs string", json!({"docs": "docs hi"})),
+        ("docs true", json!({"docs": true})),
+        ("docs false", json!({"docs": false})),
+        ("docs null", json!({"docs": null})),
+        ("docs number", json!({"docs": 42})),
+        ("docs empty object", json!({"docs": {}})),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn test_v1_releases() -> Result<(), Error> {
+    // Load the schemas and compile the repository schema.
+    let mut compiler = new_compiler("schema/v1")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "releases");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        (
+            "one stable",
+            json!({
+              "stable": [
+                { "version": "0.25.0", "date": "2024-09-12T20:39:11Z" },
+              ]
+            }),
+        ),
+        (
+            "multiple stable",
+            json!({
+              "stable": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3" },
+                { "date": "2024-02-04T18:58:13Z", "version": "1.3.2" },
+              ]
+            }),
+        ),
+        (
+            "one unstable",
+            json!({
+              "unstable": [
+                { "version": "0.25.0", "date": "2024-09-12T20:39:11Z" },
+              ]
+            }),
+        ),
+        (
+            "multiple unstable",
+            json!({
+              "unstable": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3" },
+                { "date": "2024-02-04T18:58:13Z", "version": "1.3.2" },
+              ]
+            }),
+        ),
+        (
+            "one testing",
+            json!({
+              "testing": [
+                { "version": "0.25.0", "date": "2024-09-12T20:39:11Z" },
+              ]
+            }),
+        ),
+        (
+            "multiple testing",
+            json!({
+              "testing": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3" },
+                { "date": "2024-02-04T18:58:13Z", "version": "1.3.2" },
+              ]
+            }),
+        ),
+        (
+            "some of everything",
+            json!({
+              "stable": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3" },
+                { "date": "2024-02-04T18:58:13Z", "version": "1.3.2" },
+              ],
+              "unstable": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3" },
+                { "date": "2024-02-04T18:58:13Z", "version": "1.3.2" },
+              ],
+              "testing": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3" },
+                { "date": "2024-02-04T18:58:13Z", "version": "1.3.2" },
+              ]
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("array", json!([])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("empty object", json!({})),
+        (
+            "unknown key",
+            json!({"nonesuch": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3" },
+            ]}),
+        ),
+        (
+            "X key",
+            json!({"X_hi": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3" },
+            ]}),
+        ),
+        (
+            "x key",
+            json!({"x_hi": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3" },
+            ]}),
+        ),
+        ("invalid release", json!({"stable": {"hi": "there"}})),
+        (
+            "extra release field",
+            json!({
+              "testing": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3", "hi": true },
+              ]
+            }),
+        ),
+        (
+            "X release field",
+            json!({
+              "testing": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3", "X_hi": true },
+              ]
+            }),
+        ),
+        (
+            "x release field",
+            json!({
+              "testing": [
+                { "date": "2024-04-08T13:44:34Z", "version": "1.3.3", "x_hi": true },
+              ]
+            }),
+        ),
+        (
+            "no version",
+            json!({ "testing": [ { "date": "2024-04-08T13:44:34Z" } ] }),
+        ),
+        ("no date", json!({ "testing": [ { "version": "1.3.3" } ] })),
+        (
+            "invalid version",
+            json!({
+              "stable": [
+                { "version": "nope", "date": "2024-09-12T20:39:11Z" },
+              ]
+            }),
+        ),
+        (
+            "invalid date",
+            json!({
+              "stable": [
+                { "version": "0.25.0", "date": "2024-13-12T20:39:11Z" },
+              ]
+            }),
+        ),
+        ("releases string", json!({"stable": "releases hi"})),
+        ("releases true", json!({"stable": true})),
+        ("releases false", json!({"stable": false})),
+        ("releases null", json!({"stable": null})),
+        ("releases number", json!({"stable": 42})),
+        ("releases empty array", json!({"stable": {}})),
+        ("release array", json!({"stable": [[]]})),
+        ("release string", json!({"stable": ["hi"]})),
+        ("release true", json!({"stable": [true]})),
+        ("release false", json!({"stable": [false]})),
+        ("release null", json!({"stable": [null]})),
+        ("release number", json!({"stable": [42]})),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn test_v1_special_files() -> Result<(), Error> {
+    // Load the schemas and compile the repository schema.
+    let mut compiler = new_compiler("schema/v1")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "special_files");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        ("one file", json!(["Changes"])),
+        ("two files", json!(["Changes", "README.md"])),
+        (
+            "all files",
+            json!([
+                "Changes",
+                "ChangeLog",
+                "README.md",
+                "LICENSE.txt",
+                "INSTALL",
+                "COPYING.foo",
+                "AUTHORS.mmd",
+                "META.json",
+                "Makefile",
+                "GNUMakefile",
+                "MANIFEST",
+                "pair.control"
+            ]),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("empty array", json!([])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        ("object", json!({})),
+        ("dupe", json!(["Changes", "Changes"])),
+        ("invalid path", json!(["../outside/path"])),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn test_v1_api_extras() -> Result<(), Error> {
+    // Load the schemas and compile the repository schema.
+    let mut compiler = new_compiler("schema/v1")?;
+    let mut schemas = Schemas::new();
+    let id = id_for(SCHEMA_VERSION, "api-extras");
+    let idx = compiler.compile(&id, &mut schemas)?;
+
+    for (name, json) in [
+        ("empty object", json!({})),
+        (
+            "docs",
+            json!({"docs": {"README": { "title": "pgTAP 0.25.0" }}}),
+        ),
+        ("special_files", json!({"special_files": ["Changes"]})),
+        (
+            "releases",
+            json!({
+              "releases": {
+                "stable": [
+                  { "version": "0.25.0", "date": "2024-09-12T20:39:11Z" },
+                ],
+              },
+            }),
+        ),
+        (
+            "all three",
+            json!({
+              "docs": {"README": { "title": "pgTAP 0.25.0" }},
+              "special_files": ["Changes"],
+              "releases": {
+                "stable": [
+                  { "version": "0.25.0", "date": "2024-09-12T20:39:11Z" },
+                ],
+              },
+            }),
+        ),
+    ] {
+        if let Err(e) = schemas.validate(&json, idx) {
+            panic!("{name} failed: {e}");
+        }
+    }
+
+    for (name, json) in [
+        ("array", json!([])),
+        ("string", json!("hi")),
+        ("true", json!(true)),
+        ("false", json!(false)),
+        ("null", json!(null)),
+        ("number", json!(42)),
+        (
+            "invalid special_files",
+            json!({"special_files": ["../outside/path"]}),
+        ),
+        (
+            "invalid docs",
+            json!({"docs": {"README": {"no_title": "hello"}}}),
+        ),
+        (
+            "invalid release",
+            json!({
+              "releases": {
+                "stable": [ { "version": "0.25.0" } ],
+              },
+            }),
+        ),
+    ] {
+        if schemas.validate(&json, idx).is_ok() {
+            panic!("{name} unexpectedly passed!")
+        }
+    }
     Ok(())
 }

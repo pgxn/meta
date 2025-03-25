@@ -31,15 +31,13 @@
           "minItems": 1,
           "uniqueItems": true,
           "items": {
-            "type": "string",
-            "description": "Relative path in unix convention to a file to ignore.",
-            "minLength": 1
+            "$ref": "path.schema.json",
+            "description": "Relative path in unix convention to a file to ignore."
           }
         },
         {
-          "type": "string",
-          "description": "Relative path in unix convention to a file to ignore.",
-          "minLength": 1
+          "$ref": "path.schema.json",
+          "description": "Relative path in unix convention to a file to ignore."
         }
       ]
     }

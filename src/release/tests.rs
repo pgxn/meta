@@ -45,6 +45,13 @@ fn test_corpus() -> Result<(), Error> {
               "user": payload.user,
               "date": payload.date,
               "sha1": "0389be689af6992b4da520ec510d147bae411e8b",
+              "docs": {"README": { "title": "pgTAP 0.25.0" }},
+              "special_files": ["Changes"],
+              "releases": {
+                "stable": [
+                  { "version": "0.25.0", "date": "2024-09-12T20:39:11Z" },
+                ],
+              },
             }),
         ),
         (2, certs),

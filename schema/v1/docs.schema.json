@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pgxn.org/meta/v1/docs.schema.json",
+  "title": "Documentation",
+  "type": "object",
+  "description": "This property describes the documentation included a distribution. Only included in the [API Server Meta API](https://github.com/pgxn/pgxn-api/wiki/meta-api#api-server-structure).",
+  "propertyNames": { "type": "string" },
+  "minProperties": 1,
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "title": { "type": "string" },
+      "abstract": { "type": "string" }
+    },
+    "required": ["title"]
+  },
+  "examples": [
+    {
+      "README": {
+        "title": "pgTAP 0.25.0"
+      },
+      "doc/pgtap": {
+        "title": "pgTAP 0.25.0",
+        "abstract": "pgTAP Documentation"
+      }
+    }
+  ]
+}

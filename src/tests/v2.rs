@@ -54,46 +54,7 @@ fn test_v2_semver() -> Result<(), Error> {
 
 #[test]
 fn test_v2_path() -> Result<(), Error> {
-    // Load the schemas and compile the path schema.
-    let mut compiler = new_compiler("schema/v2")?;
-    let mut schemas = Schemas::new();
-    let id = id_for(SCHEMA_VERSION, "path");
-    let idx = compiler.compile(&id, &mut schemas)?;
-
-    // Test valid paths.
-    for valid in [
-        json!("\\foo.md"),
-        json!("this\\and\\that.txt"),
-        json!("/absolute/path"),
-        json!("C:\\foo"),
-        json!("README.txt"),
-        json!(".git"),
-        json!("src/pair.c"),
-        json!(".github/workflows/"),
-        json!("this\\\\and\\\\that.txt"),
-    ] {
-        if let Err(e) = schemas.validate(&valid, idx) {
-            panic!("{} failed: {e}", valid);
-        }
-    }
-
-    // Test invalid paths.
-    for invalid in [
-        json!("../outside/path"),
-        json!("thing/../other"),
-        json!(null),
-        json!(""),
-        json!({}),
-        json!([]),
-        json!(true),
-        json!(null),
-        json!(42),
-    ] {
-        if schemas.validate(&invalid, idx).is_ok() {
-            panic!("{} unexpectedly passed!", invalid)
-        }
-    }
-    Ok(())
+    test_path(SCHEMA_VERSION)
 }
 
 #[test]
