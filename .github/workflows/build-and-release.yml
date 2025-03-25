@@ -20,69 +20,69 @@ jobs:
         # https://github.com/cross-rs/cross#supported-targets
         platform:
           - os_name: freebsd-amd64
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: x86_64-unknown-freebsd
             bin: pgxn_meta
             emoji: 😈
             skip_tests: true
           - os_name: freebsd-i686
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: i686-unknown-freebsd
             bin: pgxn_meta
             emoji: 😈
             skip_tests: true
           - os_name: linux-amd64
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: x86_64-unknown-linux-musl
             bin: pgxn_meta
             emoji: 🐧
           - os_name: linux-arm64
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: aarch64-unknown-linux-musl
             bin: pgxn_meta
             emoji: 🐧
           - os_name: linux-arm
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: arm-unknown-linux-musleabi
             bin: pgxn_meta
             emoji: 🐧
           - os_name: linux-i686
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: i686-unknown-linux-musl
             bin: pgxn_meta
             emoji: 🐧
           - os_name: linux-powerpc
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: powerpc-unknown-linux-gnu
             bin: pgxn_meta
             emoji: 🐧
           - os_name: linux-powerpc64
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: powerpc64-unknown-linux-gnu
             bin: pgxn_meta
             emoji: 🐧
           - os_name: linux-powerpc64le
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: powerpc64le-unknown-linux-gnu
             bin: pgxn_meta
             emoji: 🐧
           - os_name: linux-riscv64
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: riscv64gc-unknown-linux-gnu
             bin: pgxn_meta
             emoji: 🐧
           - os_name: linux-s390x
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: s390x-unknown-linux-gnu
             bin: pgxn_meta
             emoji: 🐧
           - os_name: linux-sparc64
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: sparc64-unknown-linux-gnu
             bin: pgxn_meta
             emoji: 🐧
           - os_name: netbsd-amd64
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: x86_64-unknown-netbsd
             bin: pgxn_meta
             emoji: ⛳️
@@ -114,26 +114,26 @@ jobs:
             bin: pgxn_meta
             emoji: 🍎
           - os_name: illumos-amd64
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: x86_64-unknown-illumos
             bin: pgxn_meta
             emoji: 🐦‍🔥
             skip_tests: true
           - os_name: solaris-sparcv9
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: sparcv9-sun-solaris
             bin: pgxn_meta
             emoji: ☀️
             skip_tests: true
           - os_name: solaris-amd64
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             target: x86_64-pc-solaris
             bin: pgxn_meta
             emoji: ☀️
             skip_tests: true
           # Dragonfly: No std component available.
           # - os_name: dragonfly-amd64
-          #   os: ubuntu-20.04
+          #   os: ubuntu-24.04
           #   target: x86_64-unknown-dragonfly
           #   bin: pgxn_meta
           #   emoji: 🐉🪰
@@ -143,9 +143,9 @@ jobs:
           - beta
           - nightly
         exclude:
-          # Not sure why this is failing.
-          - toolchain: nightly
-            platform: { os_name: linux-arm64 }
+          # https://github.com/cross-rs/cross/issues/1599
+          - platform: { os_name: solaris-sparcv9 }
+          - platform: { os_name: solaris-amd64 }
     steps:
       - uses: actions/checkout@v4
       - name: Setup Cache
@@ -157,7 +157,7 @@ jobs:
         uses: houseabsolute/actions-rust-cross@v0
         with:
           command: build
-          cross-version: 7b79041 # Until upgrade from 0.2.5 to support solaris-amd64
+          cross-version: a9b43d4 # Until upgrade from 0.2.5 to support solaris-amd64
           target: ${{ matrix.platform.target }}
           toolchain: ${{ matrix.toolchain }}
           args: "--locked --release"
@@ -166,7 +166,7 @@ jobs:
         uses: houseabsolute/actions-rust-cross@v0
         with:
           command: test
-          cross-version: 7b79041 # Until upgrade from 0.2.5 to support solaris-amd64
+          cross-version: a9b43d4 # Until upgrade from 0.2.5 to support solaris-amd64
           target: ${{ matrix.platform.target }}
           toolchain: ${{ matrix.toolchain }}
           args: "--locked --release"

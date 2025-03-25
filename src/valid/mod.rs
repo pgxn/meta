@@ -39,6 +39,7 @@ assert!(validator.validate(&meta).is_ok());
 */
 use crate::{error::Error, util};
 use boon::{Compiler, Schemas};
+use log::debug;
 use serde_json::Value;
 
 /// Export compiler publicly only for tests.
@@ -138,6 +139,7 @@ impl Validator {
 
     fn validate_version_schema(&mut self, meta: &Value, v: u8, schema: &str) -> Result<(), Error> {
         let id = format!("{SCHEMA_BASE}{v}/{schema}");
+        debug!(schema:display=id;"validate");
 
         let compiler = &mut self.compiler;
         let schemas = &mut self.schemas;

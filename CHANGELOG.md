@@ -7,6 +7,24 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.6.0] — Unreleased
+
+### ⬆️ Dependency Updates
+
+*   Upgraded all dependencies.
+
+### ⚡ Improvements
+
+*   Added basic logging for schema validation, digest validation, and JWS
+    validation.
+
+### 📔 Notes
+
+*   Upgraded [Cross] and and the Binary build workers.
+
+  [v0.6.0]: https://github.com/pgxn/meta/compare/v0.5.2...v0.6.0
+  [Cross]: https://github.com/cross-rs/cross/
+
 ## [v0.5.2] — 2025-01-07
 
 ### ⬆️ Dependency Updates

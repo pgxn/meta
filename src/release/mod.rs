@@ -20,9 +20,10 @@ It supports both the [v1] and [v2] specs.
 use crate::{dist::*, error::Error, util};
 use chrono::{DateTime, Utc};
 use hex;
+use log::{debug, info};
 use serde::{de, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
-use std::{borrow::Borrow, collections::HashMap, fs::File, io, path::Path};
+use std::{borrow::Borrow, collections::HashMap, ffi::OsStr, fs::File, io, path::Path};
 
 mod v1;
 mod v2;
@@ -62,6 +63,7 @@ impl Digests {
     /// Validates `path` against one or more of the digests. Returns an error
     /// on validation failure.
     pub fn validate<P: AsRef<Path>>(&self, path: P) -> Result<(), Error> {
+        info!(archive=path.as_ref().file_name().unwrap_or_else(|| OsStr::new("archive")).to_str(); "Validating");
         self._validate(File::open(path)?)
     }
 
@@ -75,18 +77,21 @@ impl Digests {
         // Prefer SHA-512.
         if let Some(digest) = self.sha512() {
             compare(&mut file, digest, Sha512::new(), "SHA-512")?;
+            info!(sha512:display=hex::encode(digest); "✅");
             ok = true;
         }
 
         // Allow SHA-256.
         if let Some(digest) = self.sha256() {
             compare(&mut file, digest, Sha256::new(), "SHA-256")?;
+            info!(sha256:display=hex::encode(digest); "✅");
             ok = true;
         }
 
         // Fall back on SHA-1 for PGXN v1 distributions.
         if let Some(digest) = self.sha1() {
             compare(&mut file, digest, Sha1::new(), "SHA-1")?;
+            info!(sha1:display=hex::encode(digest); "✅");
             ok = true;
         }
 
@@ -177,6 +182,7 @@ impl<'de> Deserialize<'de> for Release {
             certs: HashMap<String, Value>,
         }
         let rel = ReleaseInitial::deserialize(deserializer)?;
+        debug!(release:display = format!("{}-{}", rel.dist.name(), rel.dist.version());"Deserialized");
 
         // Fetch the pgxn release JWS from the certs object.
         let Some(Value::Object(jws)) = rel.certs.get("pgxn") else {
@@ -197,6 +203,7 @@ impl<'de> Deserialize<'de> for Release {
         // Parse and validate the JSON.
         let pay = serde_json::from_slice(&json).map_err(de::Error::custom)?;
         let mut v = crate::valid::Validator::new();
+        debug!(release:display = format!("{}-{}", rel.dist.name(), rel.dist.version()); "Validate");
         v.validate_payload(&pay).map_err(de::Error::custom)?;
 
         // Decode the ReleasePayload and return the complete Release struct.

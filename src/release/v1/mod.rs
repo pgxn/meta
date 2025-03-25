@@ -27,7 +27,7 @@ pub fn from_value(v1: Value) -> Result<Release, Error> {
 /// adequate for v2 JSON Schema validation.
 fn v1_to_v2_release(v1: &Value) -> Result<Value, Error> {
     use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
-    use rand::distributions::{Alphanumeric, DistString};
+    use rand::distr::{Alphanumeric, SampleString};
 
     let mut field = "user";
     if let Some(Value::String(user)) = v1.get(field) {
@@ -53,7 +53,7 @@ fn v1_to_v2_release(v1: &Value) -> Result<Value, Error> {
                         let payload = URL_SAFE_NO_PAD.encode(&payload);
 
                         // Generate random base64-ish values to mock the signature.
-                        let mut rng = rand::thread_rng();
+                        let mut rng = rand::rng();
                         return Ok(json!({
                           "pgxn": {
                             "payload": payload,
