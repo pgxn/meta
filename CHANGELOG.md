@@ -30,7 +30,7 @@ All notable changes to this project will be documented in this file. It uses the
 
   [v0.6.0]: https://github.com/pgxn/meta/compare/v0.5.2...v0.6.0
   [Cross]: https://github.com/cross-rs/cross/
-    "“Zero setup” cross compilation and “cross testing” of Rust crates
+    "“Zero setup” cross compilation and “cross testing” of Rust crates"
   [API Server Meta API]: https://github.com/pgxn/pgxn-api/wiki/meta-api#api-server-structure
   [support for Solaris 11]: https://github.com/cross-rs/cross/issues/1599
     "cross-rs/cross#1599: Support Solaris 11"
