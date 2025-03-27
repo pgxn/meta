@@ -76,7 +76,7 @@ fn test_v2_glob() -> Result<(), Error> {
         json!("foo.?tml"),
         json!("[xX]_*.*"),
         json!("[a-z]*.txt"),
-        json!("this\\\\and\\\\that.txt"),
+        json!("**/*.(?i){jpg,jpeg,png}"),
     ] {
         if let Err(e) = schemas.validate(&valid, idx) {
             panic!("{} failed: {e}", valid);
@@ -86,6 +86,8 @@ fn test_v2_glob() -> Result<(), Error> {
     // Test invalid globs.
     for invalid in [
         json!("this\\and\\that.txt"),
+        json!("/src/../pair.c"),
+        json!("../outside/path"),
         json!(null),
         json!(""),
         json!("C:\\foo"),
@@ -1346,10 +1348,6 @@ fn test_v2_ignore() -> Result<(), Error> {
         ("foo.?tml", json!(["foo.?tml"])),
         ("[xX]_*.*", json!(["[xX]_*.*"])),
         ("[a-z]*.txt", json!(["[a-z]*.txt"])),
-        (
-            "this\\\\and\\\\that.txt",
-            json!(["this\\\\and\\\\that.txt"]),
-        ),
         (
             "multiple files",
             json!(["ignore_me.txt", "*.tmp", ".git*",]),
