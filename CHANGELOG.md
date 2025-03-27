@@ -7,6 +7,20 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
+## [v0.6.1] — Unreleased
+
+### ⚡ Improvements
+
+*   Added a limit to the number of tags in the v2 schema to 32.
+*   Added glob format and validation using [wax].
+*   Disallow parent directory components (`..`) in globs (already disallowed
+    in paths)
+*   Disallow current directory components (`.`) in paths and globs except at
+    the start of the expression (e.g., `./README`).
+
+  [v0.6.1]: https://github.com/pgxn/meta/compare/v0.6.0...v0.6.1
+  [wax]: https://crates.io/crates/wax
+
 ## [v0.6.0] — 2025-03-25
 
 ### ⬆️ Dependency Updates

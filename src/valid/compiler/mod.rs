@@ -27,13 +27,17 @@ pub fn new() -> Compiler {
 }
 
 /// Creates a new boon::compiler with format assertions enabled and validation
-/// for the custom `path` and `license` formats.
+/// for the custom `path`, `glob`, and `license` formats.
 pub fn spec_compiler() -> Compiler {
     let mut compiler = Compiler::new();
     compiler.enable_format_assertions();
     compiler.register_format(boon::Format {
         name: "path",
         func: is_path,
+    });
+    compiler.register_format(boon::Format {
+        name: "glob",
+        func: is_glob,
     });
     compiler.register_format(boon::Format {
         name: "license",
@@ -46,11 +50,26 @@ pub fn spec_compiler() -> Compiler {
 fn is_path(v: &Value) -> Result<(), Box<dyn std::error::Error>> {
     let Value::String(s) = v else { return Ok(()) };
 
-    let path = RelativePath::new(s);
+    let path = RelativePath::new(s.strip_prefix("./").unwrap_or(s));
     for c in path.components() {
-        if c == Component::ParentDir {
-            Err("references parent dir")?
-        };
+        match c {
+            Component::ParentDir => Err("references parent directory")?,
+            Component::CurDir => Err("references current directory")?,
+            _ => (),
+        }
+    }
+
+    Ok(())
+}
+
+/// Returns an error if v is not a valid glob.
+fn is_glob(v: &Value) -> Result<(), Box<dyn std::error::Error>> {
+    let Value::String(s) = v else { return Ok(()) };
+
+    // XXX Use https://docs.rs/glob/latest/glob/struct.Pattern.html instead?
+    let path = wax::Glob::new(s.strip_prefix("./").unwrap_or(s))?;
+    if path.has_semantic_literals() {
+        Err("references parent or current directory")?
     }
 
     Ok(())
@@ -77,6 +96,7 @@ mod tests {
             json!("\\foo.md"),
             json!("this\\and\\that.txt"),
             json!("/absolute/path"),
+            json!("./relative/path"),
             json!(""),
             json!("C:\\foo"),
             json!("README.txt"),
@@ -92,16 +112,61 @@ mod tests {
 
         // Test invalid paths.
         for (name, invalid, err) in [
-            ("parent", json!("../outside/path"), "references parent dir"),
+            (
+                "parent",
+                json!("../outside/path"),
+                "references parent directory",
+            ),
+            (
+                "current",
+                json!("/./outside/path"),
+                "references current directory",
+            ),
             (
                 "sub parent",
                 json!("thing/../other"),
-                "references parent dir",
+                "references parent directory",
             ),
         ] {
             match is_path(&invalid) {
                 Ok(_) => panic!("{name} unexpectedly passed!"),
                 Err(e) => assert_eq!(err, e.to_string(), "{name}"),
+            }
+        }
+    }
+
+    #[test]
+    fn test_glob() {
+        // Test valid globs.
+        for valid in [
+            json!(".gitignore"),
+            json!(".git*"),
+            json!("/git*"),
+            json!("./git*"),
+            json!(""),
+            json!("README.*"),
+            json!("**/*.(?i){jpg,jpeg}"),
+            json!("**/{*.{go,rs}}"),
+            json!("src/**/*.rs"),
+        ] {
+            if let Err(e) = is_glob(&valid) {
+                panic!("{} failed: {e}", valid);
+            }
+        }
+
+        // Test invalid paths.
+        for (name, invalid) in [
+            ("parent", json!("../*.c")),
+            ("current", json!("/./*.c")),
+            ("sub parent", json!("/**/../passwd")),
+        ] {
+            match is_glob(&invalid) {
+                Ok(_) => panic!("{name} unexpectedly passed!"),
+                Err(e) => assert_eq!(
+                    "references parent or current directory",
+                    e.to_string(),
+                    "{name}"
+                ),
             }
         }
     }
@@ -163,7 +228,7 @@ mod tests {
     fn test_spec_compiler() -> Result<(), Error> {
         let mut c = spec_compiler();
         let id = "format";
-        // Compile simple schema to validate license and path.
+        // Compile simple schema to validate license, path, and glob.
         c.add_resource(
             id,
             json!({
@@ -172,6 +237,10 @@ mod tests {
                     "path": {
                         "type": "string",
                         "format": "path",
+                    },
+                    "glob": {
+                        "type": "string",
+                        "format": "glob",
                     },
                     "license": {
                         "type": "string",
@@ -198,7 +267,12 @@ mod tests {
             (
                 "parent path",
                 json!({"path": "../foo"}),
-                "'../foo' is not valid path: references parent dir",
+                "'../foo' is not valid path: references parent directory",
+            ),
+            (
+                "parent glob",
+                json!({"glob": "../*.c"}),
+                "'../*.c' is not valid glob: references parent or current directory",
             ),
         ] {
             match schemas.validate(&json, idx) {

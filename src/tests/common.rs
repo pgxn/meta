@@ -200,6 +200,14 @@ pub fn test_tags_schema(mut compiler: Compiler, version: u8) -> Result<(), Error
         }
     }
 
+    if version > 1 {
+        let strings: [String; 33] = core::array::from_fn(|i| format!("string {i}"));
+        let val = serde_json::to_value(&strings[..]).unwrap();
+        if schemas.validate(&val, idx).is_ok() {
+            panic!("too many tags unexpectedly passed!")
+        }
+    }
+
     Ok(())
 }
 
