@@ -21,7 +21,7 @@ pub enum Error {
     /// JSON Schema compile error.
     #[error(transparent)]
     #[allow(clippy::enum_variant_names)]
-    CompileError(#[from] boon::CompileError),
+    CompileError(Box<boon::CompileError>),
 
     /// JSON Schema validation error.
     #[error("{0}")]
@@ -60,6 +60,13 @@ pub enum Error {
 impl<'s, 'v> From<boon::ValidationError<'s, 'v>> for Error {
     fn from(value: boon::ValidationError<'s, 'v>) -> Self {
         Self::ValidationError(value.to_string())
+    }
+}
+
+// Box compiler errors.
+impl From<boon::CompileError> for Error {
+    fn from(value: boon::CompileError) -> Self {
+        Self::CompileError(Box::new(value))
     }
 }
 

@@ -149,25 +149,27 @@ jobs:
           - platform: { os_name: solaris-amd64 }
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Cache
-        uses: Swatinem/rust-cache@v2
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Install musl-tools on Linux
         run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
         if: contains(matrix.platform.name, 'musl')
       - name: Build Binary
         uses: houseabsolute/actions-rust-cross@v0
+        env: { RUSTFLAGS: "" } # https://github.com/cross-rs/cross/issues/1561#issuecomment-2452722224
         with:
           command: build
-          cross-version: a9b43d4 # Until upgrade from 0.2.5 to support solaris-amd64
+          cross-version: 51f46f2 # Until upgrade from 0.2.5
           target: ${{ matrix.platform.target }}
           toolchain: ${{ matrix.toolchain }}
           args: "--locked --release"
           strip: true
       - name: Run Tests
         uses: houseabsolute/actions-rust-cross@v0
+        env: { RUSTFLAGS: "" } # https://github.com/cross-rs/cross/issues/1561#issuecomment-2452722224
         with:
           command: test
-          cross-version: a9b43d4 # Until upgrade from 0.2.5 to support solaris-amd64
+          cross-version: 51f46f2 # Until upgrade from 0.2.5
           target: ${{ matrix.platform.target }}
           toolchain: ${{ matrix.toolchain }}
           args: "--locked --release"

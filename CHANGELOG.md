@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. It uses the
   [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
     "Semantic Versioning 2.0.0"
 
-## [v0.6.1] — Unreleased
+## [v0.7.0] — Unreleased
 
 ### ⚡ Improvements
 
@@ -17,6 +17,14 @@ All notable changes to this project will be documented in this file. It uses the
     in paths)
 *   Disallow current directory components (`.`) in paths and globs except at
     the start of the expression (e.g., `./README`).
+*   Reduced the memory overhead of compiler errors, as recommended by recent
+    warnings from the Rust linter (clippy).
+*   Updated the release configuration to reduce the size of the release
+    binary by around 50%.
+
+### ⬆️ Dependency Updates
+
+*   Upgraded all dependencies.
 
   [v0.6.1]: https://github.com/pgxn/meta/compare/v0.6.0...v0.6.1
   [wax]: https://crates.io/crates/wax

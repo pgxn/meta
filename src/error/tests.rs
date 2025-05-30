@@ -63,7 +63,7 @@ fn serde() {
 #[test]
 fn io() {
     use std::io;
-    let io_error = io::Error::new(io::ErrorKind::Other, "oh no!");
+    let io_error = io::Error::other("oh no!");
     let exp = io_error.to_string();
     let err: Error = io_error.into();
     assert!(matches!(err, Error::Io { .. }));

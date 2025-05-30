@@ -20,9 +20,9 @@ docs: target/doc/pgxn_meta/index.html
 
 .PHONY: update-deps # Update dependencies to the latest versions.
 update-deps:
+	@cargo install cargo-edit
 	@cargo upgrade -i allow --recursive true
-	@cargo update
-	@cargo update
+	@cargo update --recursive
 
 target/doc/pgxn_meta/index.html: $(shell find . -name \*.rs)
 	cargo doc

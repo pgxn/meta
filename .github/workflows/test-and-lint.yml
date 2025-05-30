@@ -13,10 +13,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Rust Cache
-        uses: Swatinem/rust-cache@v2
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rust-lang/setup-rust-toolchain@v1
         with: { toolchain: "${{ matrix.toolchain }}" }
       - name: Test
         run: make test
@@ -27,10 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup Rust Cache
-        uses: Swatinem/rust-cache@v2
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.1
       - uses: actions-rust-lang/audit@v1
@@ -41,7 +37,6 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: pgxn/meta
           files: target/cover/coveralls
       - name: Clear Badge Cache
         uses: kevincobain2000/action-camo-purge@v1
