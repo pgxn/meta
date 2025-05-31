@@ -132,18 +132,18 @@ jobs:
             bin: pgxn_meta
             emoji: ☀️
             skip_tests: true
-          # Dragonfly: No std component available.
-          # - os_name: dragonfly-amd64
-          #   os: ubuntu-24.04
-          #   target: x86_64-unknown-dragonfly
-          #   bin: pgxn_meta
-          #   emoji: 🐉🪰
-          #   skip_tests: true
+          - os_name: dragonfly-amd64
+            os: ubuntu-24.04
+            target: x86_64-unknown-dragonfly
+            bin: pgxn_meta
+            emoji: 🐉🪰
+            skip_tests: true
         toolchain:
           - stable
           - beta
           - nightly
         exclude:
+          - platform: { os_name: dragonfly-amd64 } # No std component.
           # https://github.com/cross-rs/cross/issues/1599
           - platform: { os_name: solaris-sparcv9 }
           - platform: { os_name: solaris-amd64 }
