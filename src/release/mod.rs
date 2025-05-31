@@ -31,7 +31,7 @@ mod v2;
 /// Digests represents Hash digests for a file that can be used to verify its
 /// integrity.
 #[serde_with::serde_as]
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)] // No idea why grcov reports Deserialize as uncovered.
 pub struct Digests {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde_as(as = "Option<serde_with::hex::Hex>")]

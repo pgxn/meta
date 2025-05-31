@@ -63,7 +63,6 @@ impl<'s, 'v> From<boon::ValidationError<'s, 'v>> for Error {
     }
 }
 
-// Box compiler errors.
 impl From<boon::CompileError> for Error {
     fn from(value: boon::CompileError) -> Self {
         Self::CompileError(Box::new(value))

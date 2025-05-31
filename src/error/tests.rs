@@ -34,7 +34,7 @@ fn compile() {
     let exp = compile_err.to_string();
     let err: Error = compile_err.into();
     assert!(matches!(err, Error::CompileError { .. }));
-    assert_eq!(exp, err.to_string(),);
+    assert_eq!(exp, err.to_string());
 }
 
 #[test]
